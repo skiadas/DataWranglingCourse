@@ -5,7 +5,7 @@ A week-by-week breakdown of the material.
 ## Week  1 (09/05-09/09)
 
 - Day 1
-    - Introduction, case studies
+    - [Introduction, case studies](notes/intro.md)
 - Day 2
     - Data formats 1 (tabular, JSON)
 - Day 3
