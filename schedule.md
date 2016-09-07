@@ -7,7 +7,7 @@ A week-by-week breakdown of the material.
 - Day 1
     - [Introduction, case studies](notes/intro.md)
 - Day 2
-    - Data formats 1 (tabular, JSON)
+    - [Data Formats](notes/data_formats.md)
 - Day 3
     - Data formats 2 (HTML, XML)
     - Assignment 1: Reading and writing data
