@@ -8,6 +8,7 @@
 - [Brief explanation of ASCII and Unicode encodings](http://net-informations.com/q/faq/encoding.html)
 - [ASCII Table](http://www.asciitable.com/)
 - [UTF FAQ](http://unicode.org/faq/utf_bom.html)
+- [Unicode Map](http://www.unicodemap.org/)
 - [Python's Unicode support](https://docs.python.org/3/howto/unicode.html)
 - [JSON's description](http://json.org/)
 - [Twitter's Rest API](https://dev.twitter.com/rest/public)
