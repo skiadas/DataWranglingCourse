@@ -29,6 +29,7 @@
 - What number representations does JSON allow?
 - Does JSON allow boolean values?
 - True or False: All whitespace in a JSON document is ignored
+- Is a web page an XML document?
 
 ## Notes
 
@@ -63,7 +64,7 @@ UTF-8 is by far the most commonly used encoding. Almost every resource you find 
 
 ### Data Formats
 
-The resulting textual data might be in any number of different formats. Being able to read and process all (most) of these formats is paramount, and most programming languages offer ready access via numerous libraries.
+The resulting textual data might be in any number of different formats. Being able to read and process all (most) of these formats is paramount, and most programming languages offer ready access via numerous libraries. Here is just a small collection of the different formats that your data might come in.
 
 Binary
   ~ While we will discuss mostly text formats, it is worth mentioning that, especially in the past, data was often communicated via an ad-hoc, often proprietary, format that is rarely human-readable. This was done partly to save space, but the practice is somewhat more rare nowadays. Most image data is still communicated in this form however.

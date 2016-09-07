@@ -17,8 +17,9 @@ A week-by-week breakdown of the material.
 - Day 1
     - Introduction to Web APIs and Web Services.
 - Day 2
-    - Web API case study
+    - Communication Protocols. HTTP, REST
 - Day 3
+    - Authorization and OAuth2
     - Assignment 2: Querying an API
 
 ## Week  3 (09/19-09/23)
