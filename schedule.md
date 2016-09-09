@@ -9,8 +9,8 @@ A week-by-week breakdown of the material.
 - Day 2
     - [Data Formats](notes/data_formats.md)
 - Day 3
-    - Data formats 2 (HTML, XML)
-    - Assignment 1: Reading and writing data
+    - [Reading JSON from Python](notes/json_python.md)
+    - [Assignment 1: Working with JSON data](assignments/1.md)
 
 ## Week  2 (09/12-09/16)
 

@@ -39,7 +39,7 @@ page = 'search/tweets.json'
 
 # Depending on the query we are interested in, we append the necessary string
 # As you read through the twitter API, you'll find more possibilities
-req_url = base_url + page + '?q=Hanover+College&count=100'
+req_url = base_url + page + '?q=%40HanoverCollege'
 
 # We perform a request. Contains standard HTTP information
 response = oauth.get(req_url)
@@ -48,19 +48,3 @@ response = oauth.get(req_url)
 results = json.loads(response.content.decode('utf-8'))
 
 ## Process the results
-## CAUTION: The following code will attempt to read up to 10000 tweets that
-## Mention Hanover College. You should NOT change this code.
-tweets = results['statuses']
-while True:
-   if not ('next_results' in results['search_metadata']):
-      break
-   if len(tweets) > 10000:
-      break
-   next_search = base_url + page + results['search_metadata']['next_results']
-   print(results['search_metadata']['next_results'])
-   response = oauth.get(next_search)
-   results = json.loads(response.content.decode('utf-8'))
-   tweets.extend(results['statuses'])
-
-## CAUTION: For the rest of this assignment, the list "tweets" contains all the
-## tweets you would want to work with. Do NOT change the list or the value of "tweets".

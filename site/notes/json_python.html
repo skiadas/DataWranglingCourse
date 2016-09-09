@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="data-formats">Data Formats</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="http://json.org/">JSON's description</a></li>
+<li><a href="https://dev.twitter.com/rest/public">Twitter's Rest API</a></li>
+<li><a href="https://docs.python.org/3/library/json.html">Python's JSON support</a></li>
+<li><a href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">Python Dictionaries</a></li>
+<li><a href="https://docs.python.org/3/library/stdtypes.html#typesmapping">More docs on Python Dictionaries</a></li>
+<li><a href="https://docs.python.org/2/tutorial/datastructures.html#tut-listcomps">List comprehensions</a> for processing lists</li>
+<li><a href="https://dev.twitter.com/rest/reference/get/search/tweets">Twitter's search/tweets API</a></li>
+<li><a href="https://dev.twitter.com/overview/api/tweets">Tweet objects</a> describes the dictionary keys you should expect in an object. It's an important start point to understand the nested structure of the data.</li>
+</ul>
+<h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
+<ul>
+<li>Pick 5 important pieces of information that you may find in a tweet, and describe how you would access them.</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>In this section we will discuss the process of accessing JSON information as served via Web services. We will do so in the particular case of the Twitter API, and more specifically we will look at tweets that mention the &quot;user&quot; <code>HanoverCollege</code>. The steps are roughly the following:</p>
+<h3 id="preparing-the-request">Preparing the request</h3>
+<ol style="list-style-type: decimal">
+<li>Create an appropriate &quot;application account&quot; for the service you want to use, if that service requires something like that. For Twitter in particular you would go to <a href="https://apps.twitter.com/" class="uri">https://apps.twitter.com/</a>. You will need to create a Twitter account first, and then create a new &quot;application&quot;.</li>
+<li>The application will typically provide you with a &quot;key&quot; and a &quot;secret&quot;. In Twitter you will need to go to your specific application's page, and look at the &quot;keys and access tokens&quot; page. While you are there, you may want to also alter the access level to be &quot;read only&quot;.</li>
+<li><p>You need to store these pieces of information in a location that can be accessed by your scripts, but that is otherwise not visible to the world. A good way to do that is to create a JSON file in your work directory, that your scripts can access. We will call ours <code>keys.json</code>, and this is how it would look:</p>
+<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
+   <span class="dt">&quot;twitter&quot;</span><span class="fu">:</span> <span class="fu">{</span>
+      <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="st">&quot;Your key here&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;secret&quot;</span><span class="fu">:</span> <span class="st">&quot;Your secret here&quot;</span>
+   <span class="fu">}</span>
+<span class="fu">}</span></code></pre></div></li>
+<li><p>From your script, you need to first read your access information and then authenticate yourself with the application in question:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">#!/usr/bin/python3</span>
+
+<span class="co"># Loading libraries needed for authentication and requests</span>
+<span class="im">from</span> requests_oauthlib <span class="im">import</span> OAuth2Session
+<span class="im">from</span> oauthlib.oauth2 <span class="im">import</span> BackendApplicationClient
+<span class="im">import</span> json
+
+<span class="co"># In order to use this script, you must:</span>
+<span class="co"># - Have a Twitter account and create an app</span>
+<span class="co"># - Store in keys.json a property called &quot;twitter&quot; whose value is an</span>
+<span class="co">#     object with two keys, &quot;key&quot; and &quot;secret&quot;</span>
+<span class="cf">with</span> <span class="bu">open</span>(<span class="st">&#39;keys.json&#39;</span>, <span class="st">&#39;r&#39;</span>) <span class="im">as</span> f:
+   keys <span class="op">=</span> json.loads(f.read())[<span class="st">&#39;twitter&#39;</span>]
+
+twitter_key <span class="op">=</span> keys[<span class="st">&#39;key&#39;</span>]
+twitter_secret <span class="op">=</span> keys[<span class="st">&#39;secret&#39;</span>]
+
+<span class="co"># We authenticate ourselves with the above credentials</span>
+<span class="co"># We will demystify this process later</span>
+client <span class="op">=</span> BackendApplicationClient(client_id<span class="op">=</span>twitter_key)
+oauth <span class="op">=</span> OAuth2Session(client<span class="op">=</span>client)
+token <span class="op">=</span> oauth.fetch_token(token_url<span class="op">=</span><span class="st">&#39;https://api.twitter.com/oauth2/token&#39;</span>,
+                          client_id<span class="op">=</span>twitter_key,
+                          client_secret<span class="op">=</span>twitter_secret)
+
+<span class="co"># At this point the &quot;oauth&quot; object can be used to make requests</span></code></pre></div></li>
+<li><p>At the end of the above lines, the &quot;oauth&quot; object represents an authenticated client that you can use to make further requests. Since many of the requests will have a URL in common, you should create some variables for that purpose:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Base url needed for all subsequent queries</span>
+base_url <span class="op">=</span> <span class="st">&#39;https://api.twitter.com/1.1/&#39;</span>
+
+<span class="co"># Particular page requested. The specific query string will be appended to that.</span>
+page <span class="op">=</span> <span class="st">&#39;search/tweets.json&#39;</span>
+
+<span class="co"># Depending on the query we are interested in, we append the necessary string</span>
+<span class="co"># As you read through the twitter API, you&#39;ll find more possibilities</span>
+req_url <span class="op">=</span> base_url <span class="op">+</span> page <span class="op">+</span> <span class="st">&#39;?q=%40HanoverCollege&#39;</span></code></pre></div></li>
+<li><p>We the perform a request, and process the result as JSON:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># We perform a request. Contains standard HTTP information</span>
+response <span class="op">=</span> oauth.get(req_url)
+
+<span class="co"># Read the query results</span>
+results <span class="op">=</span> json.loads(response.content.decode(<span class="st">&#39;utf-8&#39;</span>))</code></pre></div></li>
+<li><p>Typically the &quot;results&quot; dictionary will contain some metadata that tells you information about the request, as well as the actual results. This is a standard <a href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">Python dictionary</a> that you can examine. It is very useful at this point to be using Python interactively.</p></li>
+</ol>
+<h3 id="processing-the-request">Processing the request</h3>
+<p>You now have a dictionary that contains the important information you want to access. Let us look at its keys:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> results.keys()
+dict_keys([<span class="st">&#39;search_metadata&#39;</span>, <span class="st">&#39;statuses&#39;</span>])</code></pre></div>
+<p>The <code>search_metadata</code> entry contains information about the search performed. It sounds like <code>statuses</code> contains what we need.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> <span class="bu">type</span>(results[<span class="st">&#39;statuses&#39;</span>])
+<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;list&#39;</span><span class="op">&gt;</span></code></pre></div>
+<p>Ok so that is a list. We could access the first element and take a look at it:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">type</span>(results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>])
+<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;dict&#39;</span><span class="op">&gt;</span>
+<span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>].keys()
+dict_keys([<span class="st">&#39;in_reply_to_status_id_str&#39;</span>, <span class="st">&#39;source&#39;</span>, <span class="st">&#39;possibly_sensitive&#39;</span>, <span class="st">&#39;user&#39;</span>, <span class="st">&#39;metadata&#39;</span>, <span class="st">&#39;retweet_count&#39;</span>, <span class="st">&#39;text&#39;</span>, <span class="st">&#39;favorited&#39;</span>, <span class="st">&#39;geo&#39;</span>, <span class="st">&#39;retweeted&#39;</span>, <span class="st">&#39;favorite_count&#39;</span>, <span class="st">&#39;place&#39;</span>, <span class="st">&#39;quoted_status_id&#39;</span>, <span class="st">&#39;quoted_status_id_str&#39;</span>, <span class="st">&#39;id&#39;</span>, <span class="st">&#39;entities&#39;</span>, <span class="st">&#39;id_str&#39;</span>, <span class="st">&#39;in_reply_to_user_id&#39;</span>, <span class="st">&#39;in_reply_to_user_id_str&#39;</span>, <span class="st">&#39;in_reply_to_screen_name&#39;</span>, <span class="st">&#39;coordinates&#39;</span>, <span class="st">&#39;is_quote_status&#39;</span>, <span class="st">&#39;truncated&#39;</span>, <span class="st">&#39;contributors&#39;</span>, <span class="st">&#39;lang&#39;</span>, <span class="st">&#39;created_at&#39;</span>, <span class="st">&#39;in_reply_to_status_id&#39;</span>, <span class="st">&#39;quoted_status&#39;</span>])</code></pre></div>
+<p>Ok that is a dictionary, and we can look at its keys, and it seems there are a number of possibilities there. For example we can access the tweet's text via:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;text&#39;</span>]
+<span class="co">&#39;@HanoverPanthers @HanoverCollege @StudentLifeHC @HanoverBooks  https://t.co/HguFqFRONz&#39;</span></code></pre></div>
+<p>Or we can see if someone has retweeded or favorited it:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;retweeted&#39;</span>]
+<span class="va">False</span>
+<span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;favorited&#39;</span>]
+<span class="va">False</span></code></pre></div>
+<p>The possibilities are endless. Most of the times you would want to iterate over the statuses list:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">for</span> status <span class="op">in</span> results[<span class="st">&#39;statuses&#39;</span>]:
+    dosomething(status)</code></pre></div>
+<p>Or you can operate on the list of statuses via <code>map</code> and <code>filter</code> (see the <a href="https://docs.python.org/2/library/functions.html">docs</a>). Or even better, use <a href="https://docs.python.org/2/tutorial/datastructures.html#tut-listcomps">list comprehensions</a>:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">texts <span class="op">=</span> [tweet[<span class="st">&#39;text&#39;</span>] <span class="cf">for</span> tweet <span class="op">in</span> results[<span class="st">&#39;statuses&#39;</span>]]
+many_mentions <span class="op">=</span> [tweet[<span class="st">&#39;text&#39;</span>] <span class="cf">for</span> tweet <span class="op">in</span> results[<span class="st">&#39;statuses&#39;</span>]
+                    <span class="cf">if</span> <span class="bu">len</span>(tweet[<span class="st">&#39;entities&#39;</span>][<span class="st">&#39;user_mentions&#39;</span>]) <span class="op">&gt;</span> <span class="dv">2</span>]</code></pre></div>
+</body>
+</html>
