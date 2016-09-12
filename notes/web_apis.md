@@ -2,9 +2,9 @@
 
 ## Reading / References
 
-- [Restful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari), chapters 1-4. The appendices contain information about HTTP.
-- [HTTP on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP) good place to start
-- [Browser Networking](http://chimera.labs.oreilly.com/books/1230000000545/index.html) free online book
+- [Restful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari), chapters 1-4, especially chapter 4. The appendices contain information about HTTP.
+- [HTTP on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP)
+- [Browser Networking](https://hpbn.co/) free online book, optional
 - [HTTP specification (more a reference than a read)](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
 - [HTTP the definitive guide](http://shop.oreilly.com/product/9781565925090.do) not free, not required
 
@@ -144,9 +144,21 @@ You typically don't have to directly create these requests and responses as text
 >
 > The result is, amazingly, a simple, open (for now), almost universal platform for networked applications. This platform contains much of human knowledge and supports most fields of human endeavor. We think it’s time to seriously start applying its rules to distributed programming, to open up that information and those processes to automatic clients. If you agree, this book will show you how to do it.
 
-WORK IN PROGRESS
+REST stands for "REpresentational State Transfer", which is a bit of a mouthful, and is best described in terms of the goals it proposes for a Web API design. A key underlying principle is that REST attempts to use as much of the HTTP protocol as possible to communicate information. This is in contrast to other standards that place all pertinent information about the request mostly in the request's body.
 
-- In a RESTful design, everything does basically does what it says it does.
-- RESTful design makes full use of the HTTP verbs and their intended meaning.
-- RESTful design makes full use of URIs as resource identifiers.
-- RESTful design makes full use of HTTP response codes.
+URIs
+  ~ **Scoping Information** should be communicated via the URI/URL. That should contain all the information needed to determine which data is being requested or should change. The server should not need to read the body of the request to determine what data the request is about. And the client should not need to learn how to form the request's body to obtain the information it needs. This uses the **addressability** of HTTP. This way all the server needs to do to teach the client how to ask for something is to provide the URI for that resource.
+
+HTTP verbs
+  ~ **Method Information**, namely what action should be taken on the data, should be communicated via the choice of HTTP verb/method (i.e. GET, POST, PUT, DELETE etc). This way there is a clear understanding on what should happen when a GET request is made, for instance such an action should never delete anything.
+
+Response codes
+  ~ The response codes of the request should be as precise as possible in describing what went wrong with the request, if anything. That information should not be hidden somewhere in the response body.
+
+Chapter 4 of Restful Web Services discusses an approach to achieve RESTfullness, that th authors term "Resource Oriented Architecture". It emphasizes the concept of **resource**, i.e. any part of the service important enough to be addressed by itself.
+
+- Any resource should be addressable via at least one URI (though it is possible for multiple URIs to refer to the same resource). This is a key feature afforded to us by the use of the web. Statelessness is another key part of this: That URI should be all the information you need to get to the resource. The server should not have to remember anything from your prior activities on the site.
+
+Inline activity: Consider in our online evaluations application what resources we have and what URIs we might use for them.
+
+WORK IN PROGRESS
