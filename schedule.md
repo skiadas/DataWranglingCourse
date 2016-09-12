@@ -15,7 +15,8 @@ A week-by-week breakdown of the material.
 ## Week  2 (09/12-09/16)
 
 - Day 1
-    - Introduction to Web APIs and Web Services.
+    - [List Comprehensions](notes/list_comprehensions.md)
+    - [Introduction to Web APIs and Web Services](notes/web_apis.md)
 - Day 2
     - Communication Protocols. HTTP, REST
 - Day 3

@@ -15,3 +15,4 @@
 - [Beginning JSON](http://learning.acm.org/books/book_detail.cfm?id=2746464&type=24)
 - [Beginning XML](http://learning.acm.org/books/book_detail.cfm?id=2408362&type=24)
 - [XML in a Nutshell](http://learning.acm.org/books/book_detail.cfm?id=2167284&type=safari)
+- [RESTful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari)

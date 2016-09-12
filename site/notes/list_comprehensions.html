@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="pythons-list-comprehensions">Python's List Comprehensions</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="https://docs.python.org/2/tutorial/datastructures.html#tut-listcomps">List comprehensions in Python's docs</a> for processing lists</li>
+<li><a href="http://www.secnetix.de/olli/Python/list_comprehensions.hawk">Some list comprehension examples</a></li>
+<li><a href="http://treyhunner.com/2015/12/python-list-comprehensions-now-in-color/">Visual explanation of list comprehensions</a></li>
+<li><a href="http://python-3-patterns-idioms-test.readthedocs.io/en/latest/Comprehensions.html">Even more examples of list comprehensions</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>As list comprehensions are an incredibly powerful way of processing lists in Python, they deserve a special mention. This short session aims to do just that.</p>
+<p>All list comprehensions have one thing in common: They start with a list of items, and return a new list based on those items.</p>
+<h3 id="simple-list-comprehensions">Simple list comprehensions</h3>
+<p>The simplest list comprehensions involve doing something simple with each element in the list. For instance if we have words, we could use a list comprehension to make them all uppercase:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">words <span class="op">=</span> [<span class="st">&quot;The&quot;</span>, <span class="st">&quot;big&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;Wolf&quot;</span>]
+uppers <span class="op">=</span> [ word.upper() <span class="cf">for</span> word <span class="op">in</span> words ]</code></pre></div>
+<p>Every list comprehension can be done via a for loop, just not as elegantly. So the above list comprehension could be written as:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">uppers <span class="op">=</span> []
+<span class="cf">for</span> word <span class="op">in</span> words:
+    uppers.append(word.upper())</code></pre></div>
+<p>Whenever you see a list comprehension, it essentially corresponds to some analogous &quot;for&quot; expression.</p>
+<p>Here is a variation that replaces each word with a pair of the word in capitals and its length:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">words <span class="op">=</span> [<span class="st">&quot;The&quot;</span>, <span class="st">&quot;big&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;Wolf&quot;</span>]
+pairs <span class="op">=</span> [
+    [word.upper(), <span class="bu">len</span>(word)]
+    <span class="cf">for</span> word <span class="op">in</span> words
+]
+<span class="co"># Reading back the lengths from those pairs:</span>
+lengths <span class="op">=</span> [ p[<span class="dv">1</span>] <span class="cf">for</span> p <span class="op">in</span> pairs ]</code></pre></div>
+<p>Practice problem: Work the same thing out via a &quot;for&quot; loop.</p>
+<h3 id="filters">Filters</h3>
+<p>One neat feature of list comprehensions is that they allow you to filter the results in a suitable way. So imagine we wanted to collect all numbers from 1 to 20 that are odd, and square them. We could write:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">numbers <span class="op">=</span> []
+<span class="cf">for</span> n <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>):
+    <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span>:
+        numbers.append(n <span class="op">*</span> n)</code></pre></div>
+<p>Instead we could do this via a list comprehension:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">numbers <span class="op">=</span> [ n <span class="cf">for</span> n <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>) <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span> ]
+<span class="co"># Or expanded:</span>
+numbers <span class="op">=</span> [
+    n <span class="op">*</span> n
+    <span class="cf">for</span> n <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>)
+    <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span>
+]</code></pre></div>
+<h3 id="some-more-intricate-examples">Some more intricate examples</h3>
+<p>We will look at two more complicated examples. The one involves nested loops. Imagine for instance that we had a list of lists of numbers, and we wanted to flatten it all into a single list. One way to do this would be via a nested loop, the other would be via a list comprehension:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">nums <span class="op">=</span> [[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]]
+<span class="co"># Via nested loop</span>
+result <span class="op">=</span> []
+<span class="cf">for</span> row <span class="op">in</span> nums:
+    <span class="cf">for</span> n <span class="op">in</span> row:
+        result.append(n)
+<span class="co"># Via list comprehension:</span>
+result <span class="op">=</span> [ n <span class="cf">for</span> row <span class="op">in</span> nums <span class="cf">for</span> n <span class="op">in</span> row ]</code></pre></div>
+<p>Here is a more complicated example for finding all &quot;Pythagorian triples&quot; up to 100. A Pythagorian triple is three integers x, y, z such the squares of x and y add up to the squares of z. Here is how that might look via a list comprehension:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">triples <span class="op">=</span> [
+    [x, y, z]
+    <span class="cf">for</span> x <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
+    <span class="cf">for</span> y <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
+    <span class="cf">for</span> z <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
+    <span class="cf">if</span> x<span class="op">*</span>x <span class="op">+</span> y<span class="op">*</span>y <span class="op">==</span> z<span class="op">*</span>z
+]</code></pre></div>
+<h3 id="dictionary-comprehensions">Dictionary comprehensions</h3>
+<p>A list comprehension can actually produce a dictionary instead. Here is an example where for each string in the list of words earlier we create a key in the dictionary, whose value is the length:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">{
+    word: <span class="bu">len</span>(word)
+    <span class="cf">for</span> word <span class="op">in</span> words
+}</code></pre></div>
+<p>If <code>tweets</code> is the list of tweets we are working with, here is a complex comprehension with a list and objects in it:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+    {
+        <span class="st">&quot;text&quot;</span>: tweet[<span class="st">&#39;text&#39;</span>],
+        <span class="co">&quot;author&quot;</span>: tweet[<span class="st">&#39;user&#39;</span>][<span class="st">&#39;screen_name&#39;</span>]
+    }
+    <span class="cf">for</span> tweet <span class="op">in</span> tweets
+]</code></pre></div>
+<p>This results in a list of dictionaries, one for each tweet, containing the text and author information.</p>
+</body>
+</html>
