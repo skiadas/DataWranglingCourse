@@ -18,7 +18,7 @@ A week-by-week breakdown of the material.
     - [List Comprehensions](notes/list_comprehensions.md)
     - [Introduction to Web APIs and Web Services](notes/web_apis.md)
 - Day 2
-    - Communication Protocols. HTTP, REST
+    - [RESTful design](notes/rest.md)
 - Day 3
     - Authorization and OAuth2
     - Assignment 2: Querying an API

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="restful-apis">RESTful APIS</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">Restful Web Services</a>, chapters 4 and 5. Optionally 6, 7, 8.</li>
+</ul>
+<h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
+<ul>
+<li>Describe what <strong>addressability</strong> for resources means and its consequences.</li>
+<li>Describe what <strong>statelessness</strong> for resources means and its consequences.</li>
+<li>What is the difference between <strong>application state</strong> and <strong>resource state</strong>?</li>
+<li>What is the difference between a <strong>resource</strong> and a <strong>representation</strong>? Give examples.</li>
+<li>Describe various ways in which the same resource can have various representations.</li>
+<li>What are the main two ways that a web service could provide for applications to request different representations of the same resource?</li>
+<li>How is each HTTP method to be used in a RESTful design?</li>
+<li>Explain the differences between PUT and POST, as well as their various usages.</li>
+<li>Explain what the term &quot;overloaded POST&quot; means.</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<h3 id="rest">REST</h3>
+<blockquote>
+<p>The Internet and the Web did not have to exist. They come to us courtesy of misallocated defense money, skunkworks engineering projects, worse-is-better engineering practices, big science, naive liberal idealism, cranky libertarian politics, techno-fetishism, and the sweat and capital of programmers and investors who thought they’d found an easy way to strike it rich.</p>
+<p>The result is, amazingly, a simple, open (for now), almost universal platform for networked applications. This platform contains much of human knowledge and supports most fields of human endeavor. We think it’s time to seriously start applying its rules to distributed programming, to open up that information and those processes to automatic clients. If you agree, this book will show you how to do it.</p>
+</blockquote>
+<p>REST stands for &quot;REpresentational State Transfer&quot;, which is a bit of a mouthful, and is best described in terms of the goals it proposes for a Web API design. A key underlying principle is that REST attempts to use as much of the HTTP protocol as possible to communicate information. This is in contrast to other standards that place all pertinent information about the request mostly in the request's body.</p>
+<dl>
+<dt>URIs</dt>
+<dd><strong>Scoping Information</strong> should be communicated via the URI/URL. That should contain all the information needed to determine which data is being requested or should change. The server should not need to read the body of the request to determine what data the request is about. And the client should not need to learn how to form the request's body to obtain the information it needs. This uses the <strong>addressability</strong> of HTTP. This way all the server needs to do to teach the client how to ask for something is to provide the URI for that resource.
+</dd>
+<dt>HTTP verbs</dt>
+<dd><strong>Method Information</strong>, namely what action should be taken on the data, should be communicated via the choice of HTTP verb/method (i.e. GET, POST, PUT, DELETE etc). This way there is a clear understanding on what should happen when a GET request is made, for instance such an action should never delete anything.
+</dd>
+<dt>Response codes</dt>
+<dd>The response codes of the request should be as precise as possible in describing what went wrong with the request, if anything. That information should not be hidden somewhere in the response body.
+</dd>
+</dl>
+<p>Chapter 4 of Restful Web Services discusses an approach to achieve RESTfullness, that th authors term &quot;Resource Oriented Architecture&quot;. It emphasizes the concept of <strong>resource</strong>, i.e. any part of the service important enough to be addressed by itself.</p>
+<h3 id="addressability">Addressability</h3>
+<p>Any resource should be addressable via at least one URI (though it is possible for multiple URIs to refer to the same resource). This is a key feature afforded to us by the use of the web. Statelessness is another key part of this: That URI should be all the information you need to get to the resource. The server should not have to remember anything from your prior activities on the site.</p>
+<p>As an example let us consider the following entity-relation graph for the student evaluations database:</p>
+<div class="figure">
+<img src="images/EvalsModel.png" />
+
+</div>
+<p>There are numerous resources in this instance. We name just two:</p>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="21%" />
+<col width="32%" />
+<col width="13%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Resource</th>
+<th align="left">Description</th>
+<th align="left">URI Scheme</th>
+<th align="left">Properties</th>
+<th align="left">Links</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">students</td>
+<td align="left">Represents the list of students</td>
+<td align="left">/student</td>
+<td align="left"></td>
+<td align="left">students</td>
+</tr>
+<tr class="even">
+<td align="left">student</td>
+<td align="left">Represents a student</td>
+<td align="left">/student/{login}</td>
+<td align="left">login first last</td>
+<td align="left">enrollments</td>
+</tr>
+<tr class="odd">
+<td align="left">section</td>
+<td align="left">Represents a specific offering of a course</td>
+<td align="left">/section/{year}/{term}/{no}</td>
+<td align="left">state</td>
+<td align="left">course enrolled year term</td>
+</tr>
+</tbody>
+</table>
+<p>Inline activity: Consider what other resources we have, what URIs we might use for them, and what links to other resources they would have.</p>
+<h3 id="connectivity">Connectivity</h3>
+<p>In the above example we also see another key feature of a RESTful design, using the &quot;hypermedia&quot; feature of the HTTP protocol. It may be a trivial thought these days, but the fact that we can link different pages together is key. For instance in the example above the student resource would include in it a link to the enrollment resources for that student. RESTful resources are fundamentally linked to one another, so that a client of our service can navigate their way by following these links, in much the same way that a user of a website navigates taht site by following links.</p>
+<h3 id="uniform-interface">Uniform Interface</h3>
+<p>Another key feature of a RESTful design is the use of a common &quot;interface&quot;, via consistent use of the HTTP method verbs:</p>
+<dl>
+<dt>GET</dt>
+<dd>Used to fetch a resource at the given URI.
+</dd>
+<dt>PUT</dt>
+<dd>When used with a URI for a non-existent resource, used to create the resource. If the resource at that URI exists, updates it. The body of the request contains the information necessary for the creation or modification of the resource.
+</dd>
+<dt>DELETE</dt>
+<dd>Used to delete a resource at a given URI (when permitted).
+</dd>
+<dt>HEAD</dt>
+<dd>Used to fetch the metadata of a resource, that are present in the HTTP headers.
+</dd>
+<dt>OPTIONS</dt>
+<dd>Reports which HTTP methods a certain resource supports (e.g. to determine if DELETE is possible). This will be communicated in a header called &quot;Allow&quot;.
+</dd>
+<dt>POST</dt>
+<dd><p>Used for essentially two purposes. One is to create &quot;subordinate resources&quot;. For instance, performing a POST in the &quot;students&quot; resource earlier could be used to create a new student. It would be similar in effect to performing a PUT at the student resource directly. The question to determine which of the two to use is determined by who is responsible for generating the new resource's &quot;name&quot; and URI. If it is the client, then a PUT is used; If it is the server then a POST on the parent is used.</p>
+<p>The second use of POST is to update information of a resource. For example if a student changes name, we would update that information via a POST request to the specific student's URI.</p>
+<p>In both usages the key is that POST is used to update subordinate information for a resource, be they resources themselves or just properties/data associated with the resource.</p>
+</dd>
+</dl>
+<h3 id="safety-and-idempotence">Safety and Idempotence</h3>
+<p>Two important concepts that emerge from proper usage of HTTP methods are safety and indempotence.</p>
+<p>A <strong>safe</strong> request is one that does not change the server state. For instance in a proper design, all GET and HEAD requests are safe, as they simply fetch information. By constrast, DELETE, PUT and POST are not safe, as they are fundamentally designed to change the server state.</p>
+<p>This may seem like a minor point, but it has some important consequences. In earlier days, before some of these notions were crystallized, GET requests were often used to delete resources. For instance a GET request to &quot;/yourresourceURI/delete&quot; would delete the resource. Around the same time some of the popular browsers attempted to speed up your work by following via GET any links in a webpage, and prefetching them so they can show them to the user faster should the user click one of those links. These browsers had no way of knowing whether the GET request they made would end up deleting something or not. Disaster ensued. <em>We need to be able to trust that GET operations are safe, so that we an perform them as a way of prefetching without worrying about changing server data</em>.</p>
+<p>Idempotence is a slightly different idea. An operation is <strong>idempotent</strong>, if repeating it has no effect. Sending two identical DELETE requests for example should result in the second request doing nothing; the resource was already deleted from the first request. In general we expect GET, HEAD, DELETE and PUT to all be idempotent. This allows clients to safely send such a request a second type and not worry about the effect to the server.</p>
+</body>
+</html>

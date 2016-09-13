@@ -5,6 +5,8 @@ HTMLFILES := $(MDFILES:./%.md=site/%.html)
 # ASSIGNMENTS := $(filter ./assignments/%.md,$(MDFILES))
 PDFS := $(MDFILES:./%.md=site/%.pdf)
 # TEXS := $(ASSIGNMENTS:./%.md=site/%.tex)
+IMGFILES := $(shell find images -name \*.png)
+IMGFILES := $(IMGFILES:%=site/notes/%)
 
 $(HTMLFILES): site/%.html: %.md $(TEMPLATE)
 	pandoc -o $@ --template=$(TEMPLATE) --mathjax --filter ./makeHtml.hs $<
@@ -12,7 +14,10 @@ $(HTMLFILES): site/%.html: %.md $(TEMPLATE)
 $(PDFS): site/%.pdf: %.md $(TEXTEMPLATE)
 	pandoc -o $@ --template=$(TEXTEMPLATE) -t latex --listings --filter ./makeTex.hs $<
 
-site: $(HTMLFILES) $(PDFS)
+$(IMGFILES): site/notes/images/%.png: images/%.png
+	cp $< $@
+
+site: $(HTMLFILES) $(PDFS) $(IMGFILES)
 
 email:
 	open "mailto:`cat students.txt`"

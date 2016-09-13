@@ -140,28 +140,5 @@ Content-Type: text/html
 </dd>
 </dl>
 <p>You typically don't have to directly create these requests and responses as text, there are libraries that do that for you and allow you to talk about these responses on the level of objects.</p>
-<h3 id="rest">REST</h3>
-<blockquote>
-<p>The Internet and the Web did not have to exist. They come to us courtesy of misallocated defense money, skunkworks engineering projects, worse-is-better engineering practices, big science, naive liberal idealism, cranky libertarian politics, techno-fetishism, and the sweat and capital of programmers and investors who thought they’d found an easy way to strike it rich.</p>
-<p>The result is, amazingly, a simple, open (for now), almost universal platform for networked applications. This platform contains much of human knowledge and supports most fields of human endeavor. We think it’s time to seriously start applying its rules to distributed programming, to open up that information and those processes to automatic clients. If you agree, this book will show you how to do it.</p>
-</blockquote>
-<p>REST stands for &quot;REpresentational State Transfer&quot;, which is a bit of a mouthful, and is best described in terms of the goals it proposes for a Web API design. A key underlying principle is that REST attempts to use as much of the HTTP protocol as possible to communicate information. This is in contrast to other standards that place all pertinent information about the request mostly in the request's body.</p>
-<dl>
-<dt>URIs</dt>
-<dd><strong>Scoping Information</strong> should be communicated via the URI/URL. That should contain all the information needed to determine which data is being requested or should change. The server should not need to read the body of the request to determine what data the request is about. And the client should not need to learn how to form the request's body to obtain the information it needs. This uses the <strong>addressability</strong> of HTTP. This way all the server needs to do to teach the client how to ask for something is to provide the URI for that resource.
-</dd>
-<dt>HTTP verbs</dt>
-<dd><strong>Method Information</strong>, namely what action should be taken on the data, should be communicated via the choice of HTTP verb/method (i.e. GET, POST, PUT, DELETE etc). This way there is a clear understanding on what should happen when a GET request is made, for instance such an action should never delete anything.
-</dd>
-<dt>Response codes</dt>
-<dd>The response codes of the request should be as precise as possible in describing what went wrong with the request, if anything. That information should not be hidden somewhere in the response body.
-</dd>
-</dl>
-<p>Chapter 4 of Restful Web Services discusses an approach to achieve RESTfullness, that th authors term &quot;Resource Oriented Architecture&quot;. It emphasizes the concept of <strong>resource</strong>, i.e. any part of the service important enough to be addressed by itself.</p>
-<ul>
-<li>Any resource should be addressable via at least one URI (though it is possible for multiple URIs to refer to the same resource). This is a key feature afforded to us by the use of the web. Statelessness is another key part of this: That URI should be all the information you need to get to the resource. The server should not have to remember anything from your prior activities on the site.</li>
-</ul>
-<p>Inline activity: Consider in our online evaluations application what resources we have and what URIs we might use for them.</p>
-<p>WORK IN PROGRESS</p>
 </body>
 </html>
