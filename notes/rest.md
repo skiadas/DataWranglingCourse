@@ -3,6 +3,7 @@
 ## Reading / References
 
 - [Restful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari), chapters 4 and 5. Optionally 6, 7, 8.
+- [Current HTTP Specification](https://tools.ietf.org/html/draft-ietf-httpbis-p2-semantics-21) for some "light reading".
 
 ### Practice questions on the reading
 
@@ -35,7 +36,7 @@ HTTP verbs
 Response codes
   ~ The response codes of the request should be as precise as possible in describing what went wrong with the request, if anything. That information should not be hidden somewhere in the response body.
 
-Chapter 4 of Restful Web Services discusses an approach to achieve RESTfullness, that th authors term "Resource Oriented Architecture". It emphasizes the concept of **resource**, i.e. any part of the service important enough to be addressed by itself.
+Chapter 4 of Restful Web Services discusses an approach to achieve RESTfullness, that the authors term "Resource Oriented Architecture". It emphasizes the concept of **resource**, i.e. any part of the service important enough to be addressed by itself.
 
 ### Addressability
 
@@ -78,7 +79,7 @@ GET
   ~ Used to fetch a resource at the given URI.
 
 PUT
-  ~ When used with a URI for a non-existent resource, used to create the resource. If the resource at that URI exists, updates it. The body of the request contains the information necessary for the creation or modification of the resource.
+  ~ When used with a URI for a non-existent resource, it is used to create the resource. If the resource at that URI exists, it replaces it. The body of the request contains the information necessary for the creation or replacement of the resource.
 
 DELETE
   ~ Used to delete a resource at a given URI (when permitted).
@@ -90,7 +91,7 @@ OPTIONS
   ~ Reports which HTTP methods a certain resource supports (e.g. to determine if DELETE is possible). This will be communicated in a header called "Allow".
 
 POST
-  ~ Used for essentially two purposes. One is to create "subordinate resources". For instance, performing a POST in the "students" resource earlier could be used to create a new student. It would be similar in effect to performing a PUT at the student resource directly. The question to determine which of the two to use is determined by who is responsible for generating the new resource's "name" and URI. If it is the client, then a PUT is used; If it is the server then a POST on the parent is used.
+  ~ Used for essentially two purposes. One is to create "subordinate resources". For instance, performing a POST in the "students" resource earlier could be used to create a new student. It would be similar in effect to performing a PUT at the student resource directly. In order to determine which of the two should be used, we need to ask who is responsible for generating the new resource's "name" and URI. If it is the client, then a PUT is used; If it is the server, then a POST on the parent is used.
 
     The second use of POST is to update information of a resource. For example if a student changes name, we would update that information via a POST request to the specific student's URI.
 
@@ -105,3 +106,5 @@ A **safe** request is one that does not change the server state. For instance in
 This may seem like a minor point, but it has some important consequences. In earlier days, before some of these notions were crystallized, GET requests were often used to delete resources. For instance a GET request to "/yourresourceURI/delete" would delete the resource. Around the same time some of the popular browsers attempted to speed up your work by following via GET any links in a webpage, and prefetching them so they can show them to the user faster should the user click one of those links. These browsers had no way of knowing whether the GET request they made would end up deleting something or not. Disaster ensued. *We need to be able to trust that GET operations are safe, so that we an perform them as a way of prefetching without worrying about changing server data*.
 
 Idempotence is a slightly different idea. An operation is **idempotent**, if repeating it has no effect. Sending two identical DELETE requests for example should result in the second request doing nothing; the resource was already deleted from the first request. In general we expect GET, HEAD, DELETE and PUT to all be idempotent. This allows clients to safely send such a request a second type and not worry about the effect to the server.
+
+THe idempotence of PUT should be kept in mind. PUT creates or replaces a resource, it does not update it in the way that POST does. You can send a PUT request multiple times and expect the effect to be the same as if you used it once, in the same way that having multiple "x=5" assignments is the same as having only one such assignment. By contrast, POST is more analogous to a "x++" statement. Multiple POSTs could have accumulated effects.

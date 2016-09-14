@@ -17,6 +17,7 @@
 <h2 id="reading-references">Reading / References</h2>
 <ul>
 <li><a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">Restful Web Services</a>, chapters 4 and 5. Optionally 6, 7, 8.</li>
+<li><a href="https://tools.ietf.org/html/draft-ietf-httpbis-p2-semantics-21">Current HTTP Specification</a> for some &quot;light reading&quot;.</li>
 </ul>
 <h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
 <ul>
@@ -48,7 +49,7 @@
 <dd>The response codes of the request should be as precise as possible in describing what went wrong with the request, if anything. That information should not be hidden somewhere in the response body.
 </dd>
 </dl>
-<p>Chapter 4 of Restful Web Services discusses an approach to achieve RESTfullness, that th authors term &quot;Resource Oriented Architecture&quot;. It emphasizes the concept of <strong>resource</strong>, i.e. any part of the service important enough to be addressed by itself.</p>
+<p>Chapter 4 of Restful Web Services discusses an approach to achieve RESTfullness, that the authors term &quot;Resource Oriented Architecture&quot;. It emphasizes the concept of <strong>resource</strong>, i.e. any part of the service important enough to be addressed by itself.</p>
 <h3 id="addressability">Addressability</h3>
 <p>Any resource should be addressable via at least one URI (though it is possible for multiple URIs to refer to the same resource). This is a key feature afforded to us by the use of the web. Statelessness is another key part of this: That URI should be all the information you need to get to the resource. The server should not have to remember anything from your prior activities on the site.</p>
 <p>As an example let us consider the following entity-relation graph for the student evaluations database:</p>
@@ -108,7 +109,7 @@
 <dd>Used to fetch a resource at the given URI.
 </dd>
 <dt>PUT</dt>
-<dd>When used with a URI for a non-existent resource, used to create the resource. If the resource at that URI exists, updates it. The body of the request contains the information necessary for the creation or modification of the resource.
+<dd>When used with a URI for a non-existent resource, it is used to create the resource. If the resource at that URI exists, it replaces it. The body of the request contains the information necessary for the creation or replacement of the resource.
 </dd>
 <dt>DELETE</dt>
 <dd>Used to delete a resource at a given URI (when permitted).
@@ -120,7 +121,7 @@
 <dd>Reports which HTTP methods a certain resource supports (e.g. to determine if DELETE is possible). This will be communicated in a header called &quot;Allow&quot;.
 </dd>
 <dt>POST</dt>
-<dd><p>Used for essentially two purposes. One is to create &quot;subordinate resources&quot;. For instance, performing a POST in the &quot;students&quot; resource earlier could be used to create a new student. It would be similar in effect to performing a PUT at the student resource directly. The question to determine which of the two to use is determined by who is responsible for generating the new resource's &quot;name&quot; and URI. If it is the client, then a PUT is used; If it is the server then a POST on the parent is used.</p>
+<dd><p>Used for essentially two purposes. One is to create &quot;subordinate resources&quot;. For instance, performing a POST in the &quot;students&quot; resource earlier could be used to create a new student. It would be similar in effect to performing a PUT at the student resource directly. In order to determine which of the two should be used, we need to ask who is responsible for generating the new resource's &quot;name&quot; and URI. If it is the client, then a PUT is used; If it is the server, then a POST on the parent is used.</p>
 <p>The second use of POST is to update information of a resource. For example if a student changes name, we would update that information via a POST request to the specific student's URI.</p>
 <p>In both usages the key is that POST is used to update subordinate information for a resource, be they resources themselves or just properties/data associated with the resource.</p>
 </dd>
@@ -130,5 +131,6 @@
 <p>A <strong>safe</strong> request is one that does not change the server state. For instance in a proper design, all GET and HEAD requests are safe, as they simply fetch information. By constrast, DELETE, PUT and POST are not safe, as they are fundamentally designed to change the server state.</p>
 <p>This may seem like a minor point, but it has some important consequences. In earlier days, before some of these notions were crystallized, GET requests were often used to delete resources. For instance a GET request to &quot;/yourresourceURI/delete&quot; would delete the resource. Around the same time some of the popular browsers attempted to speed up your work by following via GET any links in a webpage, and prefetching them so they can show them to the user faster should the user click one of those links. These browsers had no way of knowing whether the GET request they made would end up deleting something or not. Disaster ensued. <em>We need to be able to trust that GET operations are safe, so that we an perform them as a way of prefetching without worrying about changing server data</em>.</p>
 <p>Idempotence is a slightly different idea. An operation is <strong>idempotent</strong>, if repeating it has no effect. Sending two identical DELETE requests for example should result in the second request doing nothing; the resource was already deleted from the first request. In general we expect GET, HEAD, DELETE and PUT to all be idempotent. This allows clients to safely send such a request a second type and not worry about the effect to the server.</p>
+<p>THe idempotence of PUT should be kept in mind. PUT creates or replaces a resource, it does not update it in the way that POST does. You can send a PUT request multiple times and expect the effect to be the same as if you used it once, in the same way that having multiple &quot;x=5&quot; assignments is the same as having only one such assignment. By contrast, POST is more analogous to a &quot;x++&quot; statement. Multiple POSTs could have accumulated effects.</p>
 </body>
 </html>
