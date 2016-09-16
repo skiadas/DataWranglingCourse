@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="lab-assignment-2-more-with-twitter-feeds">Lab Assignment 2: More with Twitter feeds</h1>
+<p>In this assignment we will continue our exploration of Twitter data. A starting file titled assignment2.py is provided to you and can be found at the course's <a href="https://github.com/skiadas/DataWranglingCourse/blob/gh-pages/assignments/assignment2.py">GitHub page</a>, and you will fill in the missing parts. You will need a small JSON file called <code>keys.json</code> at the same level, that contains your Twitter access information, as described in the notes. You should already have this in place from the first assignment.</p>
+<p>You should be looking at the assignment2.py file as you read along.</p>
+<p>The first 65 lines of the script are very similar to the ones from the first assignment. The only difference is that now you have a function called <code>getTweets</code> that you can use to retrieve all tweets for a given query. Read the function's description and look at the use cases on lines 68-69 to know how to use it. The first couple of questions won't require you to use this function, as you will be working with the two pre-fetched examples of tweets from the two presidential candidates, which are saved to the variables <code>hillary</code> and <code>donald</code>.</p>
+<ol style="list-style-type: decimal">
+<li>Write a function called <code>getHashtags</code> which takes as arguments a list of tweets and returns a list of pairs of a hashtag string and the number of occurences of that hashtag in the list of tweets. For instance the result might look like this: <code>[(&quot;#theBest&quot;, 15), (&quot;#donaldForPrez&quot;, 10), ...]</code>. The list should be sorted with most frequent hashtags first.</li>
+<li>Write a function called getHashtagsDict<code>that takes the same input as the function</code>getHashtags` but it instead returns a dictionary whose keys are the different hashtags and whose values are the corresponding counts.</li>
+<li>Create a list of those hashtags, if any, that have been used by both candidates. The entries in the list should be dictionaries with three entries, one called &quot;hashtag&quot; with value the tag string, one called &quot;hillary&quot; and one called &quot;donald&quot;. The values for the two candidates should themselves be dictionaries, containing two entries: the &quot;count&quot; of tweets containing the tag and the &quot;percent&quot; of tweets from that candidate containing the tag. To help you in it you should create a couple of helper functions:
+<ul>
+<li>A function that takes a count and a total and returns a dictionary containing an entry with the count and an entry with the percent, computed as the count over the total. This is the kind of dicionary that you would associate with the candidate entries.</li>
+<li>A function that takes as input the hashtag string, the counts for the two candidates and the totals for the two candidates, and creates the dictionary entry that contains the &quot;hashtag&quot;, &quot;hillary&quot;, &quot;donald&quot; entries.</li>
+</ul></li>
+<li>Count how many times each candidate has mentioned their opponent in a tweet, as well as the percent of tweets where they have done so. You should look for uses of the candidates' first and/or last names in the tweet text both upper and lower case, and not just a &quot;mention&quot; in the Twitter sense.</li>
+<li>Count how many and what percent of each candidates' tweets have been actual tweets and not retweets.</li>
+<li>Using the timestamp information that is part of each tweet, create a list of triples, where each triple consists of a date, the number of tweets that Hillary Clinton had that day, and the number of tweets that Donald Trump had that day. Then print the information in that list in a column format, with one row for each day, making sure that the numbers align and having titles for each column.</li>
+<li>The next two problems are somewhat harder than the earlier problems. We will create a function that returns all a users's followers, as long as there are no more than 5000 of them. It will have to steps. In this step, you will implement a function called <code>fetchFollowerIds</code>. It will be given a user's screen name and it will return the ids of the users following that user. It will only return the first 5000 hits, and for now we are going to be OK with that.
+<ul>
+<li>You should read in <a href="https://dev.twitter.com/rest/reference/get/followers/ids">this page</a> about the kind of request you would need to perform, and what kind of result you should get back. A sample call to get you started is mentioned right above the function in the assignments file.</li>
+<li>You will need to use <code>oauth.get</code> directly, with an appropriate query. You should read in <a href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">this page</a> about the format of the &quot;response&quot; object that this call produces, and in particular how to get at the JSON content in it.</li>
+<li>The JSON content is going to have some more stuff in it. You should extract the appropriate list before returning it.</li>
+</ul></li>
+<li>In this problem we continue from the previous one, and we will implement a function called <code>fetchUsers</code>. It will take as input a list of ids and is supposed to return a list of objects corresponding to those users.
+<ul>
+<li>You should read in <a href="https://dev.twitter.com/rest/reference/get/users/lookup">this page</a> how such a request should look like.</li>
+<li>You should use <code>oauth.post</code> for this, read <a href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">this page</a> for how to do that.</li>
+<li>These requests are limited to 100 user ids. You will therefore need to go through the list of ids you have, and work on it 100 at a time, making a request for each group of 100 and accumulating the results. You should NOT make a request for each id individually, you should make batch requests for 100 ids at a time.</li>
+</ul></li>
+<li>Combine the two previous methods to write a function <code>getFollowers</code> that takes as input a screen name and returns the list of follower objects, essentially calling <code>fetchUsers</code> on the result of calling <code>fetchFollowerIds</code>. You should test your function with the user with screen name &quot;HanoverCollege&quot; (2804 followers total).</li>
+</ol>
+<p>You should submit your completed Python file as an email attachment to me. The name of the file should include your first and last name, in addition to the assignment's number. It should contain no whitespaces.</p>
+</body>
+</html>

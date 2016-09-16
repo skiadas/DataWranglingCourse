@@ -1,0 +1,84 @@
+\documentclass[10pt]{article}
+\usepackage[vmargin=1cm, hmargin=1cm]{geometry}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{pdflscape}
+\begin{document}
+
+\begin{landscape}
+\begin{longtable}[]{llp{1.5cm}p{2cm}p{2.5cm}llp{2.5cm}}
+\toprule
+Resource & URI Scheme & Properties & Links & GET & PUT & DELETE & POST\tabularnewline
+\hline
+\midrule
+\endhead
+
+students & /student &  & students & Student Links & N/A & N/A & Add student?\tabularnewline
+\hline
+
+student & /student/\{login\} & login first last & enrollments & Student info. enrollment links & Create? Replace? & Delete & Update info name\tabularnewline
+\hline
+
+enrollment & /enrollment/\{section\}/\{login\} & responded & student section & Is enrolled? & Enroll student & Remove student & N/A\tabularnewline
+\hline
+
+roster & /enrollment/\{section\} &  & enrollments section & Class roster &  & N/A & Mass enroll?\tabularnewline
+\hline
+
+instructors & /instructor &  & active instrs & Active instrs & N/A & N/A & Add instr?\tabularnewline
+\hline
+
+instructor & /instructor/\{login\} & first last & sections dept & Instructor info & Create? Replace? & Remove? & Update name\tabularnewline
+\hline
+
+admins & /admin &  & admins & Admin list & N/A & N/A & Add admin?\tabularnewline
+\hline
+
+an admin & /admin/\{login\} & first last &  & ????? & Create? Replace? & Remove & Update info\tabularnewline
+\hline
+
+terms & /term &  & terms & terms list & N/A & N/A & Add term?\tabularnewline
+\hline
+
+term & /term/\{year\}/\{period\} & dates & year period sections & term info sections year, period & New term? & Remove? & Update dates\tabularnewline
+\hline
+
+depts & /dept &  & depts divisions? & dept links & N/A & N/A & Add dept?\tabularnewline
+\hline
+
+a dept & /dept/\{prefix\} & name & head members parent tags & dept info & Create? & Remove? & Update what?\tabularnewline
+\hline
+
+courses & /course &  & courses & course list depts? & N/A & N/A & Add course?\tabularnewline
+\hline
+
+a course & /course/\{prefix\}/\{id\} & descr no & dept sections tags parent & course info dept sections tags & Create? & Remove? & Update info\tabularnewline
+\hline
+
+sections & /section &  & sections & section list & N/A & N/A & Add section?\tabularnewline
+\hline
+
+a section & /section/\{year\}/\{term\}/\{no\} & state & course roster year term & section info & Create? & Remove? & Update info?\tabularnewline
+\hline
+
+tags & /tag &  & tags & links to tags & N/A & N/A & Create new tag?\tabularnewline
+\hline
+
+a tag & /tag/\{tag\} & descr? & questions depts? courses? sections? & tag info questions? & Create? & Delete? & Change descr? Change questions?\tabularnewline
+\hline
+
+questions & /tag/\{tag\}/question &  & questions & ordered questions & N/A & N/A & Add question. order?\tabularnewline
+\hline
+
+question & /tag/\{tag\}/question/\{id\} & type prompt & choices & question info & N/A & Remove? & Update question. order? choices?\tabularnewline
+\hline
+
+answers? &  &  &  &  &  &  & \tabularnewline
+\hline
+
+evals? &  &  &  &  &  &  & \tabularnewline
+\hline
+\bottomrule
+\end{longtable}
+\end{landscape}
+\end{document}

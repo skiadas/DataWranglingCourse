@@ -20,12 +20,13 @@ A week-by-week breakdown of the material.
 - Day 2
     - [RESTful design](notes/rest.md)
 - Day 3
-    - Authorization and OAuth2
-    - Assignment 2: Querying an API
+    - [RESTful design, case study](notes/rest_case_study.md)
+    - [Assignment 2: Working more with Twitter API](assignments/2.md)
 
 ## Week  3 (09/19-09/23)
 
 - Day 1
+    - Authorization and OAuth2
     - Introduction to databases and SQL
 - Day 2
     - Schema descriptions (Entity-Relation model)

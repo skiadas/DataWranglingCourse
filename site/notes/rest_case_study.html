@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="restful-apis-the-student-evaluations-case">RESTful APIs: The student evaluations case</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">Restful Web Services</a>, chapters 4 and 5. Optionally 6, 7, 8.</li>
+<li><a href="https://tools.ietf.org/html/draft-ietf-httpbis-p2-semantics-21">Current HTTP Specification</a> for some &quot;light reading&quot;.</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>We will now delve deeper into the API for our student evaluations.</p>
+<p>Recall the entity-relation graph for the student evaluations database:</p>
+<div class="figure">
+<img src="images/EvalsModel.png" />
+
+</div>
+<p>Here is a table of the various resources (<a href="images/rest_printable.pdf">printable form</a>)</p>
+<table style="width:100%;">
+<colgroup>
+<col width="11%" />
+<col width="24%" />
+<col width="9%" />
+<col width="13%" />
+<col width="14%" />
+<col width="8%" />
+<col width="6%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Resource</th>
+<th align="left">URI Scheme</th>
+<th align="left">Properties</th>
+<th align="left">Links</th>
+<th align="left">GET</th>
+<th align="left">PUT</th>
+<th align="left">DELETE</th>
+<th align="left">POST</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">students</td>
+<td align="left">/student</td>
+<td align="left"></td>
+<td align="left">students</td>
+<td align="left">Student Links</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add student?</td>
+</tr>
+<tr class="even">
+<td align="left">student</td>
+<td align="left">/student/{login}</td>
+<td align="left">login first last</td>
+<td align="left">enrollments</td>
+<td align="left">Student info. enrollment links</td>
+<td align="left">Create? Replace?</td>
+<td align="left">Delete</td>
+<td align="left">Update info name</td>
+</tr>
+<tr class="odd">
+<td align="left">enrollment</td>
+<td align="left">/enrollment/{section}/{login}</td>
+<td align="left">responded</td>
+<td align="left">student section</td>
+<td align="left">Is enrolled?</td>
+<td align="left">Enroll student</td>
+<td align="left">Remove student</td>
+<td align="left">N/A</td>
+</tr>
+<tr class="even">
+<td align="left">roster</td>
+<td align="left">/enrollment/{section}</td>
+<td align="left"></td>
+<td align="left">enrollments section</td>
+<td align="left">Class roster</td>
+<td align="left"></td>
+<td align="left">N/A</td>
+<td align="left">Mass enroll?</td>
+</tr>
+<tr class="odd">
+<td align="left">instructors</td>
+<td align="left">/instructor</td>
+<td align="left"></td>
+<td align="left">active instrs</td>
+<td align="left">Active instrs</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add instr?</td>
+</tr>
+<tr class="even">
+<td align="left">instructor</td>
+<td align="left">/instructor/{login}</td>
+<td align="left">first last</td>
+<td align="left">sections dept</td>
+<td align="left">Instructor info</td>
+<td align="left">Create? Replace?</td>
+<td align="left">Remove?</td>
+<td align="left">Update name</td>
+</tr>
+<tr class="odd">
+<td align="left">admins</td>
+<td align="left">/admin</td>
+<td align="left"></td>
+<td align="left">admins</td>
+<td align="left">Admin list</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add admin?</td>
+</tr>
+<tr class="even">
+<td align="left">an admin</td>
+<td align="left">/admin/{login}</td>
+<td align="left">first last</td>
+<td align="left"></td>
+<td align="left">?????</td>
+<td align="left">Create? Replace?</td>
+<td align="left">Remove</td>
+<td align="left">Update info</td>
+</tr>
+<tr class="odd">
+<td align="left">terms</td>
+<td align="left">/term</td>
+<td align="left"></td>
+<td align="left">terms</td>
+<td align="left">terms list</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add term?</td>
+</tr>
+<tr class="even">
+<td align="left">term</td>
+<td align="left">/term/{year}/{period}</td>
+<td align="left">dates</td>
+<td align="left">year period sections</td>
+<td align="left">term info sections year, period</td>
+<td align="left">New term?</td>
+<td align="left">Remove?</td>
+<td align="left">Update dates</td>
+</tr>
+<tr class="odd">
+<td align="left">depts</td>
+<td align="left">/dept</td>
+<td align="left"></td>
+<td align="left">depts divisions?</td>
+<td align="left">dept links</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add dept?</td>
+</tr>
+<tr class="even">
+<td align="left">a dept</td>
+<td align="left">/dept/{prefix}</td>
+<td align="left">name</td>
+<td align="left">head members parent tags</td>
+<td align="left">dept info</td>
+<td align="left">Create?</td>
+<td align="left">Remove?</td>
+<td align="left">Update what?</td>
+</tr>
+<tr class="odd">
+<td align="left">courses</td>
+<td align="left">/course</td>
+<td align="left"></td>
+<td align="left">courses</td>
+<td align="left">course list depts?</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add course?</td>
+</tr>
+<tr class="even">
+<td align="left">a course</td>
+<td align="left">/course/{prefix}/{id}</td>
+<td align="left">descr no</td>
+<td align="left">dept sections tags parent</td>
+<td align="left">course info dept sections tags</td>
+<td align="left">Create?</td>
+<td align="left">Remove?</td>
+<td align="left">Update info</td>
+</tr>
+<tr class="odd">
+<td align="left">sections</td>
+<td align="left">/section</td>
+<td align="left"></td>
+<td align="left">sections</td>
+<td align="left">section list</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add section?</td>
+</tr>
+<tr class="even">
+<td align="left">a section</td>
+<td align="left">/section/{year}/{term}/{no}</td>
+<td align="left">state</td>
+<td align="left">course roster year term</td>
+<td align="left">section info</td>
+<td align="left">Create?</td>
+<td align="left">Remove?</td>
+<td align="left">Update info?</td>
+</tr>
+<tr class="odd">
+<td align="left">tags</td>
+<td align="left">/tag</td>
+<td align="left"></td>
+<td align="left">tags</td>
+<td align="left">links to tags</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Create new tag?</td>
+</tr>
+<tr class="even">
+<td align="left">a tag</td>
+<td align="left">/tag/{tag}</td>
+<td align="left">descr?</td>
+<td align="left">questions depts? courses? sections?</td>
+<td align="left">tag info questions?</td>
+<td align="left">Create?</td>
+<td align="left">Delete?</td>
+<td align="left">Change descr? Change questions?</td>
+</tr>
+<tr class="odd">
+<td align="left">questions</td>
+<td align="left">/tag/{tag}/question</td>
+<td align="left"></td>
+<td align="left">questions</td>
+<td align="left">ordered questions</td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">Add question. order?</td>
+</tr>
+<tr class="even">
+<td align="left">question</td>
+<td align="left">/tag/{tag}/question/{id}</td>
+<td align="left">type prompt</td>
+<td align="left">choices</td>
+<td align="left">question info</td>
+<td align="left">N/A</td>
+<td align="left">Remove?</td>
+<td align="left">Update question. order? choices?</td>
+</tr>
+<tr class="odd">
+<td align="left">answers?</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">evals?</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<h3 id="questions">Questions</h3>
+<ul>
+<li>How should a section be assigned to an instructor?</li>
+<li>What should show up when we get an admin's page? Should it include links to the various resources <em>they</em> have access to?</li>
+<li>Should we characterize terms via year/period? What if we want ad-hoc terms?</li>
+<li>Do we need list of years as a resource?</li>
+<li>Do we need an individual year as a resource?</li>
+<li>Should it be its own thing?</li>
+<li>Or should terms allow a query to set the year, or just allow <code>/term/{year}</code>?</li>
+<li>How should we add a section to a term?</li>
+<li>Option 1: Only do it by updating a section's information</li>
+<li>Option 2: Set up the &quot;term's course list&quot; as a resource.</li>
+<li>Should we have a way to specifically add a new section of a course?</li>
+<li>Can we add query filtering in some of those lists?</li>
+<li>When to use query vs more slashes?</li>
+<li>Should questions be subordinate to a tag or on their own?</li>
+<li>Need to somewhere coordinate tag question order.</li>
+<li>Should a question be allowed to belong to multiple tags?</li>
+</ul>
+</body>
+</html>
