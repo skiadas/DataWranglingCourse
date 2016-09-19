@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="relational-databases">Relational Databases</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2560109&amp;type=24">Concise Guide to Databases: A Practical Introduction</a> chapter 4</li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1208031&amp;type=safari">Introduction to SQL: Mastering the Relational Database Language</a></li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2484635&amp;type=safari">MySQL</a></li>
+</ul>
+<h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
+<ul>
+<li></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<h3 id="basic-concepts-of-relational-databases">Basic concepts of Relational Databases</h3>
+<p>Essential in the structure of relational databases is the notion of a table. A <strong>table</strong> contains specific columns, each holding values of a specified type. The table is filled with rows, containing a value for each column. These rows are often called <strong>tuples</strong>, and the table is often called a <strong>relation</strong>. The columns are often refered to as <strong>attributes</strong>. For example the relation <code>student</code> might look something like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">first</th>
+<th align="left">last</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+</tr>
+<tr class="even">
+<td align="left">st2</td>
+<td align="left">Peter</td>
+<td align="left">Other</td>
+</tr>
+<tr class="odd">
+<td align="left">st3</td>
+<td align="left">Mary</td>
+<td align="left">Somebody</td>
+</tr>
+</tbody>
+</table>
+<p>This relation has three attributes, <code>login</code>, <code>first</code>, and <code>last</code>, all containing strings. It also has 3 tuples/records corresponding to three students.</p>
+<p>Every table/relation must also contain a <strong>primary key</strong>. A primary key is an attribute or combination of attributes that uniquely identify each row/record/tuple. In the example above, the <code>login</code> attribute itself can serve as a primary key. If we were discussing storing courses, a combination of the department prefix and course number can act as the primary key for the <code>course</code> table.</p>
+<p>Many tables may also contain <strong>foreign keys</strong>. These are attributes of a table that point to the primary keys in another table. For instance the course table will contain a foreign key identifying the department that a course is from. Foreign Keys is what links tables together.</p>
+<h3 id="normalization">Normalization</h3>
+<p>An important process in database design is that of normalization. *Normalization** is a process that aims to rewrite a database in such a way as to minimize the duplication of data values. This often leads to a reduced storage space, at the cost of creating possibly more tables. This is done in multiple steps, via the use of so called &quot;normal forms&quot;.</p>
+<p>As an example, consider a list of enrollment of students in classes. As a first approximation, we might have a long table that looks like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">first</th>
+<th align="left">last</th>
+<th align="left">courseNo</th>
+<th align="left">title</th>
+<th align="left">term</th>
+<th align="left">year</th>
+<th align="left">tags</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">online, afr</td>
+</tr>
+<tr class="even">
+<td align="left">st2</td>
+<td align="left">Peter</td>
+<td align="left">Other</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st3</td>
+<td align="left">Mary</td>
+<td align="left">Somebody</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">MAT122</td>
+<td align="left">Calculus 2</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">online, afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">Peter</td>
+<td align="left">Other</td>
+<td align="left">CS220</td>
+<td align="left">Intro to CS</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">CS220</td>
+<td align="left">Intro to CS</td>
+<td align="left">Fall</td>
+<td align="left">2017</td>
+<td align="left">afr</td>
+</tr>
+</tbody>
+</table>
+<p>You could imagine this list going on and on for a while. There is a certain degree of redundancy, and normalization aims to reconsile that. It is typically expressed as dependence between the attributes.</p>
+<h4 id="first-normal-form">First Normal Form</h4>
+<p>First Normal Form essentially dictates that we cannot have multiple values in one &quot;cell&quot;. In our example above we have violated that principle with the presence of the &quot;tags&quot; attribute, for which there are on occasion two tags for the same item. In order to be in First Normal Form, we cannot allow this and must instead have different rows, one for each of the possible values. So the table would instead look like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">first</th>
+<th align="left">last</th>
+<th align="left">courseNo</th>
+<th align="left">title</th>
+<th align="left">term</th>
+<th align="left">year</th>
+<th align="left">tag</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">Peter</td>
+<td align="left">Other</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st3</td>
+<td align="left">Mary</td>
+<td align="left">Somebody</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">MAT122</td>
+<td align="left">Calculus 2</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">MAT122</td>
+<td align="left">Calculus 2</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">Peter</td>
+<td align="left">Other</td>
+<td align="left">CS220</td>
+<td align="left">Intro to CS</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+<td align="left">CS220</td>
+<td align="left">Intro to CS</td>
+<td align="left">Fall</td>
+<td align="left">2017</td>
+<td align="left">afr</td>
+</tr>
+</tbody>
+</table>
+<p>This seemingly increases the amount of duplicate entries, but it is an essential first step.</p>
+<p>Before we move on to discuss normalization further, we need to discuss the idea of functional dependencies and keys:</p>
+<h4 id="functional-dependencies-and-keys">Functional dependencies and keys</h4>
+<p>We say that an attribute B is <strong>functionally dependent</strong> on another set of attributes A1, A2, ..., if for any two tuples that have the same value on each of the attributes A1, A2, ... it is also the case that the tuples have the same value for B. In other words, if two rows agree on the A attributes, they would also have to agree on the B attribute.</p>
+<p>Looking at our example above, we can see that &quot;term&quot; does not functionally depend on &quot;login&quot;, as we have rows that have the same login but different terms. On the other hand, both &quot;first&quot; and &quot;last&quot; are functionally dependent on &quot;login&quot;, as each time &quot;login&quot; has a certain value this also determines the value for &quot;first&quot; and &quot;last&quot;.</p>
+<p>There are always some <strong>trivial</strong> functional dependencies. For example an attribute A3 is always functionally dependent on a set of attributes &quot;A1, A2, A3&quot; that contains it. Any attribute is naturally dependent on any set of attributes containing it. We call these trivial dependencies. All other dependencies are called <strong>non-trivial</strong>.</p>
+<p>We say that a set of attributes is a <strong>key</strong> for the relation/table, if any attribute in the table is functionally dependent on that set of attributes. In other words, the values at those attributes completely determine all other values.</p>
+<p>An extreme example of a &quot;key&quot; is the set of all attributes. If we know all the values in a row, then we can obviously determine all values in a row.</p>
+<p>In our example table above, a key would be the set of &quot;login, courseNo, term, year, tag&quot;. Knowing these 5 values would determine the rest. It is also in a certain sense a &quot;minimal&quot; key; we could not remove any of the attributes from the set and still expect the rest to determine everything. A key that is &quot;minimal&quot; is called a <strong>candidate key</strong>.</p>
+<p>What we earlier called a <strong>primary key</strong> is essentially a candidate key that we have designated as special.</p>
+<p>Attributes that are in some candidate key are called <strong>prime</strong>, and other attributes are called <strong>non-prime</strong>. In the example above &quot;last&quot; is non-prime, as it would never be a part of a candidate key, at least not if we allow the possibility of two students with the same name: Any candidate key will need to include the &quot;login&quot; attribute in order to distinguish between the different students, and in that case the &quot;last&quot; attribute becomes redundant. Similarly, &quot;first&quot; and &quot;title&quot; are non-prime attributes. All other attributes are prime.</p>
+<h4 id="boyce-codd-normal-form">Boyce-Codd Normal Form</h4>
+<p>We say that a relation/table is in BCNF, if whenever we have a non-trivial functional dependency then the set of attributes that determine the other attribute must be a key.</p>
+<p>For instance the fact that there is a functional dependency between &quot;login&quot; and &quot;first&quot; in the table above means that that relation is not in BCNF form, as &quot;login&quot; is not itself a key (though it is part of a key). The idea is that since &quot;login&quot; alone determines some other attributes, then it should form a separate table along with those attributes.</p>
+<p>There is a process that allows us to <strong>decompose</strong> any relation into Boyce-Codd Normal Form. It goes roughly like this:</p>
+<ul>
+<li>Start with a functional dependency that violates BCNF: So there is a set &quot;A1, A2, ...&quot; of attributes that does not form a key, and they determine some attribute B1.</li>
+<li>Determine any other attributes that functionally depend on the &quot;A1, A2, ...&quot;. Let's called these B2, B3, etc.</li>
+<li>Break our relation in two: One that contains the As and the Bs only. And another that contains the As, none of the Bs, and also any other attributes in the original table.</li>
+<li>Repeat the process with these tables.</li>
+</ul>
+<p>Let's apply this idea to our table. We see that <code>login</code> functionally determines <code>first</code>. It also functionally determines <code>last</code>, and none of the other attributes. We will therefore break it into two tables, one containing <code>login</code>, <code>first</code> and <code>last</code>, and another containing <code>login</code> and the rest. And thus the <code>student</code> table is born.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">first</th>
+<th align="left">last</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+</tr>
+<tr class="even">
+<td align="left">st2</td>
+<td align="left">Peter</td>
+<td align="left">Other</td>
+</tr>
+<tr class="odd">
+<td align="left">st3</td>
+<td align="left">Mary</td>
+<td align="left">Somebody</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">courseNo</th>
+<th align="left">title</th>
+<th align="left">term</th>
+<th align="left">year</th>
+<th align="left">tag</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st3</td>
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">MAT122</td>
+<td align="left">Calculus 2</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">MAT122</td>
+<td align="left">Calculus 2</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">CS220</td>
+<td align="left">Intro to CS</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">CS220</td>
+<td align="left">Intro to CS</td>
+<td align="left">Fall</td>
+<td align="left">2017</td>
+<td align="left">afr</td>
+</tr>
+</tbody>
+</table>
+<p>Now we continue this process, and notice that <code>courseNo</code> functionally determines <code>title</code>. We see if it functionally determines anything else, but it does not. We therefore split the course number and title apart, and this way the <code>course</code> table is born:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">first</th>
+<th align="left">last</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">Joe</td>
+<td align="left">Somebody</td>
+</tr>
+<tr class="even">
+<td align="left">st2</td>
+<td align="left">Peter</td>
+<td align="left">Other</td>
+</tr>
+<tr class="odd">
+<td align="left">st3</td>
+<td align="left">Mary</td>
+<td align="left">Somebody</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th align="left">courseNo</th>
+<th align="left">title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">MAT121</td>
+<td align="left">Calculus 1</td>
+</tr>
+<tr class="even">
+<td align="left">MAT122</td>
+<td align="left">Calculus 2</td>
+</tr>
+<tr class="odd">
+<td align="left">CS220</td>
+<td align="left">Intro to CS</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">courseNo</th>
+<th align="left">term</th>
+<th align="left">year</th>
+<th align="left">tag</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">MAT121</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">MAT121</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">MAT121</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st3</td>
+<td align="left">MAT121</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">MAT122</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">MAT122</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">CS220</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">CS220</td>
+<td align="left">Fall</td>
+<td align="left">2017</td>
+<td align="left">afr</td>
+</tr>
+</tbody>
+</table>
+<h4 id="third-normal-form">Third Normal Form</h4>
+<p>The &quot;second&quot; normal form is not much in use today, we therefore won't discuss it. We will also not discuss third normal form as it is fairly close to BCNF. You are encouraged to explore the topic on your own.</p>
+<h4 id="multivalued-dependencies-and-the-fourth-normal-form">Multivalued Dependencies and the Fourth Normal Form</h4>
+<p>TODO</p>
+</body>
+</html>

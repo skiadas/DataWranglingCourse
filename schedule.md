@@ -26,8 +26,8 @@ A week-by-week breakdown of the material.
 ## Week  3 (09/19-09/23)
 
 - Day 1
-    - Authorization and OAuth2
-    - Introduction to databases and SQL
+    - [Introduction to databases](notes/databases_intro.md)
+    - [Relational Databases](notes/databases_relational.md)
 - Day 2
     - Schema descriptions (Entity-Relation model)
 - Day 3
@@ -73,6 +73,7 @@ A week-by-week breakdown of the material.
 ## Week  8 (10/24-10/28)
 
 - Day 1
+    - Authorization and OAuth2
     - TBA
 - Day 2
     - TBA
