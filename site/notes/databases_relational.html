@@ -22,7 +22,10 @@
 </ul>
 <h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
 <ul>
-<li></li>
+<li>What are the key concepts that comprise a relational database?</li>
+<li>What is normalization? What are its strengths? What are its weaknesses?</li>
+<li>What do the terms &quot;key&quot;, &quot;candidate key&quot;, and &quot;primary key&quot; mean? Provide examples.</li>
+<li>Explain what a functional dependency is.</li>
 </ul>
 <h2 id="notes">Notes</h2>
 <h3 id="basic-concepts-of-relational-databases">Basic concepts of Relational Databases</h3>
@@ -57,7 +60,8 @@
 <p>Every table/relation must also contain a <strong>primary key</strong>. A primary key is an attribute or combination of attributes that uniquely identify each row/record/tuple. In the example above, the <code>login</code> attribute itself can serve as a primary key. If we were discussing storing courses, a combination of the department prefix and course number can act as the primary key for the <code>course</code> table.</p>
 <p>Many tables may also contain <strong>foreign keys</strong>. These are attributes of a table that point to the primary keys in another table. For instance the course table will contain a foreign key identifying the department that a course is from. Foreign Keys is what links tables together.</p>
 <h3 id="normalization">Normalization</h3>
-<p>An important process in database design is that of normalization. *Normalization** is a process that aims to rewrite a database in such a way as to minimize the duplication of data values. This often leads to a reduced storage space, at the cost of creating possibly more tables. This is done in multiple steps, via the use of so called &quot;normal forms&quot;.</p>
+<p>An important process in database design is that of normalization. *Normalization** is a process that aims to rewrite a database in such a way as to minimize the duplication of data values. This often leads to a reduced storage space, at the cost of creating possibly more tables. So we end up with <em>smaller but more tables</em>.</p>
+<p>This is done in multiple steps, via the use of so called &quot;normal forms&quot;.</p>
 <p>As an example, consider a list of enrollment of students in classes. As a first approximation, we might have a long table that looks like this:</p>
 <table>
 <thead>
@@ -481,6 +485,112 @@
 <h4 id="third-normal-form">Third Normal Form</h4>
 <p>The &quot;second&quot; normal form is not much in use today, we therefore won't discuss it. We will also not discuss third normal form as it is fairly close to BCNF. You are encouraged to explore the topic on your own.</p>
 <h4 id="multivalued-dependencies-and-the-fourth-normal-form">Multivalued Dependencies and the Fourth Normal Form</h4>
-<p>TODO</p>
+<p>Multivalued Dependencies are a complicated notion, but we will examine at least one case in our specific example. Notice for example the MAT121 offering in the Fall of 2016, and the tags &quot;online&quot; and &quot;afr&quot;. These tags are fundamentally related to it in the following sense: Whenever we have a row that has certain entry for courseNo/term/year, the online tag, and certain values for the remaining entries (in this case just the student's login), then there must also be a corresponding row where everything else is the same but the tag has the &quot;afr&quot; value instead.</p>
+<p>This is called a &quot;multivalued dependecy&quot;. The attribute &quot;tag&quot; depends on the set of attributes courseNo/term/year but not in a one-to-one relationship, instead in this more complex way.</p>
+<p>The <strong>Fourth Normal Form</strong> specifies that there are no non-trivial multivalued dependencies where the dependency source is not a key. In our instance we do have such a dependency, as the attributes courseNo/term/year do not form a key for the table.</p>
+<p>In order to convert our data into a Fourth Normal form, we need to break every non-trivial multivalued dependency in much the same way we did before, into two relations: One effectively keeps track of students registered in courses, the other keeps track of the tags of those courses.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">login</th>
+<th align="left">courseNo</th>
+<th align="left">term</th>
+<th align="left">year</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">st1</td>
+<td align="left">MAT121</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+</tr>
+<tr class="even">
+<td align="left">st2</td>
+<td align="left">MAT121</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+</tr>
+<tr class="odd">
+<td align="left">st3</td>
+<td align="left">MAT121</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">MAT122</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+</tr>
+<tr class="odd">
+<td align="left">st2</td>
+<td align="left">CS220</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+</tr>
+<tr class="even">
+<td align="left">st1</td>
+<td align="left">CS220</td>
+<td align="left">Fall</td>
+<td align="left">2017</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th align="left">courseNo</th>
+<th align="left">term</th>
+<th align="left">year</th>
+<th align="left">tag</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">MAT121</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="even">
+<td align="left">MAT121</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">MAT121</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">MAT122</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">online</td>
+</tr>
+<tr class="odd">
+<td align="left">MAT122</td>
+<td align="left">Winter</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="even">
+<td align="left">CS220</td>
+<td align="left">Fall</td>
+<td align="left">2016</td>
+<td align="left">afr</td>
+</tr>
+<tr class="odd">
+<td align="left">CS220</td>
+<td align="left">Fall</td>
+<td align="left">2017</td>
+<td align="left">afr</td>
+</tr>
+</tbody>
+</table>
+<p>We could further simplify matters by effectively creating a &quot;section&quot; table to hold the course/term/year triple, and associate a primary key sectionId with each different section. This would cut down on the number of columns in the above two tables, but it would not lessen the number of rows.</p>
 </body>
 </html>

@@ -8,7 +8,10 @@
 
 ### Practice questions on the reading
 
--
+- What are the key concepts that comprise a relational database?
+- What is normalization? What are its strengths? What are its weaknesses?
+- What do the terms "key", "candidate key", and "primary key" mean? Provide examples.
+- Explain what a functional dependency is.
 
 ## Notes
 
@@ -30,7 +33,9 @@ Many tables may also contain **foreign keys**. These are attributes of a table t
 
 ### Normalization
 
-An important process in database design is that of normalization. *Normalization** is a process that aims to rewrite a database in such a way as to minimize the duplication of data values. This often leads to a reduced storage space, at the cost of creating possibly more tables. This is done in multiple steps, via the use of so called "normal forms".
+An important process in database design is that of normalization. *Normalization** is a process that aims to rewrite a database in such a way as to minimize the duplication of data values. This often leads to a reduced storage space, at the cost of creating possibly more tables. So we end up with *smaller but more tables*.
+
+This is done in multiple steps, via the use of so called "normal forms".
 
 As an example, consider a list of enrollment of students in classes. As a first approximation, we might have a long table that looks like this:
 
@@ -145,4 +150,31 @@ The "second" normal form is not much in use today, we therefore won't discuss it
 
 #### Multivalued Dependencies and the Fourth Normal Form
 
-TODO
+Multivalued Dependencies are a complicated notion, but we will examine at least one case in our specific example. Notice for example the MAT121 offering in the Fall of 2016, and the tags "online" and "afr". These tags are fundamentally related to it in the following sense: Whenever we have a row that has certain entry for courseNo/term/year, the online tag, and certain values for the remaining entries (in this case just the student's login), then there must also be a corresponding row where everything else is the same but the tag has the "afr" value instead.
+
+This is called a "multivalued dependecy". The attribute "tag" depends on the set of attributes courseNo/term/year but not in a one-to-one relationship, instead in this more complex way.
+
+The **Fourth Normal Form** specifies that there are no non-trivial multivalued dependencies where the dependency source is not a key. In our instance we do have such a dependency, as the attributes courseNo/term/year do not form a key for the table.
+
+In order to convert our data into a Fourth Normal form, we need to break every non-trivial multivalued dependency in much the same way we did before, into two relations: One effectively keeps track of students registered in courses, the other keeps track of the tags of those courses.
+
+login   courseNo  term    year
+------- --------- ------- -----
+st1     MAT121    Fall    2016
+st2     MAT121    Winter  2016
+st3     MAT121    Winter  2016
+st1     MAT122    Winter  2016
+st2     CS220     Fall    2016
+st1     CS220     Fall    2017
+
+courseNo  term    year  tag
+--------- ------- ----- -------
+MAT121    Fall    2016  online
+MAT121    Fall    2016  afr
+MAT121    Winter  2016  afr
+MAT122    Winter  2016  online
+MAT122    Winter  2016  afr
+CS220     Fall    2016  afr
+CS220     Fall    2017  afr
+
+We could further simplify matters by effectively creating a "section" table to hold the course/term/year triple, and associate a primary key sectionId with each different section. This would cut down on the number of columns in the above two tables, but it would not lessen the number of rows.
