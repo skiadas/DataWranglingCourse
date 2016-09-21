@@ -29,14 +29,15 @@ A week-by-week breakdown of the material.
     - [Introduction to databases](notes/databases_intro.md)
     - [Relational Databases](notes/databases_relational.md)
 - Day 2
-    - Schema descriptions (Entity-Relation model)
+    - [Introduction to MySQL](notes/databases_mysql.md)
 - Day 3
+    - [More on SQL queries](notes/databases_mysql.md)
     - Assignment 3: Working with MySQL database tables
 
 ## Week  4 (09/26-09/30)
 
 - Day 1
-    - Normalization
+    - Schema descriptions (Entity-Relation model)
 - Day 2
     - SQL Queries
 - Day 3
