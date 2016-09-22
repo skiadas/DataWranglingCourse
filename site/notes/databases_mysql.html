@@ -255,6 +255,39 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                   <span class="kw">AND</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id
                   <span class="kw">AND</span> c<span class="ch">.</span>prefix = <span class="st">&quot;CS&quot;</span>
                  );</code></pre></div>
+<h4 id="joins">Joins</h4>
+<p>Many times in the earlier sections we have had the need to consolidate different tables across foreign keys. Let us look at one more example, where we want to show all enrollments in terms of student name and course info. We will do that in steps.</p>
+<p>First, we will try to look at enrollments but instead of seeing student ids, we want to see all their information. Our first attempt would be this:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s, enrollments e;</code></pre></div>
+<p>Try it out and look at the result. You should see first the columns for the students, and then the ones from the enrollments. But take a closer look at the id column, holding the student id, and the <code>student_id</code> column, holding the student id stored in the enrollment. They don't always match! Right now we have every student listed with every enrollment, not only theirs but of all the other students as well! That's clearly wrong. We need to make sure to only see the pair of a student and an enrollment if the enrollment corresponds to <em>that</em> student. We need a WHERE clause for that:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s, enrollments e
+<span class="kw">WHERE</span> s<span class="ch">.</span>id = e<span class="ch">.</span>student_id;</code></pre></div>
+<p>Any time we bring together tables like that, it is called a <strong>join</strong>. SQL offers us an alternative way to describe such joins, like so:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s
+<span class="kw">JOIN</span> enrollments e <span class="kw">ON</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id;</code></pre></div>
+<p>If we had omitted the ON part it would have given us all pairs of students and enrollments. The ON part is the analog of the WHERE clause before.</p>
+<p>This is often called an &quot;inner&quot; join. We can also have something called a &quot;left join&quot;. Try it out and see the difference:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> enrollments e <span class="kw">ON</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id;</code></pre></div>
+<p>You see that this includes a row for a student that is not enrolled in any classes. There is also a &quot;right join&quot; that would have instead done the same thing for &quot;enrollments&quot;, but that would not have given us anything new. There should also be a &quot;full join&quot; that preserves rows for values that appear in only one side, without a match on the other side, but MySQL does not support it. There are ways to emulate it however, and if you find yourself needing it just search online for the many answers.</p>
+<p>Here is an further example to incorporate the course info in the table:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> first, last, prefix, no
+<span class="kw">FROM</span> students <span class="kw">as</span> s
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> enrollments <span class="kw">as</span> e <span class="kw">ON</span> s<span class="ch">.</span>id = e<span class="ch">.</span>student_id
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> courses <span class="kw">as</span> c <span class="kw">ON</span> c<span class="ch">.</span>id = e<span class="ch">.</span>course_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> prefix, no;</code></pre></div>
+<p>Let us practice some more with joins. You can do these problems via either joins or just using a WHERE clause where appropriate.</p>
+<ul>
+<li>Find all pairs of students and courses where the student is enrolled in the course.</li>
+<li>Find all pairs of students and CS courses where the student is enrolled in the course.</li>
+<li>Find all pairs of ids for students that are in the same class. This would require joining two enrollments tables (i.e. joining the enrollments table with another copy of itself). You should not include pairs that consist of the same student twice.</li>
+<li>Find all pairs of students with the same last name but different first names.</li>
+<li>In the two problems above, find a way to make it so that pairs only appear once, i.e. if we have students s and t we would NOT see both the pair (s,t) and the pair (t,s).</li>
+</ul>
 <h4 id="sql-functions">SQL functions</h4>
 <p>SQL contains a number of built-in functions, and even allows you to create your own, though that is a more advanced process. You can find a <a href="http://dev.mysql.com/doc/refman/5.7/en/func-op-summary-ref.html">full list of the available mySQL functions here</a>. We will highlight a few:</p>
 <ul>
@@ -286,32 +319,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                     <span class="kw">WHERE</span> course_id = id) <span class="kw">AS</span> enrollment
 <span class="kw">FROM</span> courses
 <span class="kw">ORDER</span> <span class="kw">BY</span> enrollment <span class="kw">DESC</span>;</code></pre></div>
-<h4 id="joins">Joins</h4>
-<p>TODO</p>
-<p>Many times in the earlier sections we have had the need to consolidate different tables across foreign keys. Let us look at one more example, where we show all enrollments in terms of student name and course info:</p>
-<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> login, first, last, prefix, no
-<span class="kw">FROM</span> students <span class="kw">as</span> s, courses <span class="kw">as</span> c, enrollments <span class="kw">as</span> e
-<span class="kw">WHERE</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id
-<span class="kw">AND</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
-<span class="kw">ORDER</span> <span class="kw">BY</span> prefix, no;</code></pre></div>
-<p>This is a common enough pattern, and it comes under the name of a <strong>join</strong>. There are various kinds of joins. Here's the above query with &quot;inner joins&quot;:</p>
-<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> first, last, prefix, no
-<span class="kw">FROM</span> students <span class="kw">as</span> s
-<span class="kw">JOIN</span> enrollments <span class="kw">as</span> e <span class="kw">ON</span> s<span class="ch">.</span>id = e<span class="ch">.</span>student_id
-<span class="kw">JOIN</span> courses <span class="kw">as</span> c <span class="kw">ON</span> c<span class="ch">.</span>id = e<span class="ch">.</span>course_id
-<span class="kw">ORDER</span> <span class="kw">BY</span> prefix, no;</code></pre></div>
-<p>or we could have done</p>
-<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> first, last, prefix, no
-<span class="kw">FROM</span> courses <span class="kw">as</span> c
-<span class="kw">JOIN</span> enrollments <span class="kw">as</span> e <span class="kw">ON</span> c<span class="ch">.</span>id = e<span class="ch">.</span>course_id
-<span class="kw">JOIN</span> students <span class="kw">as</span> s <span class="kw">ON</span> s<span class="ch">.</span>id = e<span class="ch">.</span>student_id
-<span class="kw">ORDER</span> <span class="kw">BY</span> prefix, no;</code></pre></div>
-<p>There is a different kind of join, called a LEFT JOIN. Here is an example of it, see if you can spot the difference in the results:</p>
-<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> first, last, prefix, no
-<span class="kw">FROM</span> courses <span class="kw">as</span> c
-<span class="kw">LEFT</span> <span class="kw">JOIN</span> enrollments <span class="kw">as</span> e <span class="kw">ON</span> c<span class="ch">.</span>id = e<span class="ch">.</span>course_id
-<span class="kw">LEFT</span> <span class="kw">JOIN</span> students <span class="kw">as</span> s <span class="kw">ON</span> s<span class="ch">.</span>id = e<span class="ch">.</span>student_id
-<span class="kw">ORDER</span> <span class="kw">BY</span> prefix, no;</code></pre></div>
 <h4 id="delete">DELETE</h4>
 <p>We can use DELETE to remove entries. For instance let's remove all students with first name Peter from all classes. As this is a destructive operation, you want to do a SELECT query first to make sure you have the right cases. You should do this yourself: Find all enrollments where the student's name is &quot;Joe&quot;.</p>
 <div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> * <span class="kw">FROM</span> enrollments

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="lab-assignment-3-working-with-mysql">Lab Assignment 3: Working with MySQL</h1>
+<p>In this assignment we will continue the work on MySQL data that we carried on in class. Your data at this point should be the result after we execute all the commands in the mysql section of the notes, that we just went over together in class. You should download the file TODO FIX LINK open the script file from mysqlworkbench. It contains instructions that would delete the tables we created and recreate them. When you want to &quot;reset&quot; the database, just execute that script. You will add your answers at the bottom of that file.</p>
+<p>Make sure to do these assignments in order.</p>
+<ol style="list-style-type: decimal">
+<li>Write the SQL command to create a new table, called <code>grades</code>. It will have two attributes: One will be called &quot;letter&quot;, and it should be a fixed 2-byte character string (big enough to hold things like A+). The other should be called &quot;point&quot; and it should be a double-precision number. The letter attribute should be marked as a primary key, and the gpa attribute should be marked as unique.</li>
+<li>Now populate this table using an INSERT, to put it in the correspondence between letter grades and gpas outlined in the college catalog (for instance A would be paired with 4.0). You can get an online copy of the catalog at my.hanover.edu. You only need to includes grades up to F.</li>
+<li>Use ALTER TABLE to change the enrollments table so that it has a FOREIGN KEY on the <code>letter_grade</code> attribute, pointing to the <code>letter</code> attribute of the <code>grades</code> table. Do the same for the <code>point_grade</code> attribute, it should point to the <code>point</code> attribute of the <code>grades</code> table.</li>
+<li>Prepare UPDATE statements that add grades to student enrolled in courses as follows:
+<ul>
+<li>Assign A to everyone with last name &quot;Somebody&quot; in all their classes.</li>
+<li>Assign C to everyone with last name &quot;Doe&quot; in all their CS classes.</li>
+<li>Assign B to every student on every course that they are enrolled in and that they don't have a grade yet.</li>
+<li>In each case you should be assigning both letter grades and point grades.</li>
+</ul></li>
+<li>Produce a SELECT query that for each student prints out the student's id along with the number of credits they have.</li>
+<li>Produce a SELECT query that prints out on each row the student's id along with their cumulative gpa. To compute that gpa you would need to do the following: You can do a join of the students, enrollments and courses, then have a GROUP BY clause for student id, then compute the sum of &quot;points times credits&quot; and divide by the sum of credits. Something like <code>SUM(point_grade*credits) / SUM(credits)</code> would do that part. Name the column &quot;gpa&quot;.</li>
+<li>Write a query to return the ids of students who are not enrolled in any CS courses.</li>
+<li>Write an UPDATE query that would correctly set the gpa and number of credits earned values in the students table.</li>
+<li>Write an INSERT that would find any student that got at least a B (use the point grade instead) in CS220, and enroll them in CS223.</li>
+</ol>
+<p>You should submit your completed SQL script as an email attachment to me. The name of the file should include your first and last name, in addition to the assignment's number. It should contain no whitespaces.</p>
+</body>
+</html>

@@ -284,6 +284,57 @@ AND NOT EXISTS (SELECT prefix
                  );
 ```
 
+#### Joins
+
+Many times in the earlier sections we have had the need to consolidate different tables across foreign keys. Let us look at one more example, where we want to show all enrollments in terms of student name and course info. We will do that in steps.
+
+First, we will try to look at enrollments but instead of seeing student ids, we want to see all their information. Our first attempt would be this:
+```sqlmysql
+SELECT *
+FROM students s, enrollments e;
+```
+
+Try it out and look at the result. You should see first the columns for the students, and then the ones from the enrollments. But take a closer look at the id column, holding the student id, and the `student_id` column, holding the student id stored in the enrollment. They don't always match! Right now we have every student listed with every enrollment, not only theirs but of all the other students as well! That's clearly wrong. We need to make sure to only see the pair of a student and an enrollment if the enrollment corresponds to *that* student. We need a WHERE clause for that:
+```sqlmysql
+SELECT *
+FROM students s, enrollments e
+WHERE s.id = e.student_id;
+```
+
+Any time we bring together tables like that, it is called a **join**. SQL offers us an alternative way to describe such joins, like so:
+```sqlmysql
+SELECT *
+FROM students s
+JOIN enrollments e ON e.student_id = s.id;
+```
+If we had omitted the ON part it would have given us all pairs of students and enrollments. The ON part is the analog of the WHERE clause before.
+
+This is often called an "inner" join. We can also have something called a "left join". Try it out and see the difference:
+```sqlmysql
+SELECT *
+FROM students s
+LEFT JOIN enrollments e ON e.student_id = s.id;
+```
+
+You see that this includes a row for a student that is not enrolled in any classes. There is also a "right join" that would have instead done the same thing for "enrollments", but that would not have given us anything new. There should also be a "full join" that preserves rows for values that appear in only one side, without a match on the other side, but MySQL does not support it. There are ways to emulate it however, and if you find yourself needing it just search online for the many answers.
+
+Here is an further example to incorporate the course info in the table:
+```sqlmysql
+SELECT first, last, prefix, no
+FROM students as s
+LEFT JOIN enrollments as e ON s.id = e.student_id
+LEFT JOIN courses as c ON c.id = e.course_id
+ORDER BY prefix, no;
+```
+
+Let us practice some more with joins. You can do these problems via either joins or just using a WHERE clause where appropriate.
+
+- Find all pairs of students and courses where the student is enrolled in the course.
+- Find all pairs of students and CS courses where the student is enrolled in the course.
+- Find all pairs of ids for students that are in the same class. This would require joining two enrollments tables (i.e. joining the enrollments table with another copy of itself). You should not include pairs that consist of the same student twice.
+- Find all pairs of students with the same last name but different first names.
+- In the two problems above, find a way to make it so that pairs only appear once, i.e. if we have students s and t we would NOT see both the pair (s,t) and the pair (t,s).
+
 #### SQL functions
 
 SQL contains a number of built-in functions, and even allows you to create your own, though that is a more advanced process. You can find a [full list of the available mySQL functions here](http://dev.mysql.com/doc/refman/5.7/en/func-op-summary-ref.html). We will highlight a few:
@@ -329,46 +380,6 @@ SELECT prefix, no, (SELECT COUNT(student_id)
                     WHERE course_id = id) AS enrollment
 FROM courses
 ORDER BY enrollment DESC;
-```
-
-#### Joins
-
-TODO
-
-Many times in the earlier sections we have had the need to consolidate different tables across foreign keys. Let us look at one more example, where we show all enrollments in terms of student name and course info:
-
-```sqlmysql
-SELECT login, first, last, prefix, no
-FROM students as s, courses as c, enrollments as e
-WHERE e.student_id = s.id
-AND e.course_id = c.id
-ORDER BY prefix, no;
-```
-
-This is a common enough pattern, and it comes under the name of a **join**. There are various kinds of joins. Here's the above query with "inner joins":
-```sqlmysql
-SELECT first, last, prefix, no
-FROM students as s
-JOIN enrollments as e ON s.id = e.student_id
-JOIN courses as c ON c.id = e.course_id
-ORDER BY prefix, no;
-```
-or we could have done
-```sqlmysql
-SELECT first, last, prefix, no
-FROM courses as c
-JOIN enrollments as e ON c.id = e.course_id
-JOIN students as s ON s.id = e.student_id
-ORDER BY prefix, no;
-```
-
-There is a different kind of join, called a LEFT JOIN. Here is an example of it, see if you can spot the difference in the results:
-```sqlmysql
-SELECT first, last, prefix, no
-FROM courses as c
-LEFT JOIN enrollments as e ON c.id = e.course_id
-LEFT JOIN students as s ON s.id = e.student_id
-ORDER BY prefix, no;
 ```
 
 #### DELETE

@@ -31,25 +31,24 @@ A week-by-week breakdown of the material.
 - Day 2
     - [Introduction to MySQL](notes/databases_mysql.md)
 - Day 3
-    - [More on SQL queries](notes/databases_mysql.md)
-    - Assignment 3: Working with MySQL database tables
+    - [Joins, functions, updates and deletes](notes/databases_mysql.md)
+    - [Assignment 3: Working with MySQL database tables](assignments/3.md)
 
 ## Week  4 (09/26-09/30)
 
 - Day 1
-    - Schema descriptions (Entity-Relation model)
+    - Indexes and Views
 - Day 2
-    - SQL Queries
+    - Python/SQL interaction
 - Day 3
-    - More on SQL queries
     - Assignment 4: Practice with SQL queries
 
 ## Week  5 (10/03-10/07)
 
 - Day 1
-    - Updates and Deletes
+    - Schema descriptions (Entity-Relation model)
 - Day 2
-    - Indexes and Views
+    - ORM-based SQL access
 - Day 3
     - Assignment 5: More advanced work with SQL databases
 
