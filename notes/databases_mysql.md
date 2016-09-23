@@ -334,6 +334,7 @@ Let us practice some more with joins. You can do these problems via either joins
 - Find all pairs of ids for students that are in the same class. This would require joining two enrollments tables (i.e. joining the enrollments table with another copy of itself). You should not include pairs that consist of the same student twice.
 - Find all pairs of students with the same last name but different first names.
 - In the two problems above, find a way to make it so that pairs only appear once, i.e. if we have students s and t we would NOT see both the pair (s,t) and the pair (t,s).
+- Find all pairs of courses that have a student in common.
 
 #### SQL functions
 
