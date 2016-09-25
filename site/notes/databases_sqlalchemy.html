@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="accessing-databases-from-other-languages">Accessing databases from other languages</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="http://docs.sqlalchemy.org/en/rel_0_9/core/index.html">SQLAlchemy Core</a></li>
+<li><a href="https://en.wikipedia.org/wiki/SQL_injection">SQL Injection</a></li>
+<li><a href="http://docs.sqlalchemy.org/en/rel_0_9/core/metadata.html">SQLAlchemy Describing Databases</a></li>
+<li><a href="http://docs.sqlalchemy.org/en/rel_0_9/core/types.html">SQLAlchemy Column and Data Types</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<h3 id="sql-injection">SQL Injection</h3>
+<p>We often need to communicate with databases from within a language like Python. One ways is to form an SQL query and then communicate with the database server to submit that query. There are many reasons to not do that. One of these is the various forms of <strong>SQL injection</strong>, that have catastrophic consequences and are harder to guard against when writing your own query code.</p>
+<p>Let's consider a simple example. We have someone type in their name in a web form, then query the database about their information. We may have in mind a query like:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> name = <span class="st">&#39;usernameHere&#39;</span>;</code></pre></div>
+<p>Our script is in Python, and we'll need to create that string. We may do something like this:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">username <span class="op">=</span> .... <span class="co"># We&#39;ve read the username from a webpage. User provided it</span>
+query <span class="op">=</span> <span class="st">&quot;SELECT * FROM users WHERE name =&#39;&quot;</span> <span class="op">+</span> username <span class="op">+</span> <span class="st">&quot;&#39;;&quot;</span></code></pre></div>
+<p>If we are not careful, the provided username might be something like: <code>'; DROP TABLE users; --</code>. In that case the query we are sending to SQL would be:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> name = <span class="st">&#39;&#39;</span>; <span class="kw">DROP</span> <span class="kw">TABLE</span> users; <span class="co">--&#39;;</span></code></pre></div>
+<p>This would effectively execute the DROP TABLES command on the database, deleting our entire database. You must always take care to &quot;clean up&quot; your input and not blindly feed it into an SQL query. This is called &quot;sanitizing&quot;.</p>
+<blockquote>
+<p>Always sanitize user input!</p>
+</blockquote>
+<p>This is easier to do when you use built-in libraries for database access. We will learn exactly one such library for Python, called SQLAlchemy. But we would be remiss if we didn't first link to this awesome and relevant xkcd coming:</p>
+<div class="figure">
+<img src="http://imgs.xkcd.com/comics/exploits_of_a_mom.png" alt="Sanitize your inputs!" />
+<p class="caption">Sanitize your inputs!</p>
+</div>
+<h3 id="sqlalchemy">SQLAlchemy</h3>
+<p>There are many different libraries to use in order to interface with SQL databases. We will see the basics of SQLAlchemy in this section. SQLAlchemy has two main user-facing components:</p>
+<dl>
+<dt>SQLAlchemy ORM</dt>
+<dd>This offers a way to link objects directly to database tables, and work with Python as if we only had normal objects around. We will examine this later.
+</dd>
+<dt>SQLAlchemy Core</dt>
+<dd>Core offers a more direct access to the database, including an SQL Expression Language interface that allows us to write queries in Python.
+</dd>
+</dl>
+<p>We will spend this section looking at parts of the core, and specifically the expression language. We will use this also as an opportunity to revisit the Twitter API and store tweets in the database.</p>
+<h4 id="connecting">Connecting</h4>
+<p>We start by importing SQLAlchemy and contacting the database:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> sqlalchemy
+<span class="co">## Reading database keys</span>
+<span class="im">import</span> json
+<span class="cf">with</span> <span class="bu">open</span>(<span class="st">&#39;keys.json&#39;</span>, <span class="st">&#39;r&#39;</span>) <span class="im">as</span> f:
+   vault <span class="op">=</span> json.loads(f.read())[<span class="st">&#39;vault&#39;</span>]
+
+engineUrl <span class="op">=</span> (<span class="st">&#39;mysql+mysqldb://&#39;</span> <span class="op">+</span> vault[<span class="st">&#39;username&#39;</span>] <span class="op">+</span>
+             <span class="co">&#39;:&#39;</span> <span class="op">+</span> vault[<span class="st">&#39;password&#39;</span>] <span class="op">+</span>
+             <span class="co">&#39;@&#39;</span> <span class="op">+</span> vault[<span class="st">&#39;server&#39;</span>] <span class="op">+</span>
+             <span class="co">&#39;/&#39;</span> <span class="op">+</span> vault[<span class="st">&#39;schema&#39;</span>])
+
+<span class="co"># Establishing a specific database connection</span>
+engine <span class="op">=</span> create_engine(engineUrl, echo <span class="op">=</span> <span class="va">True</span>)
+<span class="co"># Now engine can be used to interact with the database</span></code></pre></div>
+<p>In order to make the above work, you will need to add some appropriate entries to the keys.json file. Your values will be different of course:</p>
+<pre><code>   &quot;vault&quot;: {
+      &quot;username&quot;: &quot;skiadas&quot;,
+      &quot;password&quot;: &quot;....&quot;,
+      &quot;server&quot;: &quot;vault.hanover.edu&quot;,
+      &quot;schema&quot;: &quot;skiadas&quot;
+   }</code></pre>
+<h4 id="creating-or-specifying-tables">Creating or specifying tables</h4>
+<p>In order to do further work with the database, we need to describe the tables. Let us first discuss in SQL terms what we want. We will be looking at some Twitter data. So we might have the following tables:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">CREATE</span> <span class="kw">TABLE</span> tw_users (
+    id <span class="dt">INT</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,
+    screen_name <span class="dt">VARCHAR</span>(<span class="dv">140</span>),
+    name <span class="dt">VARCHAR</span>(<span class="dv">140</span>)
+);
+<span class="kw">CREATE</span> <span class="kw">TABLE</span> tw_tweets (
+    id <span class="dt">INT</span>  <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,
+    <span class="dt">text</span> <span class="dt">VARCHAR</span>(<span class="dv">150</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    created <span class="dt">TIMESTAMP</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    <span class="fu">user</span> <span class="dt">INT</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,
+    <span class="kw">CONSTRAINT</span> FK_user <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (<span class="fu">user</span>) <span class="kw">REFERENCES</span> tw_users(id)
+);
+<span class="kw">CREATE</span> <span class="kw">TABLE</span> tw_mentions (
+    tweet_id <span class="dt">INT</span>,
+    user_id <span class="dt">INT</span>,
+    <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (tweet_id, user_id),
+    <span class="kw">CONSTRAINT</span> FK_mention_tweet <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (tweet_id) <span class="kw">REFERENCES</span> tw_tweets(id),
+    <span class="kw">CONSTRAINT</span> FK_mention_user <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (user_id) <span class="kw">REFERENCES</span> tw_users(id)
+);
+<span class="kw">CREATE</span> <span class="kw">TABLE</span> tw_hashtags (
+    tweet_id <span class="dt">INT</span>,
+    hashtag <span class="dt">VARCHAR</span>(<span class="dv">140</span>),
+    <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (tweet_id, hashtag),
+    <span class="kw">CONSTRAINT</span> FK_hashtag_tweet <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (tweet_id) <span class="kw">REFERENCES</span> tw_tweets(id),
+);</code></pre></div>
+<p>This is how we would create these tables in MySQL. Take a moment to study them and make sure they make sense. We will instead learn how to describe the same information in SQLAlchemy.</p>
+<p>Such information is referred to as <strong>metadata</strong>. We start with creating a &quot;Metadata object&quot;, then use the Table and Column methods to add specifications:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">metadata <span class="op">=</span> Metadata()
+dbusers <span class="op">=</span> Table(<span class="st">&#39;tw_users&#39;</span>, metadata,
+   Column(<span class="st">&#39;id&#39;</span>, Integer, primary_key <span class="op">=</span> <span class="va">True</span>),
+   Column(<span class="st">&#39;screen_name&#39;</span>, String(<span class="dv">140</span>)),
+   Column(<span class="st">&#39;name&#39;</span>, String(<span class="dv">140</span>))
+)
+dbtweets <span class="op">=</span> Table(<span class="st">&#39;tw_tweets&#39;</span>, metadata,
+   Column(<span class="st">&#39;id&#39;</span>, Integer, primary_key <span class="op">=</span> <span class="va">True</span>),
+   Column(<span class="st">&#39;text&#39;</span>, String(<span class="dv">150</span>), nullable <span class="op">=</span> <span class="va">False</span>),
+   Column(<span class="st">&#39;created&#39;</span>, DateTime(timezone <span class="op">=</span> <span class="va">True</span>), nullable <span class="op">=</span> <span class="va">False</span>),
+   Column(<span class="st">&#39;user&#39;</span>, Integer, ForeignKey(<span class="st">&#39;tw_users.id&#39;</span>), nullable <span class="op">=</span> <span class="va">False</span>)
+)
+dbmentions <span class="op">=</span> Table(<span class="st">&#39;tw_mentions&#39;</span>, metadata,
+   Column(<span class="st">&#39;tweet_id&#39;</span>, Integer, ForeignKey(<span class="st">&#39;tw_tweets.id&#39;</span>), primary_key <span class="op">=</span> <span class="va">True</span>),
+   Column(<span class="st">&#39;user_id&#39;</span>, Integer, ForeignKey(<span class="st">&#39;tw_users.id&#39;</span>), primary_key <span class="op">=</span> <span class="va">True</span>)
+)
+dbhashtags <span class="op">=</span> Table(<span class="st">&#39;tw_hashtags&#39;</span>, metadata,
+   Column(<span class="st">&#39;tweet_id&#39;</span>, Integer, ForeignKey(<span class="st">&#39;tw_tweets.id&#39;</span>), primary_key <span class="op">=</span> <span class="va">True</span>),
+   Column(<span class="st">&#39;hashtag&#39;</span>, String(<span class="dv">140</span>), primary_key <span class="op">=</span> <span class="va">True</span>)
+)
+<span class="co"># Create these tables if they do not exist</span>
+metadata.create_all(engine)</code></pre></div>
+<h4 id="inserting-data">Inserting data</h4>
+<p>We will now show how we can use SQLAlchemy to add new entries into the database. We will read tweet data as we did in the second assignment. We will then create list comprehensions that extra tweet information, user information and hashtag/mentions from a list of tweets. Finally, we do mass inserts of the created lists into our tables:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">conn <span class="op">=</span> engine.<span class="ex">connect</span>()
+<span class="im">from</span> datetime <span class="im">import</span> datetime
+time_format <span class="op">=</span> <span class="st">&#39;%a %b </span><span class="sc">%d</span><span class="st"> %H:%M:%S +0000 %Y&#39;</span>
+
+<span class="co"># The following 4 methods obtain lists of values that we would</span>
+<span class="co"># want to insert into the database, starting from a list of tweets.</span>
+<span class="co">#</span>
+<span class="co"># Returns a list of all users (possibly with duplicates)</span>
+<span class="kw">def</span> getAllUsers(tweets):
+   allUsers <span class="op">=</span> ([ tweet[<span class="st">&#39;user&#39;</span>] <span class="cf">for</span> tweet <span class="op">in</span> tweets ] <span class="op">+</span>
+               [  user
+                  <span class="cf">for</span> tweet <span class="op">in</span> tweets
+                  <span class="cf">for</span> user <span class="op">in</span> tweet[<span class="st">&#39;entities&#39;</span>][<span class="st">&#39;user_mentions&#39;</span>]
+               ])
+   <span class="cf">return</span> [
+      {
+         <span class="st">&#39;id&#39;</span>: user[<span class="st">&#39;id&#39;</span>],
+         <span class="co">&#39;screen_name&#39;</span>: user[<span class="st">&#39;screen_name&#39;</span>],
+         <span class="co">&#39;name&#39;</span>: user[<span class="st">&#39;name&#39;</span>]
+      }
+      <span class="cf">for</span> user <span class="op">in</span> allUsers
+   ]
+
+<span class="co"># Returns a list of mentions ready to go in database</span>
+<span class="kw">def</span> getAllMentions(tweets):
+   <span class="cf">return</span> [
+      { <span class="st">&#39;tweet_id&#39;</span>: tweet[<span class="st">&#39;id&#39;</span>], <span class="st">&#39;user_id&#39;</span>: user[<span class="st">&#39;id&#39;</span>] }
+      <span class="cf">for</span> tweet <span class="op">in</span> tweets
+      <span class="cf">for</span> user <span class="op">in</span> tweet[<span class="st">&#39;entities&#39;</span>][<span class="st">&#39;user_mentions&#39;</span>]
+   ]
+
+<span class="co"># Returns tweet-hashtag pairs</span>
+<span class="kw">def</span> getAllHashtags(tweets):
+   <span class="cf">return</span> [
+      { <span class="st">&#39;tweet_id&#39;</span>: tweet[<span class="st">&#39;id&#39;</span>], <span class="st">&#39;hashtag&#39;</span>: tag[<span class="st">&#39;text&#39;</span>] }
+      <span class="cf">for</span> tweet <span class="op">in</span> tweets
+      <span class="cf">for</span> tag <span class="op">in</span> tweet[<span class="st">&#39;entities&#39;</span>][<span class="st">&#39;hashtags&#39;</span>]
+   ]
+
+<span class="co"># Returns simplified tweet entries</span>
+<span class="kw">def</span> getSimpleTweets(tweets):
+   <span class="cf">return</span> [
+      {
+         <span class="st">&#39;id&#39;</span>: tweet[<span class="st">&#39;id&#39;</span>],
+         <span class="co">&#39;created&#39;</span>: datetime.strptime(tweet[<span class="st">&#39;created_at&#39;</span>], time_format),
+         <span class="co">&#39;text&#39;</span>: tweet[<span class="st">&#39;text&#39;</span>],
+         <span class="co">&#39;user&#39;</span>: tweet[<span class="st">&#39;user&#39;</span>][<span class="st">&#39;id&#39;</span>]
+      }
+      <span class="cf">for</span> tweet <span class="op">in</span> tweets
+   ]
+
+<span class="co">## Processes the tweets</span>
+<span class="kw">def</span> processTweets(tweets):
+   conn.execute(dbusers.insert().prefix_with(<span class="st">&#39;IGNORE&#39;</span>), getAllUsers(tweets))
+   conn.execute(dbtweets.insert().prefix_with(<span class="st">&#39;IGNORE&#39;</span>), getSimpleTweets(tweets))
+   conn.execute(dbmentions.insert().prefix_with(<span class="st">&#39;IGNORE&#39;</span>), getAllMentions(tweets))
+   conn.execute(dbhashtags.insert().prefix_with(<span class="st">&#39;IGNORE&#39;</span>), getAllHashtags(tweets))
+
+processTweets(hillary)
+processTweets(donald)</code></pre></div>
+<p>The relevant SQLALchemy methods are in the <code>processTweets</code> function, where <code>insert</code> is used to create an INSERT query, then <code>execute</code> executes that query in a connection, passing it the lists of values to add.</p>
+<p>At the end of this you should have a rich database of tweets to work with.</p>
+<h4 id="querying-the-data">Querying the data</h4>
+<p>Now that we have a rich dataset, let us try to do some queries. We'll start with the following query: We want to look at the hashtags list, and see how many times each tag occurs, the order by those counts. Here is how we would do this in SQL:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> hashtag, <span class="fu">COUNT</span>(*) <span class="kw">as</span> no_tweets
+<span class="kw">FROM</span> tw_hashtags
+<span class="kw">GROUP</span> <span class="kw">BY</span> hashtag
+<span class="kw">ORDER</span> <span class="kw">BY</span> no_tweets <span class="kw">DESC</span>;</code></pre></div>
+<p>Now we want to do the same query with SQLAlchemy. Here is how it would look like:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">tag_counts <span class="op">=</span> select([ dbhashtags.c.hashtag,
+                      func.count(dbhashtags.c.tweet_id).label(<span class="st">&#39;no_tweets&#39;</span>)
+                    ]).group_by(<span class="st">&#39;hashtag&#39;</span>).order_by(desc(<span class="st">&#39;no_tweets&#39;</span>))
+results <span class="op">=</span> conn.execute(tag_counts).fetchall()</code></pre></div>
+<p>Let's do another similar query, where we look at how many hashtags each candidate has used.</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">select</span> u<span class="ch">.</span>name, <span class="fu">count</span>(*) <span class="kw">AS</span> hashtags
+<span class="kw">FROM</span> tw_hashtags h
+<span class="kw">JOIN</span> tw_tweets t <span class="kw">ON</span> t<span class="ch">.</span>id = h<span class="ch">.</span>tweet_id
+<span class="kw">JOIN</span> tw_users u <span class="kw">ON</span> u<span class="ch">.</span>id = t<span class="ch">.</span>user
+<span class="kw">GROUP</span> <span class="kw">BY</span> u<span class="ch">.</span>name;</code></pre></div>
+<p>And here is the same query in Python:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">tag_candidates <span class="op">=</span> select([ dbusers.c.name,
+                      func.count(dbtweets.c.<span class="bu">id</span>).label(<span class="st">&#39;no_tweets&#39;</span>)
+                    ]).select_from(dbhashtags.join(dbtweets).join(dbusers)
+                    ).group_by(<span class="st">&#39;name&#39;</span>).order_by(desc(<span class="st">&#39;no_tweets&#39;</span>))
+results <span class="op">=</span> conn.execute(tag_candidates).fetchall()</code></pre></div>
+<p>Here's a more complicated query, that looks at hashtag counts further broken by candidate. It needs to join together multiple tables and we'll do it here via a WHERE clause:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> name, hashtag, <span class="fu">COUNT</span>(<span class="kw">DISTINCT</span> tweet_id) <span class="kw">as</span> no_tweets
+<span class="kw">FROM</span> tw_hashtags h, tw_tweets t, tw_users u
+<span class="kw">WHERE</span> h<span class="ch">.</span>tweet_id = t<span class="ch">.</span>id
+<span class="kw">AND</span> u<span class="ch">.</span>id = t<span class="ch">.</span>user
+<span class="kw">GROUP</span> <span class="kw">BY</span> hashtag, u<span class="ch">.</span>name
+<span class="kw">ORDER</span> <span class="kw">BY</span> no_tweets <span class="kw">DESC</span>;</code></pre></div>
+<p>And in Python:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">tag_and_candidates <span class="op">=</span> select([
+    dbusers.c.name, dbhashtags.c.hashtag,
+    func.count(dbtweets.c.<span class="bu">id</span>).label(<span class="st">&#39;no_tweets&#39;</span>)
+]).where(
+    dbusers.c.<span class="bu">id</span> <span class="op">==</span> dbtweets.c.user
+).where(
+    dbtweets.c.<span class="bu">id</span> <span class="op">==</span> dbhashtags.c.tweet_id
+).group_by(<span class="st">&#39;name&#39;</span>).group_by(<span class="st">&#39;hashtag&#39;</span>).order_by(desc(<span class="st">&#39;no_tweets&#39;</span>))
+results <span class="op">=</span> conn.execute(tag_and_candidates).fetchall()</code></pre></div>
+<p>Look at the <a href="http://docs.sqlalchemy.org/en/rel_0_9/core/tutorial.html">SQLAlchemy expression tutorial</a> to learn more about what else is available.</p>
+</body>
+</html>

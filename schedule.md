@@ -37,11 +37,12 @@ A week-by-week breakdown of the material.
 ## Week  4 (09/26-09/30)
 
 - Day 1
-    - Indexes and Views
+    - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
 - Day 2
     - Python/SQL interaction
 - Day 3
-    - Assignment 4: Practice with SQL queries
+    - Indexes and Views
+    - Assignment 4: Using SQLAlchemy for Python-SQL interaction
 
 ## Week  5 (10/03-10/07)
 
