@@ -39,10 +39,10 @@ A week-by-week breakdown of the material.
 - Day 1
     - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
 - Day 2
-    - Python/SQL interaction
+    - [Accessing SQL from other languages (cont)](notes/databases_sqlalchemy.md)
 - Day 3
     - Indexes and Views
-    - Assignment 4: Using SQLAlchemy for Python-SQL interaction
+    - [Assignment 4: Tweets via SQL queries and SQLAlchemy](assignments/4.md)
 
 ## Week  5 (10/03-10/07)
 
