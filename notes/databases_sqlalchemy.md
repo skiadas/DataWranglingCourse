@@ -210,7 +210,16 @@ At the end of this you should have a rich database of tweets to work with.
 
 #### Querying the data
 
-Now that we have a rich dataset, let us try to do some queries. We'll start with the following query: We want to look at the hashtags list, and see how many times each tag occurs, the order by those counts. Here is how we would do this in SQL:
+Now that we have a rich dataset, let us try to do some queries. We'll write them in SQL first as practice. Here they are:
+
+1. We want to look at the hashtags list, and see how many times each tag occurs, then order by those counts, starting from the highest.
+2. We want to look at how many hashtags each candidate has used. So the resulting table would have only two rows, and two columns for candidate names and tag counts.
+3. We want to look at hashtag counts further broken by candidate. So for each candidate and each tag it would list the number of times the candidate used that tag.
+4. This is similar to 3, but with a twist: For each hashtag it should show: the hashtag, the number of times Clinton used it, and the number of times Trump used it. For extra challenge, order the hashtags according to the total count amongst both candidates.
+
+Do not read further down until you have worked the above queries in SQL Workbench.
+
+Here is how we would do the first query in SQL:
 ```sqlmysql
 SELECT hashtag, COUNT(*) as no_tweets
 FROM tw_hashtags
@@ -226,7 +235,7 @@ tag_counts = select([ dbhashtags.c.hashtag,
 results = conn.execute(tag_counts).fetchall()
 ```
 
-Let's do another similar query, where we look at how many hashtags each candidate has used.
+For the second query, we would have:
 ```sqlmysql
 select u.name, count(*) AS hashtags
 FROM tw_hashtags h
@@ -243,7 +252,7 @@ tag_candidates = select([ dbusers.c.name,
 results = conn.execute(tag_candidates).fetchall()
 ```
 
-Here's a more complicated query, that looks at hashtag counts further broken by candidate. It needs to join together multiple tables and we'll do it here via a WHERE clause:
+And here is the third query:
 ```sqlmysql
 SELECT name, hashtag, COUNT(DISTINCT tweet_id) as no_tweets
 FROM tw_hashtags h, tw_tweets t, tw_users u

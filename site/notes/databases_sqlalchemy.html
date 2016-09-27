@@ -227,7 +227,15 @@ processTweets(donald)</code></pre></div>
 <p>The relevant SQLALchemy methods are in the <code>processTweets</code> function, where <code>insert</code> is used to create an INSERT query, then <code>execute</code> executes that query in a connection, passing it the lists of values to add.</p>
 <p>At the end of this you should have a rich database of tweets to work with.</p>
 <h4 id="querying-the-data">Querying the data</h4>
-<p>Now that we have a rich dataset, let us try to do some queries. We'll start with the following query: We want to look at the hashtags list, and see how many times each tag occurs, the order by those counts. Here is how we would do this in SQL:</p>
+<p>Now that we have a rich dataset, let us try to do some queries. We'll write them in SQL first as practice. Here they are:</p>
+<ol style="list-style-type: decimal">
+<li>We want to look at the hashtags list, and see how many times each tag occurs, then order by those counts, starting from the highest.</li>
+<li>We want to look at how many hashtags each candidate has used. So the resulting table would have only two rows, and two columns for candidate names and tag counts.</li>
+<li>We want to look at hashtag counts further broken by candidate. So for each candidate and each tag it would list the number of times the candidate used that tag.</li>
+<li>This is similar to 3, but with a twist: For each hashtag it should show: the hashtag, the number of times Clinton used it, and the number of times Trump used it. For extra challenge, order the hashtags according to the total count amongst both candidates.</li>
+</ol>
+<p>Do not read further down until you have worked the above queries in SQL Workbench.</p>
+<p>Here is how we would do the first query in SQL:</p>
 <div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> hashtag, <span class="fu">COUNT</span>(*) <span class="kw">as</span> no_tweets
 <span class="kw">FROM</span> tw_hashtags
 <span class="kw">GROUP</span> <span class="kw">BY</span> hashtag
@@ -237,7 +245,7 @@ processTweets(donald)</code></pre></div>
                       func.count(dbhashtags.c.tweet_id).label(<span class="st">&#39;no_tweets&#39;</span>)
                     ]).group_by(<span class="st">&#39;hashtag&#39;</span>).order_by(desc(<span class="st">&#39;no_tweets&#39;</span>))
 results <span class="op">=</span> conn.execute(tag_counts).fetchall()</code></pre></div>
-<p>Let's do another similar query, where we look at how many hashtags each candidate has used.</p>
+<p>For the second query, we would have:</p>
 <div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">select</span> u<span class="ch">.</span>name, <span class="fu">count</span>(*) <span class="kw">AS</span> hashtags
 <span class="kw">FROM</span> tw_hashtags h
 <span class="kw">JOIN</span> tw_tweets t <span class="kw">ON</span> t<span class="ch">.</span>id = h<span class="ch">.</span>tweet_id
@@ -249,7 +257,7 @@ results <span class="op">=</span> conn.execute(tag_counts).fetchall()</code></pr
                     ]).select_from(dbhashtags.join(dbtweets).join(dbusers)
                     ).group_by(<span class="st">&#39;name&#39;</span>).order_by(desc(<span class="st">&#39;no_tweets&#39;</span>))
 results <span class="op">=</span> conn.execute(tag_candidates).fetchall()</code></pre></div>
-<p>Here's a more complicated query, that looks at hashtag counts further broken by candidate. It needs to join together multiple tables and we'll do it here via a WHERE clause:</p>
+<p>And here is the third query:</p>
 <div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> name, hashtag, <span class="fu">COUNT</span>(<span class="kw">DISTINCT</span> tweet_id) <span class="kw">as</span> no_tweets
 <span class="kw">FROM</span> tw_hashtags h, tw_tweets t, tw_users u
 <span class="kw">WHERE</span> h<span class="ch">.</span>tweet_id = t<span class="ch">.</span>id

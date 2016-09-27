@@ -41,12 +41,13 @@ A week-by-week breakdown of the material.
 - Day 2
     - [Accessing SQL from other languages (cont)](notes/databases_sqlalchemy.md)
 - Day 3
-    - Indexes and Views
+    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
     - [Assignment 4: Tweets via SQL queries and SQLAlchemy](assignments/4.md)
 
 ## Week  5 (10/03-10/07)
 
 - Day 1
+    - Indexes and Views
     - Schema descriptions (Entity-Relation model)
 - Day 2
     - ORM-based SQL access
