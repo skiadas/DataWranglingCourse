@@ -7,6 +7,43 @@
   <meta name="generator" content="pandoc" />
   <title></title>
   <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
 <link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
 <script type="text/javascript"
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
@@ -16,7 +53,10 @@
 <h1 id="web-frameworks-and-flask">Web Frameworks, and Flask</h1>
 <h2 id="reading-references">Reading / References</h2>
 <ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2621997&amp;type=safari">Flask book on ACM</a></li>
 <li><a href="http://flask.pocoo.org/">Flask documentation</a></li>
+<li><a href="http://flask.pocoo.org/docs/0.11/tutorial/">A Flask tutorial</a></li>
+<li><a href="http://flask.pocoo.org/docs/0.11/api/">Full Flask API</a></li>
 </ul>
 <h2 id="notes">Notes</h2>
 <h3 id="web-frameworks">Web Frameworks</h3>
@@ -32,7 +72,178 @@
 <p>Most web frameworks offer these and more. Some do it themselves, some allow for extensions. Some are very opinionated about exactly how you should structure your application, some give you more control over it. But whatever your project is, you would benefit from using some web framework, instead of reinventing the wheel.</p>
 <h3 id="flask">Flask</h3>
 <p>Flask is a Python Web Framework that in general takes a very minimalist approach. It offers some basic functionality, and leaves a lot of choices up to the programmer.</p>
-<p>We will build a very simple messaging web service using Flask.</p>
+<p>We will build a very simple messaging web service using Flask. We start by discussing the service we are envisioning. You can find this information at the <a href="https://github.com/skiadas/messaging-flask/blob/master/specs/initial_specs.html">GitHub project</a>. Read that file, then design a RESTful service and resource specification around that. You should end up with something similar to <a href="https://github.com/skiadas/messaging-flask/blob/master/specs/resources.html">this description</a>.</p>
+<p>Before you move on, you should check out the whole project on your desktop, via git:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> clone https://github.com/skiadas/messaging-flask.git
+<span class="kw">cd</span> messaging-flask
+<span class="kw">subl</span> .</code></pre></div>
+<p>The third line would open the project in Sublime Text.</p>
+<h4 id="skeleton">Skeleton</h4>
+<p>Let's take a look at the main file, <code>app/messaging.py</code>:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> flask <span class="im">import</span> Flask, make_response, json, url_for
+<span class="im">from</span> db <span class="im">import</span> Db   <span class="co"># See db.py</span>
+
+app <span class="op">=</span> Flask(<span class="va">__name__</span>)
+<span class="co"># The keys.json file should contain the 4 properties:</span>
+<span class="co"># DATABASE, PASSWORD, SERVER, SCHEMA</span>
+app.config.from_json(<span class="st">&#39;keys.json&#39;</span>)
+
+<span class="co">## Setting up database</span>
+db <span class="op">=</span> Db(app.config)
+
+<span class="co">## Lost of route stuff here</span>
+<span class="co">## Will look at it in a moment</span>
+<span class="co">## .......</span>
+
+<span class="co">## Helper method for creating JSON responses</span>
+<span class="kw">def</span> make_json_response(content, response <span class="op">=</span> <span class="dv">200</span>, headers <span class="op">=</span> {}):
+   headers[<span class="st">&#39;Content-Type&#39;</span>] <span class="op">=</span> <span class="st">&#39;application/json&#39;</span>
+   <span class="cf">return</span> make_response(json.dumps(content), response, headers)
+
+<span class="co">## And then we start the app</span>
+<span class="co">## Starts the application</span>
+<span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&#39;__main__&#39;</span>:
+   app.run()</code></pre></div>
+<p>The object <code>app</code> represents the main application, and offers some key functionalities. It is an instance of the Flask class, the main class of the Flask framework.</p>
+<p>We use its &quot;config&quot; object to add some configurations read from a file. In this case this would be a JSON document containing the four fields that the database needs. Make sure to name them using all caps.</p>
+<p>We then instantiate a database instance. This is a custom class that we have created, and stored in <code>app/db.py</code>, to keep the main file somewhat clean. All the database queries should appear in that other file. Take a look at that file now and you should see the <code>Db</code> class with two methods, <code>set_metadata</code> and <code>connect</code>. We will later add more database-access methods there.</p>
+<p>In any web service one of the most important components is that of determining the route map. In Flask we have multiple ways of doing so, and the simplest one looks like this:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">## Creates a new user. Request body contains the password to be used</span>
+<span class="co">## If user/password exists, must ensure it is same or else throw error</span>
+<span class="co">## In first iteration of the app, no passwords.</span>
+<span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;PUT&#39;</span>])
+<span class="kw">def</span> user_create(username):
+   <span class="cf">pass</span></code></pre></div>
+<p>We use the <code>@app.route</code> decorator that takes as input the route, the accepted methods and is then followed by the function to use, which it decorates. This function must return a <a href="http://flask.pocoo.org/docs/0.11/api/#response-objects">Response</a> object, and it also has access to a <a href="http://flask.pocoo.org/docs/0.11/api/#incoming-request-data">Request</a> object at the variable <code>request</code>.</p>
+<p>In bigger applications we would opt for a different way of writing the routes, that keeps all the routes closer to each other and delegates all the functions to other modules.</p>
+<h4 id="implementations">Implementations</h4>
+<p>We will start by taking a closer look at some of the functions and what they would do. we start with <code>user_create</code>, which is in response to a PUT request for creating a new user. Later on we will be checking for passwords and so on, for now we just need to ensure that the chosen username is not too long. We currently don't directly store users in their own tables, so there is nothing to save. We must either send back a 201 Created, with a link to the corresponding GET page in the <code>Location</code> header, or a suitable error for a bad (too long) username, via a 400 response. Review appendings C of <a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">RESTful Web Services</a> on what the different response codes indicate.</p>
+<p>So let's take a look at how this would look:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;PUT&#39;</span>])
+<span class="kw">def</span> user_create(username):
+   <span class="cf">if</span> <span class="bu">len</span>(username) <span class="op">&gt;</span> <span class="dv">20</span>:
+      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;long username&#39;</span> }, <span class="dv">400</span>)
+   <span class="cf">return</span> make_json_response({}, <span class="dv">201</span>, {
+      <span class="st">&#39;Location&#39;</span>: url_for(<span class="st">&#39;user_page&#39;</span>, username<span class="op">=</span>username)
+   })</code></pre></div>
+<p>We simply need to provide the json content of the reply, the error code, and optionally headers. Our <code>make_json_response</code> method will always set the content type appropriately to json. We check the length of the username, and if it is too long then we return a 400 error, otherwise we return a 201. When we do password authentication, this will all become more complex.</p>
+<p>Now let us take a look at the corresponding GET request. This returns the user's main page. It should consist mostly of links. For instance it would have a link to a page showing the user's &quot;sent&quot; message, and another to the user's &quot;received&quot; messages. It could also have a link to &quot;create a new message&quot;. Here's how that might look like:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">## Get user information. Should provide links to various tasks like</span>
+<span class="co">## looking at sent messages or received messages or creating a new message</span>
+<span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
+<span class="kw">def</span> user_page(username):
+   <span class="cf">return</span> make_json_response({
+      <span class="st">&#39;user&#39;</span>: username,
+      <span class="st">&#39;sent&#39;</span>: url_for(<span class="st">&#39;user_messages&#39;</span>, username<span class="op">=</span>username, include<span class="op">=</span><span class="st">&#39;sent&#39;</span>),
+      <span class="co">&#39;received&#39;</span>: url_for(<span class="st">&#39;user_messages&#39;</span>, username<span class="op">=</span>username, include<span class="op">=</span><span class="st">&#39;received&#39;</span>),
+      <span class="co">&#39;create&#39;</span>: {
+         <span class="st">&#39;url&#39;</span>: url_for(<span class="st">&#39;user_new_message&#39;</span>, username<span class="op">=</span>username),
+         <span class="co">&#39;content&#39;</span>: { <span class="st">&#39;to&#39;</span>: <span class="st">&#39;&#39;</span>, <span class="st">&#39;subject&#39;</span>: <span class="st">&#39;&#39;</span>, <span class="st">&#39;body&#39;</span>: <span class="st">&#39;&#39;</span> }
+      }
+   }, <span class="dv">200</span>)</code></pre></div>
+<p>We will next look at the request that handles the creation of a new message. This is the first request that will actually interact with the database. It is a POST request. It would need to do the following things:</p>
+<ul>
+<li>Check that the username has length no more than 20.</li>
+<li>Check that content object contains a recipient of length no more than 20.</li>
+<li>Check that content object contains a subject of length no more than 140.</li>
+<li>Check that content object contains a body of length no more than 5000.</li>
+<li>If any of the above fails it would return a 400 &quot;bad request&quot; error.</li>
+<li>Otherwise it attempts to write to the database. It this fails it would return a 500 &quot;internal server error&quot;. We looked through the 5xx range of errors, which represent &quot;server-side errors&quot; and this seemed the most suitable.</li>
+<li>If the database write is successful, then we return a 201 response for the newly created resource, and put a link to it in the Location header.</li>
+</ul>
+<p>Here's the skeleton of this method, that uses two custom methods we will write, one for validation and one for writing to the database:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;/messages&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;POST&#39;</span>])
+<span class="kw">def</span> user_new_message(username):
+   contents <span class="op">=</span> request.get_json()
+   contents[<span class="st">&#39;from&#39;</span>] <span class="op">=</span> username
+   error <span class="op">=</span> message.validate_new_message(contents)
+   <span class="cf">if</span> error <span class="op">is</span> <span class="op">not</span> <span class="va">None</span>:
+      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: error }, <span class="dv">400</span>)
+   record_id <span class="op">=</span> db.write_message(contents)
+   <span class="cf">if</span> record_id <span class="op">is</span> <span class="va">None</span>:
+      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;Internal Server Error&#39;</span> }, <span class="dv">500</span>)
+   <span class="cf">return</span> make_json_response({}, <span class="dv">201</span>, {
+      <span class="st">&#39;Location&#39;</span>: url_for(<span class="st">&#39;message_get&#39;</span>, <span class="bu">id</span><span class="op">=</span>record_id)
+   })</code></pre></div>
+<p>Here is how the <code>validate</code> function may look like:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> validate_new_message(m):
+   <span class="cf">for</span> field <span class="op">in</span> [<span class="st">&#39;to&#39;</span>, <span class="st">&#39;subject&#39;</span>, <span class="st">&#39;body&#39;</span>]:
+      <span class="cf">if</span> field <span class="op">not</span> <span class="op">in</span> m:
+         <span class="cf">return</span> <span class="st">&#39;Required fields: to, subject, body&#39;</span>
+   <span class="cf">if</span> <span class="bu">len</span>(m.keys()) <span class="op">&gt;</span> <span class="dv">4</span>:
+      <span class="cf">return</span> <span class="st">&#39;Only fields allowed: to, subject, body&#39;</span>
+   <span class="cf">for</span> field, length <span class="op">in</span> [(<span class="st">&#39;from&#39;</span>, <span class="dv">20</span>), (<span class="st">&#39;to&#39;</span>, <span class="dv">20</span>),
+                         (<span class="st">&#39;subject&#39;</span>, <span class="dv">140</span>), (<span class="st">&#39;body&#39;</span>, <span class="dv">5000</span>)]:
+      <span class="cf">if</span> <span class="bu">len</span>(m[field]) <span class="op">&gt;</span> length:
+         <span class="cf">return</span> <span class="st">&#39;Field &quot;</span><span class="sc">%s</span><span class="st">&quot; must not exceed length </span><span class="sc">%d</span><span class="st">&#39;</span> <span class="op">%</span> (field, length)
+   <span class="cf">return</span> <span class="va">None</span></code></pre></div>
+<p>And here is the query function in the db module:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">   <span class="kw">def</span> write_message(<span class="va">self</span>, m):
+      <span class="cf">try</span>:
+         conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
+         m[<span class="st">&#39;created&#39;</span>] <span class="op">=</span> datetime.today()
+         <span class="cf">if</span> <span class="st">&#39;read&#39;</span> <span class="op">not</span> <span class="op">in</span> m:
+            m[<span class="st">&#39;read&#39;</span>] <span class="op">=</span> <span class="va">False</span>
+         result <span class="op">=</span> conn.execute(<span class="va">self</span>.messages.insert(), m)
+         <span class="cf">return</span> result.inserted_primary_key[<span class="dv">0</span>]
+      <span class="cf">except</span>:
+         <span class="cf">return</span> <span class="va">None</span></code></pre></div>
+<p>Well this is awesome, we can now send messages to our service! But we should talk about how to test all this before we do more stuff.</p>
+<h4 id="interacting-with-the-service">Interacting with the service</h4>
+<p>While we could, and should, create automated tests, it is equally important to have a way to directly interact with the service. In order to do that, we'll need the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>You will be using two terminal windows: One will be running the &quot;server&quot;, the other will be the &quot;client&quot;.</li>
+<li>In one window you will start the service.
+<ul>
+<li>First, we will enable debugging. Find the line in <code>messaging.py</code> that sets the DEBUG configuration variable to False, and change that to True.</li>
+<li>Make sure you create a <code>keys.json</code> file with a JSON object with keys <code>DATABASE</code>, <code>PASSWORD</code>, <code>SERVER</code> and <code>SCHEMA</code> with values corresponding to your database.</li>
+<li><p>In one of your terminal windows, go to the application folder and start the server with:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">python3 app<span class="op">/</span>messaging.py</code></pre></div>
+From now on this window runs a web server, at a web address it provides to you, and you could change via configuration options. It is also in debug mode: When you change the files it will automatically restart itself.</li>
+<li>If you want to manually stop the server, simply interrupt it via <code>Ctrl-C</code>. You can then run the command again to restart it. It may also shut down by itself if one of your file updates brings it to a non-operable condition.</li>
+</ul></li>
+<li>In the other window you will start a &quot;client&quot;.
+<ul>
+<li>This is a normal python console, so start it with <code>python3</code>.</li>
+<li>You will need to load the requests package, so do <code>import requests</code>. This makes it easier for us to make requests.</li>
+<li><p>You should be able to already interact with the server. If the server's address is <code>http://127.0.0.1:5000</code>, then you could do a request like:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">r<span class="op">=</span>requests.get(<span class="st">&#39;http://127.0.0.1:5000/user/haris&#39;</span>)</code></pre></div>
+<p>The object <code>r</code> is now a response object of the <code>requests</code> package, and you can look at its <a href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">documentation</a> for what you can do. For instance here are some things you can try:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">r.status_code
+r.content  <span class="co"># Content as string</span>
+r.json()   <span class="co"># Content as JSON</span>
+r.headers
+r.headers[<span class="st">&#39;Content-Type&#39;</span>]</code></pre></div></li>
+</ul></li>
+</ol>
+<p>For now we will interact with the service in this fashion. Later on we may revisit the question of writing tests.</p>
+<h4 id="more-methods">More Methods</h4>
+<p>We will now look at performing some queries. The main method that performs a complex query is <code>GET users/{user}/messages</code>, which returns a list of messages based on a possibly complex set of query parameters. This will be a good test of sqlalchemy, as the queries we are after will depend on user-specified parameters.</p>
+<p>Let's take a closer look at what parameters that query may have:</p>
+<ul>
+<li>There is a parameter called <code>include</code> which can be set to &quot;sent&quot;, &quot;received&quot; or &quot;all&quot;.</li>
+<li>There is a parameter called <code>show</code> which can be set to &quot;read&quot;, &quot;unread&quot; or &quot;all&quot;.</li>
+<li>We can specify a <code>order</code> column to choose a field to use for ordering the results, and which can be set to one of &quot;created&quot;, &quot;read&quot;, &quot;subject&quot;, &quot;to&quot; or &quot;from&quot;.</li>
+<li>We can specify a <code>direction</code> column to determine the ordering direction, with possible values &quot;asc&quot; or &quot;desc&quot;.</li>
+<li>We could specify a <code>to</code> value or a <code>from</code> value.</li>
+<li>We could in theory add more complicated queries, but that is a harder subject.</li>
+</ul>
+<p>In this section we will only incorporate the <code>include</code> and <code>show</code> options. The others would be part of your assignment.</p>
+<p>Here's how the route method may look like:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;/messages&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
+<span class="kw">def</span> user_messages(username):
+   args <span class="op">=</span> request.args.to_dict()
+   error <span class="op">=</span> message.validate_message_query(args, username)
+   <span class="cf">if</span> error <span class="op">is</span> <span class="op">not</span> <span class="va">None</span>:
+      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: error }, <span class="dv">400</span>)
+   results <span class="op">=</span> db.get_messages(args, username)
+   <span class="cf">return</span> make_json_response({
+      <span class="st">&#39;messages&#39;</span>: [
+         { <span class="st">&#39;url&#39;</span>: url_for(<span class="st">&#39;message_get&#39;</span>, <span class="bu">id</span><span class="op">=</span>m[<span class="st">&#39;id&#39;</span>]) }
+         <span class="cf">for</span> m <span class="op">in</span> results
+      ]
+   }, <span class="dv">200</span>)</code></pre></div>
+<p>Notice how it delegates important work to other functions. We should perhaps have also delegated the work that happens in the return, where urls are being built out of the various messages.</p>
 <p>TODO</p>
 </body>
 </html>
