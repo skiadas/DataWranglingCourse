@@ -93,7 +93,7 @@ We will start by taking a closer look at some of the functions and what they wou
 
 So let's take a look at how this would look:
 ```python
-@app.route('/user/<username>', methods = ['PUT'])
+@app.route('/users/<username>', methods = ['PUT'])
 def user_create(username):
    if len(username) > 20:
       return make_json_response({ 'error': 'long username' }, 400)
@@ -108,7 +108,7 @@ Now let us take a look at the corresponding GET request. This returns the user's
 ```python
 ## Get user information. Should provide links to various tasks like
 ## looking at sent messages or received messages or creating a new message
-@app.route('/user/<username>', methods = ['GET'])
+@app.route('/users/<username>', methods = ['GET'])
 def user_page(username):
    return make_json_response({
       'user': username,
@@ -133,7 +133,7 @@ We will next look at the request that handles the creation of a new message. Thi
 
 Here's the skeleton of this method, that uses two custom methods we will write, one for validation and one for writing to the database:
 ```python
-@app.route('/user/<username>/messages', methods = ['POST'])
+@app.route('/users/<username>/messages', methods = ['POST'])
 def user_new_message(username):
    contents = request.get_json()
    contents['from'] = username
@@ -196,7 +196,7 @@ While we could, and should, create automated tests, it is equally important to h
     - You will need to load the requests package, so do `import requests`. This makes it easier for us to make requests.
     - You should be able to already interact with the server. If the server's address is `http://127.0.0.1:5000`, then you could do a request like:
     ```python
-    r=requests.get('http://127.0.0.1:5000/user/haris')
+    r=requests.get('http://127.0.0.1:5000/users/haris')
     ```
     The object `r` is now a response object of the `requests` package, and you can look at its [documentation](http://docs.python-requests.org/en/master/user/quickstart/#response-content) for what you can do. For instance here are some things you can try:
     ```python
@@ -226,7 +226,7 @@ In this section we will only incorporate the `include` and `show` options. The o
 
 Here's how the route method may look like:
 ```python
-@app.route('/user/<username>/messages', methods = ['GET'])
+@app.route('/users/<username>/messages', methods = ['GET'])
 def user_messages(username):
    args = request.args.to_dict()
    error = message.validate_message_query(args, username)
@@ -242,4 +242,79 @@ def user_messages(username):
 ```
 Notice how it delegates important work to other functions. We should perhaps have also delegated the work that happens in the return, where urls are being built out of the various messages.
 
-TODO
+Here is the function querying the database. It sets up a query and based on the user choices it populates it with the necessary WHERE clauses. It then executes the query and returns the results. For your homework you will need to add to this query to account for the other kinds of choices.
+```python
+   def get_messages(self, args, username):
+      conn = self.connect()
+      query = select([self.messages])
+      for field in ['from', 'to']:
+         if field in args:
+            query = query.where(column(field) == args[field])
+      ## Add 'include'
+      if args['include'] == 'sent':
+         query = query.where(column('from') == username)
+      elif args['include'] == 'received':
+         query = query.where(column('to') == username)
+      else:
+         query = query.where(
+            or_( column('from') == username, column('to') == username )
+         )
+      ## Add 'show'
+      if args['show'] == 'read':
+         query = query.where(column('read') == True)
+      elif args['show'] == 'unread':
+         query = query.where(column('read') == False)
+      ## Perform query
+      return conn.execute(query).fetchall()
+```
+
+#### Working with tags
+
+Finally let's take a look at one of the methods related to tags. We'll need to create two database accesses, one to fetch a message and one to fetch its tags.
+```python
+## Adds a tag to a message, if it did not exist
+@app.route('/messages/<id>/tags/<tag>', methods = ['PUT'])
+def tag_add(id, tag):
+   if len(tag) > 20:
+      return make_json_response({ 'error': 'tag too long' }, 400)
+   message = db.fetch_message(id)
+   if message is None:
+      return make_json_response({ 'error': 'message not found' }, 404)
+   tags = db.fetch_message_tags(id)
+   if tag in tags:
+      return make_json_response({}, 204)
+   # Need to add the tag
+   if db.add_tag(id, tag) is None:
+      return make_json_response({ 'error': 'server error' }, 500)
+   return make_json_response({}, 201)
+```
+
+And here are the corresponding functions in the `db` module:
+```python
+   # Fetches a single message based on id
+   def fetch_message(self, id):
+      conn = self.connect()
+      query = select([self.messages]).where(column('id') == id)
+      results = conn.execute(query).fetchall()
+      return results[0] if len(results) > 0 else None
+
+   # Fetches message tags if any
+   def fetch_message_tags(self, id):
+      conn = self.connect()
+      query = select([self.tags.c.tag]).where(column('msg_id') == id)
+      results = conn.execute(query).fetchall()
+      return map((lambda tag: tag[0]), results)
+
+   # Inserts a new message/tag pair
+   # Should only be called once we have established that the pair does not
+   # exist, and that id and tag are valid
+   def add_tag(self, id, tag):
+      try:
+         conn = self.connect()
+         result = conn.execute(self.tags.insert(), msg_id=id, tag=tag)
+         return result.inserted_primary_key
+      except:
+         return None
+```
+
+

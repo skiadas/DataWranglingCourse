@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="lab-assignment-5-writing-a-web-service">Lab Assignment 5: Writing a web service</h1>
+<p>In this assignment you will expand on the small web service we saw in class. In particular you will have to read and understand existing code, and extend/adjust it to meet your goals.</p>
+<p>This assignment is more complicated. In particular, we will also be introduced to maintaining a project via git. You should start by cloning the project via the following steps:</p>
+<ul>
+<li>Open up the terminal to the location you want to work on. We will automatically created a subfolder in there.</li>
+<li>Do <code>git clone https://github.com/skiadas/messaging-flask.git</code>. This should download the whole project folder and create a folder called <code>messaging-flask</code> right where you are.</li>
+<li>Go into that folder via <code>cd messaging-flask</code>.</li>
+<li>You can now open the whole folder in SublimeText via <code>subl .</code>. There are a number of files in this folder that you need to be acquainted with.</li>
+<li>First you will find a <code>specs</code> folder with three documentation files. We have seen some of those files in class already. They describe the project in some detail. You will in particular need to study the <code>resources.md</code> file that contains information about the different routes and their expected results.</li>
+<li>The files you will work on are all in the <code>app</code> folder.</li>
+<li>You will want to have GitKraken open on this project. When you have completed a solution for one of the problems, you want to review the changes in GitKraken, and then stage them and create a commit. The message of the commit should include the number of the assignment problem that the changes in this commit address.</li>
+<li><p>In order to use the server, you will need to tell it about your database. You will do so by creating a file called <code>keys.json</code> in the <code>app</code> folder. It should look like this: <code>json    {   &quot;USERNAME&quot;: &quot;username here&quot;,   &quot;PASSWORD&quot;: &quot;database password here&quot;,   &quot;SERVER&quot;: &quot;vault.hanover.edu&quot;,   &quot;SCHEMA&quot;: &quot;your username again here&quot;    }</code></p></li>
+<li>You will need to have two terminals open, both at the <code>messaging-flask</code> folder. The one terminal will run a &quot;server&quot;. You start that server with the command <code>python app/messaging.py</code>. You periodically will want to shut the server down with Ctrl-C and then restart it.</li>
+<li>The other terminal is your &quot;client&quot; that you can use to test your server. You will start a python session with <code>python3</code>, then run <code>import requests</code> to load a very popular requests package. Now you can perform requests with commands like <code>r = requests.get('http://127.0.0.1:5000/users/haris')</code>.</li>
+<li>In the <code>app</code> folder are the files you will need to work on and add your code. You will want to study those files and try to understand what they are doing right now.
+<ul>
+<li><code>messaging.py</code> is the main controller file that kickstarts everything. It starts a &quot;Flask&quot; application, sets up some database information, and then contains a list of the various routes, along with the methods that handle them. When you need to implement a new route, or change the fundamental behavior of a new route, you will need to work on this file.</li>
+<li><code>message.py</code> is a helper file that is meant to contain methods useful when processing messages. You can access it from within <code>messaging.py</code> via the <code>message</code> variable. If you need to do some validation of your inputs, or some other work related to your data, this is a good place to put that.</li>
+<li><code>db.py</code> is a helper file that implements the various database interactions. You will be writing some sqlalchemy code in here. Whenever you need to get something from or write something to the database, you want to write the corresponding function here, and access it from <code>messaging.py</code> via the <code>db</code> variable prefix.</li>
+</ul></li>
+</ul>
+<p>Specific problems follow. You should only attempt these after you have a good understanding of how the existing code in the file works.</p>
+<ol style="list-style-type: decimal">
+<li></li>
+</ol>
+<p>When you are ready to submit, make sure you have all your changes saved via commits, then run the following:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> format-patch v1..master --stdout <span class="kw">&gt;</span> yourName-assignment5.patch</code></pre></div>
+<p>Of course use your name in the filename at the en of that line. This will create this new file, which contains all the information about the change you have done. Email this file to me in order to submit.</p>
+</body>
+</html>

@@ -119,7 +119,7 @@ db <span class="op">=</span> Db(app.config)
 <h4 id="implementations">Implementations</h4>
 <p>We will start by taking a closer look at some of the functions and what they would do. we start with <code>user_create</code>, which is in response to a PUT request for creating a new user. Later on we will be checking for passwords and so on, for now we just need to ensure that the chosen username is not too long. We currently don't directly store users in their own tables, so there is nothing to save. We must either send back a 201 Created, with a link to the corresponding GET page in the <code>Location</code> header, or a suitable error for a bad (too long) username, via a 400 response. Review appendings C of <a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">RESTful Web Services</a> on what the different response codes indicate.</p>
 <p>So let's take a look at how this would look:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;PUT&#39;</span>])
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/users/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;PUT&#39;</span>])
 <span class="kw">def</span> user_create(username):
    <span class="cf">if</span> <span class="bu">len</span>(username) <span class="op">&gt;</span> <span class="dv">20</span>:
       <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;long username&#39;</span> }, <span class="dv">400</span>)
@@ -130,7 +130,7 @@ db <span class="op">=</span> Db(app.config)
 <p>Now let us take a look at the corresponding GET request. This returns the user's main page. It should consist mostly of links. For instance it would have a link to a page showing the user's &quot;sent&quot; message, and another to the user's &quot;received&quot; messages. It could also have a link to &quot;create a new message&quot;. Here's how that might look like:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">## Get user information. Should provide links to various tasks like</span>
 <span class="co">## looking at sent messages or received messages or creating a new message</span>
-<span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
+<span class="at">@app.route</span>(<span class="st">&#39;/users/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
 <span class="kw">def</span> user_page(username):
    <span class="cf">return</span> make_json_response({
       <span class="st">&#39;user&#39;</span>: username,
@@ -152,7 +152,7 @@ db <span class="op">=</span> Db(app.config)
 <li>If the database write is successful, then we return a 201 response for the newly created resource, and put a link to it in the Location header.</li>
 </ul>
 <p>Here's the skeleton of this method, that uses two custom methods we will write, one for validation and one for writing to the database:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;/messages&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;POST&#39;</span>])
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/users/&lt;username&gt;/messages&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;POST&#39;</span>])
 <span class="kw">def</span> user_new_message(username):
    contents <span class="op">=</span> request.get_json()
    contents[<span class="st">&#39;from&#39;</span>] <span class="op">=</span> username
@@ -207,7 +207,7 @@ From now on this window runs a web server, at a web address it provides to you, 
 <li>This is a normal python console, so start it with <code>python3</code>.</li>
 <li>You will need to load the requests package, so do <code>import requests</code>. This makes it easier for us to make requests.</li>
 <li><p>You should be able to already interact with the server. If the server's address is <code>http://127.0.0.1:5000</code>, then you could do a request like:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">r<span class="op">=</span>requests.get(<span class="st">&#39;http://127.0.0.1:5000/user/haris&#39;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">r<span class="op">=</span>requests.get(<span class="st">&#39;http://127.0.0.1:5000/users/haris&#39;</span>)</code></pre></div>
 <p>The object <code>r</code> is now a response object of the <code>requests</code> package, and you can look at its <a href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">documentation</a> for what you can do. For instance here are some things you can try:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">r.status_code
 r.content  <span class="co"># Content as string</span>
@@ -230,7 +230,7 @@ r.headers[<span class="st">&#39;Content-Type&#39;</span>]</code></pre></div></li
 </ul>
 <p>In this section we will only incorporate the <code>include</code> and <code>show</code> options. The others would be part of your assignment.</p>
 <p>Here's how the route method may look like:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;/messages&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/users/&lt;username&gt;/messages&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
 <span class="kw">def</span> user_messages(username):
    args <span class="op">=</span> request.args.to_dict()
    error <span class="op">=</span> message.validate_message_query(args, username)
@@ -244,6 +244,70 @@ r.headers[<span class="st">&#39;Content-Type&#39;</span>]</code></pre></div></li
       ]
    }, <span class="dv">200</span>)</code></pre></div>
 <p>Notice how it delegates important work to other functions. We should perhaps have also delegated the work that happens in the return, where urls are being built out of the various messages.</p>
-<p>TODO</p>
+<p>Here is the function querying the database. It sets up a query and based on the user choices it populates it with the necessary WHERE clauses. It then executes the query and returns the results. For your homework you will need to add to this query to account for the other kinds of choices.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">   <span class="kw">def</span> get_messages(<span class="va">self</span>, args, username):
+      conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
+      query <span class="op">=</span> select([<span class="va">self</span>.messages])
+      <span class="cf">for</span> field <span class="op">in</span> [<span class="st">&#39;from&#39;</span>, <span class="st">&#39;to&#39;</span>]:
+         <span class="cf">if</span> field <span class="op">in</span> args:
+            query <span class="op">=</span> query.where(column(field) <span class="op">==</span> args[field])
+      <span class="co">## Add &#39;include&#39;</span>
+      <span class="cf">if</span> args[<span class="st">&#39;include&#39;</span>] <span class="op">==</span> <span class="st">&#39;sent&#39;</span>:
+         query <span class="op">=</span> query.where(column(<span class="st">&#39;from&#39;</span>) <span class="op">==</span> username)
+      <span class="cf">elif</span> args[<span class="st">&#39;include&#39;</span>] <span class="op">==</span> <span class="st">&#39;received&#39;</span>:
+         query <span class="op">=</span> query.where(column(<span class="st">&#39;to&#39;</span>) <span class="op">==</span> username)
+      <span class="cf">else</span>:
+         query <span class="op">=</span> query.where(
+            or_( column(<span class="st">&#39;from&#39;</span>) <span class="op">==</span> username, column(<span class="st">&#39;to&#39;</span>) <span class="op">==</span> username )
+         )
+      <span class="co">## Add &#39;show&#39;</span>
+      <span class="cf">if</span> args[<span class="st">&#39;show&#39;</span>] <span class="op">==</span> <span class="st">&#39;read&#39;</span>:
+         query <span class="op">=</span> query.where(column(<span class="st">&#39;read&#39;</span>) <span class="op">==</span> <span class="va">True</span>)
+      <span class="cf">elif</span> args[<span class="st">&#39;show&#39;</span>] <span class="op">==</span> <span class="st">&#39;unread&#39;</span>:
+         query <span class="op">=</span> query.where(column(<span class="st">&#39;read&#39;</span>) <span class="op">==</span> <span class="va">False</span>)
+      <span class="co">## Perform query</span>
+      <span class="cf">return</span> conn.execute(query).fetchall()</code></pre></div>
+<h4 id="working-with-tags">Working with tags</h4>
+<p>Finally let's take a look at one of the methods related to tags. We'll need to create two database accesses, one to fetch a message and one to fetch its tags.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">## Adds a tag to a message, if it did not exist</span>
+<span class="at">@app.route</span>(<span class="st">&#39;/messages/&lt;id&gt;/tags/&lt;tag&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;PUT&#39;</span>])
+<span class="kw">def</span> tag_add(<span class="bu">id</span>, tag):
+   <span class="cf">if</span> <span class="bu">len</span>(tag) <span class="op">&gt;</span> <span class="dv">20</span>:
+      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;tag too long&#39;</span> }, <span class="dv">400</span>)
+   message <span class="op">=</span> db.fetch_message(<span class="bu">id</span>)
+   <span class="cf">if</span> message <span class="op">is</span> <span class="va">None</span>:
+      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;message not found&#39;</span> }, <span class="dv">404</span>)
+   tags <span class="op">=</span> db.fetch_message_tags(<span class="bu">id</span>)
+   <span class="cf">if</span> tag <span class="op">in</span> tags:
+      <span class="cf">return</span> make_json_response({}, <span class="dv">204</span>)
+   <span class="co"># Need to add the tag</span>
+   <span class="cf">if</span> db.add_tag(<span class="bu">id</span>, tag) <span class="op">is</span> <span class="va">None</span>:
+      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;server error&#39;</span> }, <span class="dv">500</span>)
+   <span class="cf">return</span> make_json_response({}, <span class="dv">201</span>)</code></pre></div>
+<p>And here are the corresponding functions in the <code>db</code> module:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">   <span class="co"># Fetches a single message based on id</span>
+   <span class="kw">def</span> fetch_message(<span class="va">self</span>, <span class="bu">id</span>):
+      conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
+      query <span class="op">=</span> select([<span class="va">self</span>.messages]).where(column(<span class="st">&#39;id&#39;</span>) <span class="op">==</span> <span class="bu">id</span>)
+      results <span class="op">=</span> conn.execute(query).fetchall()
+      <span class="cf">return</span> results[<span class="dv">0</span>] <span class="cf">if</span> <span class="bu">len</span>(results) <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>
+
+   <span class="co"># Fetches message tags if any</span>
+   <span class="kw">def</span> fetch_message_tags(<span class="va">self</span>, <span class="bu">id</span>):
+      conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
+      query <span class="op">=</span> select([<span class="va">self</span>.tags.c.tag]).where(column(<span class="st">&#39;msg_id&#39;</span>) <span class="op">==</span> <span class="bu">id</span>)
+      results <span class="op">=</span> conn.execute(query).fetchall()
+      <span class="cf">return</span> <span class="bu">map</span>((<span class="kw">lambda</span> tag: tag[<span class="dv">0</span>]), results)
+
+   <span class="co"># Inserts a new message/tag pair</span>
+   <span class="co"># Should only be called once we have established that the pair does not</span>
+   <span class="co"># exist, and that id and tag are valid</span>
+   <span class="kw">def</span> add_tag(<span class="va">self</span>, <span class="bu">id</span>, tag):
+      <span class="cf">try</span>:
+         conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
+         result <span class="op">=</span> conn.execute(<span class="va">self</span>.tags.insert(), msg_id<span class="op">=</span><span class="bu">id</span>, tag<span class="op">=</span>tag)
+         <span class="cf">return</span> result.inserted_primary_key
+      <span class="cf">except</span>:
+         <span class="cf">return</span> <span class="va">None</span></code></pre></div>
 </body>
 </html>
