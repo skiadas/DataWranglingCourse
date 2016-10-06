@@ -47,38 +47,37 @@ A week-by-week breakdown of the material.
 ## Week  5 (10/03-10/07)
 
 - Day 1
-    - Indexes and Views
-    - Schema descriptions (Entity-Relation model)
+    - Guest lecture
 - Day 2
-    - ORM-based SQL access
+    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
 - Day 3
-    - Assignment 5: More advanced work with SQL databases
+    - [Assignment 5: Implementing a simple messaging web service](assignments/5.md)
 
 ## Week  6 (10/10-10/14)
 
 - Day 1
-    - Introduction to NoSQL databases
+    - Indexes and Views
+    - ORM-based SQL access
 - Day 2
-    - More on NoSQL databases (Mongo?)
-- Day 3
     - Midterm
+- Day 3
+    - Work on assignment 5
 
 ## Week  7 (10/17-10/21)
 
 - Day 1
     - Fall Break
 - Day 2
-    - Introduction to Hadoop
+    - Introduction to NoSQL databases
 - Day 3
-    - TBA
+    - More on NoSQL databases (Mongo?)
 
 ## Week  8 (10/24-10/28)
 
 - Day 1
-    - Authorization and OAuth2
-    - TBA
+    - Introduction to Hadoop
 - Day 2
-    - TBA
+    - Authorization and OAuth2
 - Day 3
     - TBA
 
