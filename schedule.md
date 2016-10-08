@@ -59,7 +59,7 @@ A week-by-week breakdown of the material.
     - Indexes and Views
     - ORM-based SQL access
 - Day 2
-    - Midterm
+    - Midterm ([study guide](notes/midterm1_study_guide.md))
 - Day 3
     - Work on assignment 5
 
