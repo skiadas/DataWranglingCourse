@@ -56,8 +56,7 @@ A week-by-week breakdown of the material.
 ## Week  6 (10/10-10/14)
 
 - Day 1
-    - Indexes and Views
-    - ORM-based SQL access
+    - [SQL Practice](notes/sql_practice.md)
 - Day 2
     - Midterm ([study guide](notes/midterm1_study_guide.md))
 - Day 3
@@ -68,18 +67,19 @@ A week-by-week breakdown of the material.
 - Day 1
     - Fall Break
 - Day 2
-    - Introduction to NoSQL databases
+    - Indexes and Views
+    - ORM-based SQL access
 - Day 3
-    - More on NoSQL databases (Mongo?)
+    - Introduction to NoSQL databases
 
 ## Week  8 (10/24-10/28)
 
 - Day 1
-    - Introduction to Hadoop
+    - More on NoSQL databases (Mongo?)
 - Day 2
-    - Authorization and OAuth2
+    - Introduction to Hadoop
 - Day 3
-    - TBA
+    - Authorization and OAuth2
 
 ## Week  9 (10/31-11/04)
 

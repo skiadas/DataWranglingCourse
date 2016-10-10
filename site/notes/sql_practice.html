@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="sql-practice">SQL Practice</h1>
+<p>This is a list of practice problems for creating SQL queries. They are based on the following tables:</p>
+<dl>
+<dt>messages</dt>
+<dd><p>Contains messages. Fields:</p>
+<ul>
+<li><code>id</code>: INTEGER, primary key</li>
+<li><code>from</code>: VARCHAR(20) NOT NULL</li>
+<li><code>to</code>': VARCHAR(20) NOT NULL</li>
+<li><code>subject</code>: VARCHAR(140) NOT NULL</li>
+<li><code>body</code>: VARCHAR(5000) NOT NULL</li>
+<li><code>reply_to</code>: INTEGER (foreign key to messages.id)</li>
+<li><code>created</code>: TIMESTAMP NOT NULL</li>
+<li><code>read</code>: INTEGER (0=false, 1=true) NOT NULL DEFAULT 0</li>
+<li><code>priority</code>: VARCHAR(1) NOT NULL DEFAULT &quot;M&quot; (possible values L/M/H)</li>
+</ul>
+</dd>
+<dt>tags</dt>
+<dd><p>Contains message/tag pairs. Fields:</p>
+<ul>
+<li><code>msg_id</code>: INTEGER NOT NULL (foreign key messages.id)</li>
+<li><code>tag</code>: VARCHAR(20) NOT NULL</li>
+</ul>
+<p>Primary key is the pair <code>(msg_id, tag)</code>.</p>
+</dd>
+</dl>
+<p>Practice problems:</p>
+<ol style="list-style-type: decimal">
+<li>Find the ids of all messages that are not replies to another message.</li>
+<li>Find all messages with the tag &quot;work&quot;.</li>
+<li>Produce a list of all tags that are present on messages received by &quot;peter&quot; along with the number of messages each tag appears in, and order them from most used to least used.</li>
+<li>Find all pairs of tags that appear in the same message. Ensure that the tags are distinct and that each pair appears only once (and regardless of which of the two tags is first in the pair).</li>
+<li>Find all messages that contain the tag &quot;work&quot;, and add the tag &quot;todo&quot; to them. (Optionally: make sure no error is generated if the &quot;todo&quot; tag is already present).</li>
+<li>List all from/subject/body information for messages that are not read, that are of high priority. Optionally, restrict to those messages that contain the tag &quot;work&quot;.</li>
+<li>For each tag and priority level, count the number of unread messages with that tag and priority level.</li>
+<li>Find all messages that are unread but have been replied to, and mark them as read.</li>
+</ol>
+</body>
+</html>
