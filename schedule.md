@@ -67,8 +67,7 @@ A week-by-week breakdown of the material.
 - Day 1
     - Fall Break
 - Day 2
-    - Indexes and Views
-    - ORM-based SQL access
+    - [Indexes, Views, ORM](notes/sql_odds_ends.md)
 - Day 3
     - Introduction to NoSQL databases
 

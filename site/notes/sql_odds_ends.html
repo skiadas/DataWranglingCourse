@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="sql-odds-and-ends">SQL Odds and Ends</h1>
+<p>In this section we briefly discuss other important SQL-related concepts that we don't have time to explore more fully.</p>
+<ul>
+<li><strong>Indexes</strong> are used in databases to speed up queries.</li>
+<li><strong>Views</strong> are essentially stored SELECT queries.</li>
+<li><strong>ORM</strong> allows users in programming languages like Python to interact with a database using objects and their relations rather than direct SQL queries.</li>
+</ul>
+<h2 id="reading">Reading</h2>
+<ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1208031&amp;type=safari">Introduction to SQL, sections 4.11, 4.12, chapters 20, 21</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Database_index">Wikipedia entry on Indexes</a></li>
+<li><a href="https://en.wikipedia.org/wiki/View_(SQL)">Wikipedia entry on Views</a></li>
+<li><a href="http://docs.sqlalchemy.org/en/latest/orm/tutorial.html">SQLAlchemy ORM tutorial</a></li>
+</ul>
+<h3 id="reading-questions">Reading questions</h3>
+<ul>
+<li>What are the advantages of using indexes? What are the disadvantages?</li>
+<li>Can we use in an index columns coming from different tables?</li>
+<li>Does the order of columns in an index matter? Why?</li>
+<li>Can we add an index on a table with existing data?</li>
+<li>How can we remove an index after it's created?</li>
+<li>Does SQL generate certain indexes automatically?</li>
+<li>Are the rows in a view actually stored on a physical storage device?</li>
+<li>Come up with example applications of Views, at least 2 for each of the different usages of views.</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<h3 id="indexes">Indexes</h3>
+<p>An <strong>index</strong> is essentially an extra structure that is stored along with your database table, and facilitates certain searches. Each index is essentially tailor-made for a particular kind of search that uses a certain set of columns.</p>
+<p>An index effectively maintains an efficient arrangement of the rows according to their values in a certain column. Think of it similar to the index at the back of a book: It offers you quick access to occurences of important words in the text. Similarly, an index on the variable &quot;age&quot; would for instance offer you quick access to the rows corresponding to students of a particular age, rather than having to go through all rows to find them.</p>
+<p>This power comes at a cost: Every time you want to add a new entry or change an existing entry, the corresponding index needs to change to accomodate this new value. As a result, <em>indexes make the INSERT, DELETE and UPDATE queries slower, in order to make certain SELECT queries faster</em>.</p>
+<p>As a concrete example, consider the following table:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">CREATE</span> <span class="kw">TABLE</span> <span class="st">`dummy_vals`</span> (
+  <span class="st">`id`</span>         <span class="dt">bigint</span>(<span class="dv">20</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>      <span class="kw">AUTO_INCREMENT</span>,
+  <span class="st">`created`</span>    <span class="dt">timestamp</span>  <span class="kw">NULL</span>          <span class="kw">DEFAULT</span> <span class="kw">CURRENT_TIMESTAMP</span>,
+  <span class="st">`anint`</span>      <span class="dt">INT</span>(<span class="dv">11</span>),
+  <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (id)
+);</code></pre></div>
+<p>This table has an auto-generated key called <code>id</code>, and it is also a primary key. Any primary key is automatically part of an index. This means that any queries that address the table via the <code>id</code> will be very efficient. In order to work with the table, we will add a fairly large number of data to it. This uses a procedure, and you don't need to understand all the details:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql">DELIMITER $$
+<span class="kw">CREATE</span> <span class="kw">PROCEDURE</span> generate_data()
+BEGIN
+  DECLARE i <span class="dt">INT</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>;
+  <span class="kw">WHILE</span> i &lt; <span class="dv">100000</span> DO
+    <span class="kw">INSERT</span> <span class="kw">INTO</span> <span class="st">`dummy_vals`</span> (<span class="st">`datetime`</span>,<span class="st">`anint`</span>) <span class="kw">VALUES</span> (
+      <span class="fu">FROM_UNIXTIME</span>(<span class="fu">UNIX_TIMESTAMP</span>(<span class="st">&#39;2014-01-01 01:00:00&#39;</span>)+FLOOR(<span class="fu">RAND</span>()*<span class="dv">31536000</span>)),
+      <span class="fu">ROUND</span>(<span class="fu">RAND</span>()*<span class="dv">50</span>,<span class="dv">2</span>)
+    );
+    <span class="kw">SET</span> i = i + <span class="dv">1</span>;
+  END <span class="kw">WHILE</span>;
+END$$
+DELIMITER ;
+
+CALL generate_data();</code></pre></div>
+<p>This generates 50000 &quot;dummy&quot; entries. As we say, these are by default indexed based on the <code>id</code>. So we could do quite efficiently a query like the following:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> SQL_NO_CACHE *
+<span class="kw">FROM</span> dummy_vals
+<span class="kw">WHERE</span> id &gt; <span class="dv">25000</span> <span class="kw">AND</span> id &lt; <span class="dv">29000</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> id;</code></pre></div>
+<p>This takes a mere 0.004-0.007 seconds to execute. But a query on the integer field, matching about the same number of cases, would be slower:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> SQL_NO_CACHE *
+<span class="kw">FROM</span> dummy_vals
+<span class="kw">WHERE</span> anint &gt; <span class="dv">250</span> <span class="kw">and</span> anint &lt; <span class="dv">270</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> anint;</code></pre></div>
+<p>This takes 0.03-0.5 seconds to execute, about 7-8 times slower. If we were to add an index to it, like so:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">ALTER</span> <span class="kw">TABLE</span> <span class="st">`dummy_vals`</span>
+<span class="kw">ADD</span> <span class="kw">INDEX</span> <span class="st">`anint_index`</span> (anint);</code></pre></div>
+<p>Then the same <code>anint</code>-based query as above takes only 0.005-0.008 seconds, very close to the primary key-based query.</p>
+<p>Indexing on multiple columns only helps if you use all the columns, or at least the first few columns. For example, if we take out that last index and add a new one:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">ALTER</span> <span class="kw">TABLE</span> <span class="st">`dummy_vals`</span>
+<span class="kw">DROP</span> <span class="kw">INDEX</span> <span class="st">`anint_index`</span>,
+<span class="kw">ADD</span> <span class="kw">INDEX</span> <span class="st">`combo_index`</span> (created, anint);</code></pre></div>
+<p>Then the <code>anint</code>-based query is again slow, because this index requires a <code>created</code> clause before it can be used. Reversing the order helps:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">ALTER</span> <span class="kw">TABLE</span> <span class="st">`dummy_vals`</span>
+<span class="kw">DROP</span> <span class="kw">INDEX</span> <span class="st">`combo_index`</span>,
+<span class="kw">ADD</span> <span class="kw">INDEX</span> <span class="st">`combo_index2`</span> (anint, created);</code></pre></div>
+<p>Now the <code>anint</code>-based query is again fast.</p>
+<p>Some takeaways:</p>
+<ol style="list-style-type: decimal">
+<li>Indexes <em>may</em> speed up SELECT queries.</li>
+<li>Indexes take up additional storage.</li>
+<li>Indexes slow down CREATE, UPDATE and DELETE queries, as they need to be updated along with the database.</li>
+<li>Having many indexes may slightly slow down a SELECT query as the engine has to choose which index to use for the specific query.</li>
+<li>Indexes typically benefit queries that would return a relatively small number of hits compared to the table size. If almost all values are to be returned, an index won't help much.</li>
+</ol>
+<h3 id="views">Views</h3>
+<p>Views are a bit like &quot;virtual tables&quot;. A view is associated with a SELECT query, and it effectively stores the query for future use. In the future you can directly try to access the view as if it was a table, without needing to explicitly run the query again. There are two main uses of this:</p>
+<ol style="list-style-type: decimal">
+<li>For frequently used queries that bring many tables together.</li>
+<li>For computations relying on existing data. For instance computing the number of credits and gpa that a student has based on their course records. We could have this dynamically computed with a view rather than updating the student table every time a new grade is inserted.</li>
+<li>When we want to restrict access. For instance we might need to provide someone access to student names and addresses, but not other more sensitive information stored in their account, like their GPA, number of credits, account holds etc. We can create a view that only contains specific columns from a table, and then give select users view access to this view, but not the table it came from.</li>
+</ol>
+<p>Read more about views in the links above.</p>
+<h3 id="orm">ORM</h3>
+<p>We now turn to an important topic that is more higher-level, namely <strong>Object-Relational Mapping</strong>. The idea is simple. Assume we are working in an object-oriented language like Python.</p>
+<ul>
+<li>We create custom Python classes to represent the objects we want to persist/store.</li>
+<li>We describe to the SQL engine (SQLAlchemy in our case) how these Python objects would correspond to table entries in the database.</li>
+<li>We specify <strong>relationships</strong> between objects of these classes, that effectively correspond to foreign keys. There is typically an <strong>owning side</strong> to each relationship. We change the relatioship by making a change on the object on that side. There are a number of different possible relationships:
+<ul>
+<li><p>one-to-one relationships. They also come in two variables, where the lack of a relationship is allowed and where it is not. Imagine an &quot;order&quot; object. It may or may not be associated to a unique &quot;invoice&quot; object. An order may or may not have an associated invoice object, and an invoice object can only be associated with one order object.</p>
+<p>Another example is relating a student-class enrollment object to an evaluation object, should we choose to do so. An evaluation is associated to a unique enrollment, and an enrollment is associated to at most one evaluation (but none if the student has not completed one).</p>
+In SQL terms, this association is achieved via a FOREIGN KEY that is also UNIQUE, and possibly NOT NULL.</li>
+<li><p>one-to-many relationships. These relate an object of one class with possibly many objects of another class. Almost universally the owning side is the &quot;many&quot; side. The &quot;many&quot; objects are typically stored in a collection structure like a Python list.</p>
+<p>As an example, a course has a one-many relationship with its sections. This is represented by a foreign key on the sections table pointing to the corresponding course.</p>
+In SQL these relationships are achieved via a standard FOREIGN KEY.</li>
+<li><p>many-to-many relationships. Each object of the one class may be related to many objects of the other class, and vice versa. For example in a mailing center we might have accounts and addresses. An account may be associated with many addresses, and an address may correspond to multiple accounts.</p>
+<p>In SQL these kinds of relationships are typically achieved via a third &quot;intersection&quot; table that contains pairs of ids from the two tables corresponding to the classes. It effectively turns the many-to-many relationship in two many-to-one relationships through the intermediary intersection table.</p>
+Some times we go further and explicitly make this its own entity/class, when we want to store further information along. For example students have a many-to-many relationship with course sections, but this relationship becomes explicit via the enrollment table, as we want to store further information along, namely whether the student has completed an evaluation yet or not.</li>
+</ul></li>
+<li>From that point on we manipulate these Python objects, creating new, deleting some or changing some, and let the SQL engine decide how persist these objects on the database and what queries to perform to do so.</li>
+<li>We (almost) never write our own SQL queries this way.</li>
+<li>The interaction of the ORM with that database is often done via <strong>Sessions</strong>. The ORM system might accumulate many changes, and only talk to the database when needed. For instance, you can:
+<ul>
+<li>Create a new object and <em>add</em> it to the session.</li>
+<li>Use the session to perform a query and return some objects from the database.</li>
+<li>Change an object's attribute values, and trust that the session will create a suitable UPDATE query.</li>
+<li><em>Commit</em> all the changes from the session.</li>
+<li><em>Rollback</em> changes from the session to discard them.</li>
+</ul></li>
+<li>A process known as <em>identity map</em> ensures that objects we retrieve via queries are really the same objects, even if they were loaded via multiple instructions. When we for instance search for the user &quot;Haris&quot; and store it in the variable <code>user1</code>, then later on search for the user &quot;Haris&quot; again and store it in the variable <code>user2</code>, then the objects stored in the variables <code>user1</code> and <code>user2</code> are in fact the exact same object, and not two different copies.</li>
+</ul>
+</body>
+</html>
