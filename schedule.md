@@ -69,21 +69,23 @@ A week-by-week breakdown of the material.
 - Day 2
     - [Indexes, Views, ORM](notes/sql_odds_ends.md)
 - Day 3
-    - Introduction to NoSQL databases
+    - Work on Assignment 5
 
 ## Week  8 (10/24-10/28)
 
 - Day 1
-    - More on NoSQL databases (Mongo?)
+    - [Emergence of NoSQL databases](notes/nosql_start.md)
+    - [NoSQL Data Models](notes/nosql_data_models.md)
 - Day 2
-    - Introduction to Hadoop
+    - [Distributed Database Models](notes/nosql_distributed.md)
+    - [Consistency](notes/nosql_consistency.md)
 - Day 3
-    - Authorization and OAuth2
+    - Introduction to Hadoop
 
 ## Week  9 (10/31-11/04)
 
 - Day 1
-    - TBA
+    - Authorization and OAuth2
 - Day 2
     - TBA
 - Day 3

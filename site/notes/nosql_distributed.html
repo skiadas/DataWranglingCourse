@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="distributed-database-models">Distributed Database Models</h1>
+<h2 id="reading">Reading</h2>
+<ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2381014&amp;type=safari">NoSQL Distilled</a> chapter 4</li>
+</ul>
+<h3 id="reading-questions">Reading questions</h3>
+<ul>
+<li>What is <strong>sharding</strong>?</li>
+<li>What are the factors to consider when deciding how to assign the data onto different shards?</li>
+<li>What are some possible ways to attempt to balance the load when handling multiple shards?</li>
+<li>Does sharding benefit performance or reliability?</li>
+<li>How does master-slave replication work? Where can reads/writes happen?</li>
+<li>How does peer-to-peer replication work? Where can reads/writes happen?</li>
+<li>What use-cases is master-slave replication suitable for?</li>
+<li>What use-cases is peer-to-peer replication suitable for?</li>
+<li>What are main differences between master-slave replication and peer-to-peer replication?</li>
+<li>How can peer-to-per replication avoid inconsistent writes?</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>We discuss here the various possibilities when it comes to expanding our database capabilities by using multiple servers.</p>
+<h3 id="replication-vs-sharding">Replication vs Sharding</h3>
+<p>First of all there are two <em>orthogonal</em> approaches to server expansion. We can have both in place, or just one, or neither.</p>
+<dl>
+<dt>Sharding</dt>
+<dd><p>Sharded database servers each contain a part of the overall data, i.e. they store different data on separate nodes. This division could be either via storing different tables, or more likely storing different rows for each table. For example in our evaluations database we may have a different shard for each academic department or each year. Sharding works great when the different queries performed each only need to talk to one shard. But it breaks down when for instance joins need to be performed across multiple shards.</p>
+<p>Sharding works well with an aggregate-oriented approach, where different aggregates can be stored on different shards.</p>
+</dd>
+<dt>Replication</dt>
+<dd><p>Replicated servers contain identical copies of the entire database. They are in that sense like &quot;mirrors&quot;. Having multiple identical copies means that multiple queries can be served at the same time, but it also means that some amount synchronization needs to be in place to keep the different replicas in sync.</p>
+<p>Replication improves <em>resilience</em>, as the data is now stored on multiple nodes.</p>
+</dd>
+</dl>
+<h3 id="master-slave-replication">Master-Slave Replication</h3>
+<p>In a master-slave replication setup we have one server, considered the <strong>master</strong>. All writes happen on that server. There are also multiple <strong>slave</strong> servers, that receive updates from the master. Reads can happen from either the master or the slaves, so this system distributes reads well across multiple nodes. It is however still constrained by having writes happen in only one place.</p>
+<p>This design offers <strong>read resilience</strong>. Even if one or more of the servers fails, the remaining servers can keep offering read access. This can help a lot with read-heavy applications, but will offer little benefit to write-intensive applications.</p>
+<p>As the slaves are exact replicas of the master server, one of them can assume the role of the master in case the master fails. In fact most of the time you can simply create a set of nodes and have them automatically decide who would be the master.</p>
+<p>There are some consistency issues that occur due to the delay in updating between master and slaves. We will discuss those later.</p>
+<h3 id="peer-to-peer-replication">Peer-to-peer Replication</h3>
+<p>Peer-to-peer replication aims to address the fact that the master can be a severe bottleneck on master-slave replication setups. In a peer-to-peer replication setup the various nodes are all &quot;equals&quot;. Any node can accept reads as well as writes, and they communicate these writes to each other.</p>
+<p>The biggest advantage of this setup of course is its read and write resilience. One node's failure does not cause problems, as the remaining nodes can continue their work without losing a beat.</p>
+<p>The biggest problem that arises is that of consistency. For example we may have conflicting write requests that come on different nodes, and then those nodes attempt to communicate those requests to the rest of the nodes. This could lead to considerable inconsistencies.</p>
+<p>There are various ways to resolve this, that we will discuss in more details later. The most standard approach would be to have the replicas communicate their writes first before they &quot;accept&quot; them. Once a majority of the replicas has confirmed a write, it can now be considered as having been successfully performed and a response sent to the client. This requires a certain amount of network traffic in coordinating these writes.</p>
+<p>This is a common tradeoff between consistency and availability, and we will return to it later.</p>
+</body>
+</html>

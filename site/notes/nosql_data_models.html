@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="nosql-data-models">NoSQL Data Models</h1>
+<h2 id="reading">Reading</h2>
+<ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2381014&amp;type=safari">NoSQL Distilled</a> chapters 2, 3</li>
+</ul>
+<h3 id="reading-questions">Reading questions</h3>
+<ul>
+<li>What does the term <strong>data model</strong> refer to?</li>
+<li>What are the four main <strong>data models</strong> in the NoSQL ecosystem?</li>
+<li>What does the term <strong>aggregate</strong> refer to? (section 2.1)</li>
+<li>How do we decide if we should use an aggregate-oriented data model vs an aggregate-ignorant one like relational databases? Where does each model excel?</li>
+<li>How do key-value stores and document databases differ in their approach to aggregate structures?</li>
+<li>How are column-family databases organized?</li>
+<li>What is schemaless design? What are its advantages and drawbacks?</li>
+<li>What are <em>materialized views</em>? What are their uses?</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<h3 id="aggregate-data-models">Aggregate Data Models</h3>
+<p>An <strong>aggregate</strong> is a collection of related objects that we treat as a unit. These aggregates tend to transcend the normalized breakdown that relational databases promote. For example, recall our basic evaluations database structure:</p>
+<div class="figure">
+<img src="images/EvalsModel.png" alt="Evaluations Database Relationships" />
+<p class="caption">Evaluations Database Relationships</p>
+</div>
+<p>There are many different &quot;aggregates&quot; we could consider. Ultimately what determines an aggregate has to do with the kinds of queries one might want to perform.</p>
+<ul>
+<li><p>We could consider an &quot;evaluation&quot;, which would contain in it the various questions and answers pertinent to that evaluation. In JSON terms, it may look something like this:</p>
+<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
+  <span class="dt">&quot;evalHash&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+  <span class="dt">&quot;sectionId&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+  <span class="dt">&quot;answers&quot;</span><span class="fu">:</span> <span class="ot">[</span>
+    <span class="fu">{</span>
+      <span class="dt">&quot;questionId&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;questionPrompt&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;questionType&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;instructor&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;answerNum&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;answerText&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span>
+    <span class="fu">}</span><span class="ot">,</span>
+    <span class="er">.....</span>
+  <span class="ot">]</span>
+<span class="fu">}</span></code></pre></div></li>
+<li><p>We could consider a &quot;section&quot; object, which would contain more details about the course and instructors, rather than simply linking to those tables. And it may further contain the various student enrollment lists and evaluation lists. So it may look something like this:</p>
+<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
+  <span class="dt">&quot;sectionId&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+  <span class="dt">&quot;courseId&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+  <span class="dt">&quot;fullName&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+  <span class="dt">&quot;term&quot;</span><span class="fu">:</span> <span class="fu">{</span>
+    <span class="dt">&quot;year&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+    <span class="dt">&quot;period&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span>
+  <span class="fu">},</span>
+  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+  <span class="dt">&quot;instructors&quot;</span><span class="fu">:</span> <span class="ot">[</span>
+    <span class="fu">{</span>
+      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span>
+    <span class="fu">}</span><span class="ot">,</span>
+    <span class="er">.....</span>
+  <span class="ot">]</span><span class="fu">,</span>
+  <span class="dt">&quot;enrolled&quot;</span><span class="fu">:</span> <span class="ot">[</span>
+    <span class="fu">{</span>
+      <span class="dt">&quot;studentId&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;studentName&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;completed&quot;</span><span class="fu">:</span> <span class="st">&quot;.....&quot;</span>
+    <span class="fu">}</span><span class="ot">,</span>
+    <span class="er">.....</span>
+  <span class="ot">]</span><span class="fu">,</span>
+  <span class="dt">&quot;evaluations&quot;</span><span class="fu">:</span> <span class="ot">[</span>
+    <span class="fu">{</span>
+      <span class="dt">&quot;evalHash&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span>
+    <span class="fu">}</span><span class="ot">,</span>
+    <span class="fu">{</span>
+      <span class="dt">&quot;evalHash&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span>
+    <span class="fu">}</span><span class="ot">,</span>
+    <span class="er">.....</span>
+  <span class="ot">]</span>
+<span class="fu">}</span></code></pre></div></li>
+</ul>
+<p>The idea is that aggregates tend to put together all the information that will tend to be processed together. This simplifies and speeds up those queries, that respect this <strong>unit of interaction</strong>.</p>
+<p>On the other hand, it also makes other queries more complicated. Suppose for example that we wanted to get summary information about all student answers to a particular question. With our aggregate example above, we have essentially two approaches:</p>
+<ul>
+<li>We could go through each &quot;evaluation aggregate&quot;, extract the necessary information, and return it.</li>
+<li>If this is a frequent query, we could have created a different &quot;answer&quot; aggregate, that organizes the information in some alternate way. Then we would need to ensure somehow that the two structures remain synchronized, as we now store the same information in multiple places.</li>
+</ul>
+<p>So bottom line: In <em>aggregate data models, some queries that respect the aggregate structure are fast, while other queries that transcend the structure become harder to perform</em>.</p>
+<h3 id="key-value-stores-and-document-databases-as-aggregate-data-models">Key-Value Stores and Document Databases as Aggregate Data Models</h3>
+<p>Both key-value stores and document databases emphasize an aggregate-oriented design: Each aggregate is identified by its id/key and treated as a unit.</p>
+<p>The difference between the two is on how the contents of the aggregate are treated:</p>
+<ul>
+<li>In a key-value store the contents/value of the aggregate are completely opaque: You can only retrieve an aggregate based on its key, you cannot look into the data and make sense of it. For many kinds of data this is the right thing.</li>
+<li>In a document database, we can submit queries based on the fields in the aggregate structure, not just solely on the key. The contents of the document/aggregate are therefore readable.</li>
+</ul>
+</body>
+</html>
