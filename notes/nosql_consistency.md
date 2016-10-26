@@ -2,7 +2,7 @@
 
 ## Reading
 
-- [NoSQL Distilled](http://learning.acm.org/books/book_detail.cfm?id=2381014&type=safari) chapter 5
+- [NoSQL Distilled](http://learning.acm.org/books/book_detail.cfm?id=2381014&type=safari) chapters 5, 6
 
 ### Reading questions
 
@@ -13,6 +13,11 @@
 - What are **sticky sessions**? What other term we use in this context? What problem do these solve?
 - What does the CAP theorem say? What is its importance?
 - Design examples of particular situations where inconsistent writes can be tolerated by the system. Some examples are discussed in section 5.3.1.
+- Describe situations where you may be willing to sacrifice durability/persistence, and the benefits of doing so. (section 5.4)
+- Describe some possible options in a quorum system with $N=5$ replicas, and some of the tradeoffs in the various cases.
+- What is the point and use cases for **version stamps**? (section 6.2)
+- Describe some systems that can be used as version stamps, and their tradeoffs.
+- What are **vector stamps**? (section 6.2)
 
 ## Notes
 
@@ -86,4 +91,30 @@ This may still be OK if the system has some way to handle inconsistent updates. 
 
 > Certain inconsistent writes may be manageable based on your system's logic. You do not always have to sacrifice availability in order to achieve (occasionally unneeded) consistency.
 
-TODO
+### Quorums
+
+Given the possibility of node failures in a replication scenario, one important consideration is how to ensure consistency. For instance if a node is processing a write, but the node fails before it can communicate that write to the other nodes, then that write may not happen. Or when the node manages to connect back to the system, that node's changes might now conflict with changes elsewhere in the system.
+
+A way to minimize this problem is to use a **write quorum**, where we only consider the write operation performed when over half the nodes have processed it. This way if we have multiple conflicting changes, only one may reach a quorum.
+
+There is a similar question with achieving **read quorum**. How many nodes do we need to contact in order to read something and be sure that we are reading its accurate value? The simple idea is that we need to make sure that we read from enough nodes so that if there was a write going on, we would talk to some of the nodes involved in that write. In order to make that more precise, let's set some more precise terminology:
+
+N
+  ~ The **replication factor** N is the number of replicas we have. Our system may be broken into many shards and replicas, we only consider here how many copies of a piece of data we have.
+
+W
+  ~ The **write quorum** number is the number of replicas that must accept a write before we consider it done. The bigger $W$ is, the slower writes are.
+
+R
+  ~ The **read quorum** number is the number of replicas we must read a value from before we consider it guaranteed to be the correct value. The bigger $R$ is, the slower reads are.
+
+Based on this we have some key conditions:
+
+- In order to avoid write-write conflicts and ensure strong write consistency, we must have $W > N/2$.
+- In order to avoid read-write conflicts and ensure strong read consistency, we must have $W + R > N$.
+
+As an example, let us suppose that $N=3$, a popular choice. Then we have a number of options for $W$ and $R$:
+
+- $W=2$ and $R=2$. This leads to balanced speeds for reads and writes. Ensures strong consistency.
+- $W=3$ and $R=1$. This leads to faster reads at the cost of slower writes. Ensures strong consistency. You also cannot tolerate a failing node for writes.
+- $W=2$ and $R=1$. This ensures write-consistency, fast reads, and somewhat fast writes, but allows for the possibility of stale reads, if the node we read from happens to be different from the two nodes we write to.

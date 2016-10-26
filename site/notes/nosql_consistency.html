@@ -16,7 +16,7 @@
 <h1 id="consistency">Consistency</h1>
 <h2 id="reading">Reading</h2>
 <ul>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2381014&amp;type=safari">NoSQL Distilled</a> chapter 5</li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2381014&amp;type=safari">NoSQL Distilled</a> chapters 5, 6</li>
 </ul>
 <h3 id="reading-questions">Reading questions</h3>
 <ul>
@@ -27,6 +27,11 @@
 <li>What are <strong>sticky sessions</strong>? What other term we use in this context? What problem do these solve?</li>
 <li>What does the CAP theorem say? What is its importance?</li>
 <li>Design examples of particular situations where inconsistent writes can be tolerated by the system. Some examples are discussed in section 5.3.1.</li>
+<li>Describe situations where you may be willing to sacrifice durability/persistence, and the benefits of doing so. (section 5.4)</li>
+<li>Describe some possible options in a quorum system with <span class="math inline">\(N=5\)</span> replicas, and some of the tradeoffs in the various cases.</li>
+<li>What is the point and use cases for <strong>version stamps</strong>? (section 6.2)</li>
+<li>Describe some systems that can be used as version stamps, and their tradeoffs.</li>
+<li>What are <strong>vector stamps</strong>? (section 6.2)</li>
 </ul>
 <h2 id="notes">Notes</h2>
 <h3 id="write-write-conflicts">Write-Write Conflicts</h3>
@@ -79,6 +84,31 @@
 <blockquote>
 <p>Certain inconsistent writes may be manageable based on your system's logic. You do not always have to sacrifice availability in order to achieve (occasionally unneeded) consistency.</p>
 </blockquote>
-<p>TODO</p>
+<h3 id="quorums">Quorums</h3>
+<p>Given the possibility of node failures in a replication scenario, one important consideration is how to ensure consistency. For instance if a node is processing a write, but the node fails before it can communicate that write to the other nodes, then that write may not happen. Or when the node manages to connect back to the system, that node's changes might now conflict with changes elsewhere in the system.</p>
+<p>A way to minimize this problem is to use a <strong>write quorum</strong>, where we only consider the write operation performed when over half the nodes have processed it. This way if we have multiple conflicting changes, only one may reach a quorum.</p>
+<p>There is a similar question with achieving <strong>read quorum</strong>. How many nodes do we need to contact in order to read something and be sure that we are reading its accurate value? The simple idea is that we need to make sure that we read from enough nodes so that if there was a write going on, we would talk to some of the nodes involved in that write. In order to make that more precise, let's set some more precise terminology:</p>
+<dl>
+<dt>N</dt>
+<dd>The <strong>replication factor</strong> N is the number of replicas we have. Our system may be broken into many shards and replicas, we only consider here how many copies of a piece of data we have.
+</dd>
+<dt>W</dt>
+<dd>The <strong>write quorum</strong> number is the number of replicas that must accept a write before we consider it done. The bigger <span class="math inline">\(W\)</span> is, the slower writes are.
+</dd>
+<dt>R</dt>
+<dd>The <strong>read quorum</strong> number is the number of replicas we must read a value from before we consider it guaranteed to be the correct value. The bigger <span class="math inline">\(R\)</span> is, the slower reads are.
+</dd>
+</dl>
+<p>Based on this we have some key conditions:</p>
+<ul>
+<li>In order to avoid write-write conflicts and ensure strong write consistency, we must have <span class="math inline">\(W &gt; N/2\)</span>.</li>
+<li>In order to avoid read-write conflicts and ensure strong read consistency, we must have <span class="math inline">\(W + R &gt; N\)</span>.</li>
+</ul>
+<p>As an example, let us suppose that <span class="math inline">\(N=3\)</span>, a popular choice. Then we have a number of options for <span class="math inline">\(W\)</span> and <span class="math inline">\(R\)</span>:</p>
+<ul>
+<li><span class="math inline">\(W=2\)</span> and <span class="math inline">\(R=2\)</span>. This leads to balanced speeds for reads and writes. Ensures strong consistency.</li>
+<li><span class="math inline">\(W=3\)</span> and <span class="math inline">\(R=1\)</span>. This leads to faster reads at the cost of slower writes. Ensures strong consistency. You also cannot tolerate a failing node for writes.</li>
+<li><span class="math inline">\(W=2\)</span> and <span class="math inline">\(R=1\)</span>. This ensures write-consistency, fast reads, and somewhat fast writes, but allows for the possibility of stale reads, if the node we read from happens to be different from the two nodes we write to.</li>
+</ul>
 </body>
 </html>

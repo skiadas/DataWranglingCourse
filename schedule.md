@@ -80,21 +80,21 @@ A week-by-week breakdown of the material.
     - [Distributed Database Models](notes/nosql_distributed.md)
     - [Consistency](notes/nosql_consistency.md)
 - Day 3
-    - Introduction to Hadoop
+    - MongoDb
 
 ## Week  9 (10/31-11/04)
 
 - Day 1
-    - Authorization and OAuth2
+    - Map-Reduce Philosophy
 - Day 2
-    - TBA
+    - Introduction to Hadoop
 - Day 3
     - TBA
 
 ## Week 10 (11/07-11/11)
 
 - Day 1
-    - TBA
+    - Authorization and OAuth2
 - Day 2
     - TBA
 - Day 3
