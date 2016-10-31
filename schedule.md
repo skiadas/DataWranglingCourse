@@ -77,19 +77,19 @@ A week-by-week breakdown of the material.
     - [Emergence of NoSQL databases](notes/nosql_start.md)
     - [NoSQL Data Models](notes/nosql_data_models.md)
 - Day 2
+    - Lab work
+- Day 3
     - [Distributed Database Models](notes/nosql_distributed.md)
     - [Consistency](notes/nosql_consistency.md)
-- Day 3
-    - MongoDb
 
 ## Week  9 (10/31-11/04)
 
 - Day 1
-    - Map-Reduce Philosophy
+    - [Introduction to MongoDb](notes/mongodb.md)
 - Day 2
-    - Introduction to Hadoop
+    - Map-Reduce Philosophy
 - Day 3
-    - TBA
+    - Introduction to Hadoop
 
 ## Week 10 (11/07-11/11)
 
