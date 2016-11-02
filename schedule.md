@@ -87,16 +87,16 @@ A week-by-week breakdown of the material.
 - Day 1
     - [Introduction to MongoDb](notes/mongodb.md)
 - Day 2
-    - Map-Reduce Philosophy
+    - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
 - Day 3
-    - Introduction to Hadoop
+    - Map-Reduce Philosophy
 
 ## Week 10 (11/07-11/11)
 
 - Day 1
-    - Authorization and OAuth2
+    - Introduction to Hadoop
 - Day 2
-    - TBA
+    - Authorization and OAuth2
 - Day 3
     - TBA
 

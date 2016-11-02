@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="aggregation-framework-in-mongodb">Aggregation Framework in MongoDb</h1>
+<h2 id="reading">Reading</h2>
+<ul>
+<li><a href="https://docs.mongodb.com/manual/reference/method/">Mongo shell reference</a></li>
+<li><a href="https://docs.mongodb.com/manual/reference/operator/aggregation/">Aggregation pipeline operators</a></li>
+</ul>
+<h3 id="reading-questions">Reading questions</h3>
+<h2 id="notes">Notes</h2>
+<p>A pervasive feature in many data-wrangling frameworks these days is the idea of aggregation and pipelining. In general aggregation represents the manipulation of multiple data in order to produce a new product.</p>
+<p>One very effective way of carrying this out is the idea of <strong>pipelining</strong>, where the overall process is split up into <strong>stages</strong>. Each stage focuses on a single goal, and each stage inherits the results from the previous stage.</p>
+<h3 id="aggregation-in-mongodb">Aggregation in MongoDb</h3>
+<p>A powerful part of Mongo is the aggregation framework. This allows us to set up a <strong>pipeline</strong> of operations to be performed. The collection of documents passes through these <em>stages</em> and produces a final result. For example some possible <a href="https://docs.mongodb.com/v3.2/reference/operator/aggregation/#aggregation-pipeline-operator-reference">stages</a> are:</p>
+<ul>
+<li><code>$project</code> reshapes each document, for example by adding or removing fields.</li>
+<li><code>$match</code> filters the list of documents based on a query. Only documents that match continue.</li>
+<li><code>$group</code> groups the documents based on some criteria, and returns one document for each group.</li>
+</ul>
+<p>These first three are the most powerful tools. But there are some more:</p>
+<ul>
+<li><code>$limit</code> set a limit on the number of returned documents.</li>
+<li><code>$skip</code> skips through a number of documents.</li>
+<li><code>$sample</code> randomly selects some number of results.</li>
+<li><code>$sort</code> sorts the results.</li>
+<li><code>$out</code> can be used to immediately write the results on another collection. It must be the last stage if used.</li>
+</ul>
+<p>These stages can be used multiple times, and often even repeated.</p>
+<p>Let's look at some examples. We want to count the number of documents for each value of the &quot;group&quot; field. We could do something like this:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$project</span><span class="op">:</span> <span class="op">{</span> <span class="dt">group</span><span class="op">:</span> <span class="st">&quot;$group&quot;</span><span class="op">,</span> <span class="dt">n</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$literal</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span> <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span> <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$group&quot;</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="st">&quot;$n&quot;</span> <span class="op">}</span> <span class="op">}}</span>
+])</code></pre></div>
+<p>Here's what's happening:</p>
+<ul>
+<li>The <code>$project</code> step goes through each document, and keeps only the group information (and automatically the id) and also sets a new field called n with value 1. We will use those in the next step to count. The <code>$group</code> tells it to populate the new field called <code>group</code> with the value from the &quot;group&quot; field in the documents.</li>
+<li>The <code>$group</code> step takes these documents from the previous step, and groups them under a new <code>_id</code> given by the &quot;group&quot; field of the documents from the previous step. For all the documents with the same &quot;new&quot; <code>_id</code>, i.e. for all the documents of the same group, we perform the aggregation operator described in the <code>{ $sum: &quot;$n&quot; }</code>, namely we add the values in the field called <code>n</code>, namely all those 1s. This ends up counting how many cases there are. And the result is stored in a field named <code>count</code>.</li>
+</ul>
+<p>Let's try another example. We will find for each group: The minimum gpa, the maximum gpa, and the average gpa. We will also write the results to a collection called &quot;averages&quot;.</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$project</span><span class="op">:</span> <span class="op">{</span> <span class="dt">group</span><span class="op">:</span> <span class="st">&quot;$group&quot;</span><span class="op">,</span> <span class="dt">gpa</span><span class="op">:</span> <span class="kw">true</span> <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$group&quot;</span><span class="op">,</span>
+    <span class="dt">avg</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$avg</span><span class="op">:</span> <span class="st">&quot;$gpa&quot;</span> <span class="op">},</span>
+    <span class="dt">min</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$min</span><span class="op">:</span> <span class="st">&quot;$gpa&quot;</span> <span class="op">},</span>
+    <span class="dt">max</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$max</span><span class="op">:</span> <span class="st">&quot;$gpa&quot;</span> <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$out</span><span class="op">:</span> <span class="st">&quot;summaries&quot;</span> <span class="op">}</span>
+])
+<span class="va">db</span>.<span class="va">summaries</span>.<span class="at">find</span>()</code></pre></div>
+<p>Notice the phrase <code>gpa: true</code> here. It tells mongo to include the &quot;gpa&quot; field to the document before moving on to the next group.</p>
+<h3 id="more-examples">More examples</h3>
+<p>In order to get some more examples going, we will download some sample zip code data from the mongodb website. You can do this with something like this:</p>
+<pre><code>curl http://media.mongodb.org/zips.json | mongoimport -h ds011168.mlab.com:11168 -d wranging -c zips -u haris -p haris</code></pre>
+<p>You will need to change that line to provide your correct database information as well as username and password information. The <code>curl</code> command there will download the data and would normally print the output on the Terminal window. The &quot;pipe&quot; instruction <code>|</code> tells it to instead &quot;pipe&quot; that output into the next command, which is the <code>mongoimport</code> command, which then sends that data into the database. Unix piping commands are an important skill to master, but unfortunately there isn't enough time in the course for it.</p>
+<p>Let's now take a closer look at that data. Log back into the mongo shell for the rest. We'll start by taking a look at one data point just to get a feeling for what the data looks like:</p>
+<pre><code>rs-ds011168:PRIMARY&gt; db.zips.findOne()
+{
+  &quot;_id&quot; : &quot;01005&quot;,
+  &quot;city&quot; : &quot;BARRE&quot;,
+  &quot;loc&quot; : [
+    -72.108354,
+    42.409698
+  ],
+  &quot;pop&quot; : 4546,
+  &quot;state&quot; : &quot;MA&quot;
+}</code></pre>
+<p>So this record seems to contain a number of things. There is one entry for each zip code, and that code is stored in the id. Then there is a city name, location in terms of longtitude and latitude, population and state.</p>
+<p>We'll start with some simple questions. We want to put together, for each state, the population as well as the number of zip codes. Let's see how we can do this with the aggregation framework:</p>
+<ul>
+<li>We will group based on the state, summing the population fields and the <code>zips_count</code> fields. The syntax <code>{ $sum: 1 }</code> tells mongoDb to add 1 for each entry.</li>
+<li>We will then sort based on population. (-1 means descending)</li>
+<li>We will then limit it to the first 20.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$state&quot;</span><span class="op">,</span>
+    <span class="dt">pop</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="st">&quot;$pop&quot;</span> <span class="op">},</span>
+    <span class="dt">zips_count</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$sort</span><span class="op">:</span> <span class="op">{</span> <span class="dt">pop</span><span class="op">:</span> <span class="op">-</span><span class="dv">1</span> <span class="op">}</span> <span class="op">},</span>
+  <span class="op">{</span> <span class="dt">$limit</span><span class="op">:</span> <span class="dv">20</span> <span class="op">}</span>
+])</code></pre></div>
+<p>You should be seeing a list of the 20 most populous states.</p>
+<p><strong>Practice</strong>: Add a step in the above process, after the grouping, that would use <code>$project</code> to maintain all the previous results but add a column containing the population per zip code (i.e. dividing the population by the number of zip codes). The <a href="https://docs.mongodb.com/manual/reference/operator/aggregation/#aggregation-pipeline-operator-reference"><code>$divide</code> operator</a> would come in handy. Name the new field <code>ppz</code> (population per zip). Then sort by this population per zip count. This should tell you about the areas with the largest number of people per zip code. Which one is at the top?</p>
+<p>Let us take it a step further. We now want to group by both state and city, and have one entry for each city-state combination. This means that the &quot;id&quot; for the group will need to be the city-state combination. We can do that in MongoDb:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="op">{</span> <span class="dt">state</span><span class="op">:</span> <span class="st">&quot;$state&quot;</span><span class="op">,</span> <span class="dt">city</span><span class="op">:</span> <span class="st">&quot;$city&quot;</span> <span class="op">},</span>
+    <span class="dt">pop</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="st">&quot;$pop&quot;</span> <span class="op">},</span>
+    <span class="dt">zips_count</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$sort</span><span class="op">:</span> <span class="op">{</span> <span class="dt">pop</span><span class="op">:</span> <span class="op">-</span><span class="dv">1</span> <span class="op">}</span> <span class="op">},</span>
+  <span class="op">{</span> <span class="dt">$limit</span><span class="op">:</span> <span class="dv">40</span> <span class="op">}</span>
+])</code></pre></div>
+<p><strong>Practice</strong>: Change the query to give you the cities with the largest number of zip codes to them.</p>
+<p><strong>Practice</strong>: Instead of creating an &quot;id&quot; as a pair with a state and a city, create one by concatenating them, like so: &quot;Austin, TX&quot;. You will want to look at the <a href="https://docs.mongodb.com/manual/reference/operator/aggregation/concat/#exp._S_concat"><code>$concat</code> operator</a> for guidance.</p>
+<p>We now want to do the following:</p>
+<ul>
+<li>We will start with the breakdown by city-state combinations and the population on each city.</li>
+<li>We will then sort these first my state and then by population.</li>
+<li>We will then further group them so that each state object contains a list of the cities in it with their population. Because of our previous step, these cities will be sorted by population.</li>
+<li>We will then store this as a useful dataset for queries.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="op">{</span> <span class="dt">state</span><span class="op">:</span> <span class="st">&quot;$state&quot;</span><span class="op">,</span> <span class="dt">city</span><span class="op">:</span> <span class="st">&quot;$city&quot;</span> <span class="op">},</span>
+    <span class="dt">pop</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="st">&quot;$pop&quot;</span> <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$sort</span><span class="op">:</span> <span class="op">{</span> <span class="dt">state</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">pop</span><span class="op">:</span> <span class="op">-</span><span class="dv">1</span> <span class="op">}</span> <span class="op">},</span>
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+  <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$_id.state&quot;</span><span class="op">,</span>
+    <span class="dt">cities</span><span class="op">:</span> <span class="op">{</span>
+      <span class="dt">$push</span><span class="op">:</span> <span class="op">{</span>
+        <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;$_id.city&quot;</span><span class="op">,</span>
+        <span class="dt">pop</span><span class="op">:</span> <span class="st">&quot;$pop&quot;</span>
+      <span class="op">}</span>
+    <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$out</span><span class="op">:</span> <span class="st">&quot;citiesByState&quot;</span> <span class="op">}</span>
+])</code></pre></div>
+<p>The new part here is the second group. Notice how it uses the &quot;dot notation&quot; to take the state and city fields out of the <code>_id</code>. We also use the <code>$push</code> operator to create an array out of all the cities, or more precise out of the &quot;city-population&quot; objects.</p>
+<p>You can load one of these entries to see how they look like:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">citiesByState</span>.<span class="at">findOne</span>()</code></pre></div>
+<p>We will now modify the above query, to find the city with the largest population on each state.</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="op">{</span> <span class="dt">state</span><span class="op">:</span> <span class="st">&quot;$state&quot;</span><span class="op">,</span> <span class="dt">city</span><span class="op">:</span> <span class="st">&quot;$city&quot;</span> <span class="op">},</span>
+    <span class="dt">pop</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="st">&quot;$pop&quot;</span> <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$sort</span><span class="op">:</span> <span class="op">{</span> <span class="dt">state</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">pop</span><span class="op">:</span> <span class="op">-</span><span class="dv">1</span> <span class="op">}</span> <span class="op">},</span>
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$_id.state&quot;</span><span class="op">,</span>
+    <span class="dt">highest</span><span class="op">:</span> <span class="op">{</span>
+      <span class="dt">$first</span><span class="op">:</span> <span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;$_id.city&quot;</span><span class="op">,</span> <span class="dt">pop</span><span class="op">:</span> <span class="st">&quot;$pop&quot;</span> <span class="op">}</span>
+    <span class="op">}</span>
+  <span class="op">}}</span>
+])</code></pre></div>
+<p><strong>Practice</strong>: Add a &quot;sort&quot; step to the above, to order the resulting states by their highest city's population, starting with the highest.</p>
+<p><strong>Practice</strong>: Create a suitable aggregate where we compute for each state the average population of the cities in it.</p>
+<p><strong>Practice</strong>: Create a suitable aggregate where we compute for each state the average population of the cities in it, but only for those cities that have over 10000 population. You also should record the number of cities that the state has with over 10000 population.</p>
+<p>Now let's consider another problem to illustrate the use of the <code>$sample</code> operator. We want to select a zip code at random, but we want to do it so that all states are equally likely. Since some states have more zip codes than others, we can't just select a document at random. We must:</p>
+<ul>
+<li>First group the zip codes by state</li>
+<li>Then select a state at random</li>
+<li>Then &quot;unwind&quot; the array of zip codes in that state. This creates a new collection of documents with one entry for each zip code.</li>
+<li>Finally, we pick one zip code at random from this list</li>
+</ul>
+<p>Here's how it would look:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$state&quot;</span><span class="op">,</span>
+    <span class="dt">codes</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$push</span><span class="op">:</span> <span class="st">&quot;$_id&quot;</span> <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$sample</span><span class="op">:</span> <span class="op">{</span> <span class="dt">size</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span> <span class="op">},</span>
+  <span class="op">{</span> <span class="dt">$unwind</span><span class="op">:</span> <span class="st">&quot;$codes&quot;</span> <span class="op">},</span>
+  <span class="op">{</span> <span class="dt">$sample</span><span class="op">:</span> <span class="op">{</span> <span class="dt">size</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span> <span class="op">}</span>
+])</code></pre></div>
+<p><strong>Practice</strong>: Group the entries by city name, and keep the information of the state and city population (you'll have to sum up over the zip codes). Then only keep the city names that appear in multiple states, and finally for each one of those names record: how many states had a city with that name, which state had the largest such city, and what the population of that city was.</p>
+</body>
+</html>

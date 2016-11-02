@@ -58,59 +58,59 @@ There are two standard ways to interact with your Mongodb database. In this sect
     db.gpas.remove({ name: 'student0' })
     ```
 - The MongoDb shell uses a mini programming language that looks a bit like Javascript, for those familiar with Javascript. For example we used `_rand()` to generate a random number. We will now insert a large number of values all at once. We first create them as a "Javascript" object:
-    ```
+    ```js
     var d = []; for (var i = 0; i < 10000; i++) {
       d.push({ name: "student" + i, gpa: _rand()*4 })
     }
     db.gpas.insertMany(d)
     ```
 - Let us now learn how to search for information in the documents. The main tool at our disposal is the `find` method. Its parameter is an object that describes the query. For example we can get the entries with a specific student name:
-    ```
+    ```js
     db.gpas.find({ name: 'student100' })
     ```
     or we can perform more complex queries. For example, this asks for all entries whose gpa is over 3.95:
-    ```
+    ```js
     db.gpas.find({ gpa: { $gt: 3.98 }})
     ```
     The shell will probably link only some of the results. We will discuss how to work with the result of a `find`, which is what is known as a *cursor*. In the meantime, if we only want to know how many results there are, we can use `count`:
-    ```
+    ```js
     db.gpas.count({ gpa: { $gt: 3.98 }})
     ```
 - Next we will do an update query: We will add an "atRisk" field to all students with a gpa of 2 or less. The query takes two parameters: The first specifies which entries to locate, the other specifies what changes to make.
-    ```
+    ```js
     db.gpas.updateMany({ gpa: { $lte: 2 }}, { $set: { atRisk: true }})
     ```
     We'll see that about half of the documents were updated. Now half the documents have this "atRisk" field, while the other half don't have it at all.
 - Let us now do a more complex query, that captures all students whose gpa is less than 2.5, and adjusts that gpa by up to plus/minus 1 point.
-    ```
+    ```js
     db.gpas.updateMany({ gpa: { $lte: 2.5 }}, { $inc: { gpa: _rand() * 2 - 1 }})
     ```
     Now we will look for students who were at-risk but whose gpa is now over 2. We will then mark all those to no-longer at risk:
-    ```
+    ```js
     db.gpas.count({ gpa: { $gt: 2 }, atRisk: true })
     db.gpas.updateMany({ gpa: { $gt: 2 }, atRisk: true }, { $set: { atRisk: false }})
     ```
     Now we want to search for all students that are not at risk. We cannot simply look for `atRisk: false` because this doesn't include those students where there is no `atRisk` entry at all. We can do this in two ways:
-    ```
+    ```js
     db.gpas.count({
       $or: [
         { atRisk: { $exists: false } },
-        { atRisk: true }
+        { atRisk: false }
       ]
     })
 
     db.gpas.count({
-      atRisk: { $ne: false }
+      atRisk: { $ne: true }
     })
     ```
 - We will now arbitrarily assign all students into four groups. This may take a while as it has to update each entry:
-    ```
+    ```true
     db.gpas.find().forEach(function(doc) {
       db.gpas.update(doc, { $set: { group: Math.ceil(_rand() * 4) }})
     })
     ```
     This is also the first time where we say the use of a *cursor method*: The result of the `find` call is a "cursor", which is basically a fancy word for something that we can iterate over. We therefore perform a `forEach` on it. That takes an arbitrary function as input, and it executes that function for every result. Let's see how the above worked. Everyone should be more or less equally divided into four "groups", identified by the numbers 1 through 4:
-    ```
+    ```true
     for (var i = 1; i < 5; i++) {
       print(db.gpas.count({ group: i }))
     }
@@ -124,49 +124,3 @@ Some practice problems:
 - Mark those students from the previous part as being at-risk.
 - Remove from the collection all students with a gpa less than 1.
 - Find all at-risk students and put them in their own "group", with number 5.
-
-### Aggregation
-
-A powerful part of Mongo is the aggregation framework. This allows us to set up a **pipeline** of operations to be performed. The collection of documents passes through these *stages* and produces a final result. For example some possible [stages](https://docs.mongodb.com/v3.2/reference/operator/aggregation/#aggregation-pipeline-operator-reference) are:
-
-- `$project` reshapes each document, for example by adding or removing fields.
-- `$match` filters the list of documents based on a query. Only documents that match continue.
-- `$group` groups the documents based on some criteria, and returns one document for each group.
-
-These first three are the most powerful tools. But there are some more:
-
-- `$limit` set a limit on the number of returned documents.
-- `$skip` skips through a number of documents.
-- `$sample` randomly selects some number of results.
-- `$sort` sorts the results.
-- `$out` can be used to immediately write the results on another collection. It must be the last step if used.
-
-Let's look at some examples. We want to count the number of documents for each value of the "group" field. We could do something like this:
-```
-db.gpas.aggregate([
-  { $project: { group: "$group", n: { $literal: 1 } }},
-  { $group: { _id: "$group", count: { $sum: "$n" } }}
-])
-```
-Here's what's happening:
-
-- The `$project` step goes through each document, and keeps only the group information (and automatically the id) and also sets a new field called n with value 1. We will use those in the next step to count. The `$group` tells it to populate the new field called `group` with the value from the "group" field in the documents.
-- The `$group` step takes these documents from the previous step, and groups them under a new `_id` given by the "group" field of the documents from the previous step. For all the documents with the same "new" `_id`, i.e. for all the documents of the same group, we perform the aggregation operator described in the `{ $sum: "$n" }`, namely we add the values in the field called `n`, namely all those 1s. This ends up counting how many cases there are. And the result is stored in a field named `count`.
-
-Let's try another example. We will find for each group: The minimum gpa, the maximum gpa, and the average gpa. We will also write the results to a collection called "averages".
-```
-db.gpas.aggregate([
-  { $project: { group: "$group", gpa: true }},
-  { $group: {
-    _id: "$group",
-    avg: { $avg: "$gpa" },
-    min: { $min: "$gpa" },
-    max: { $max: "$gpa" }
-  }},
-  { $out: "summaries" }
-])
-db.summaries.find()
-```
-Notice the phrase `gpa: true` here. It tells mongo to include the "gpa" field to the document before moving on to the next group.
-
-TODO

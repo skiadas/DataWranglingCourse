@@ -7,6 +7,43 @@
   <meta name="generator" content="pandoc" />
   <title></title>
   <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
 <link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
 <script type="text/javascript"
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
@@ -62,41 +99,41 @@ You should get back a response that shows you the new stored document, and it wi
 <li><p>Let's remove the entry we added:</p>
 <pre><code>db.gpas.remove({ name: &#39;student0&#39; })</code></pre></li>
 <li><p>The MongoDb shell uses a mini programming language that looks a bit like Javascript, for those familiar with Javascript. For example we used <code>_rand()</code> to generate a random number. We will now insert a large number of values all at once. We first create them as a &quot;Javascript&quot; object:</p>
-<pre><code>var d = []; for (var i = 0; i &lt; 10000; i++) {
-  d.push({ name: &quot;student&quot; + i, gpa: _rand()*4 })
-}
-db.gpas.insertMany(d)</code></pre></li>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">var</span> d <span class="op">=</span> []<span class="op">;</span> <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">10000</span><span class="op">;</span> i<span class="op">++</span>) <span class="op">{</span>
+  <span class="va">d</span>.<span class="at">push</span>(<span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;student&quot;</span> <span class="op">+</span> i<span class="op">,</span> <span class="dt">gpa</span><span class="op">:</span> <span class="at">_rand</span>()<span class="op">*</span><span class="dv">4</span> <span class="op">}</span>)
+<span class="op">}</span>
+<span class="va">db</span>.<span class="va">gpas</span>.<span class="at">insertMany</span>(d)</code></pre></div></li>
 <li><p>Let us now learn how to search for information in the documents. The main tool at our disposal is the <code>find</code> method. Its parameter is an object that describes the query. For example we can get the entries with a specific student name:</p>
-<pre><code>db.gpas.find({ name: &#39;student100&#39; })</code></pre>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">find</span>(<span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;student100&#39;</span> <span class="op">}</span>)</code></pre></div>
 <p>or we can perform more complex queries. For example, this asks for all entries whose gpa is over 3.95:</p>
-<pre><code>db.gpas.find({ gpa: { $gt: 3.98 }})</code></pre>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">find</span>(<span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$gt</span><span class="op">:</span> <span class="fl">3.98</span> <span class="op">}}</span>)</code></pre></div>
 <p>The shell will probably link only some of the results. We will discuss how to work with the result of a <code>find</code>, which is what is known as a <em>cursor</em>. In the meantime, if we only want to know how many results there are, we can use <code>count</code>:</p>
-<pre><code>db.gpas.count({ gpa: { $gt: 3.98 }})</code></pre></li>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">count</span>(<span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$gt</span><span class="op">:</span> <span class="fl">3.98</span> <span class="op">}}</span>)</code></pre></div></li>
 <li><p>Next we will do an update query: We will add an &quot;atRisk&quot; field to all students with a gpa of 2 or less. The query takes two parameters: The first specifies which entries to locate, the other specifies what changes to make.</p>
-<pre><code>db.gpas.updateMany({ gpa: { $lte: 2 }}, { $set: { atRisk: true }})</code></pre>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">updateMany</span>(<span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$lte</span><span class="op">:</span> <span class="dv">2</span> <span class="op">}},</span> <span class="op">{</span> <span class="dt">$set</span><span class="op">:</span> <span class="op">{</span> <span class="dt">atRisk</span><span class="op">:</span> <span class="kw">true</span> <span class="op">}}</span>)</code></pre></div>
 We'll see that about half of the documents were updated. Now half the documents have this &quot;atRisk&quot; field, while the other half don't have it at all.</li>
 <li><p>Let us now do a more complex query, that captures all students whose gpa is less than 2.5, and adjusts that gpa by up to plus/minus 1 point.</p>
-<pre><code>db.gpas.updateMany({ gpa: { $lte: 2.5 }}, { $inc: { gpa: _rand() * 2 - 1 }})</code></pre>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">updateMany</span>(<span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$lte</span><span class="op">:</span> <span class="fl">2.5</span> <span class="op">}},</span> <span class="op">{</span> <span class="dt">$inc</span><span class="op">:</span> <span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="at">_rand</span>() <span class="op">*</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span> <span class="op">}}</span>)</code></pre></div>
 <p>Now we will look for students who were at-risk but whose gpa is now over 2. We will then mark all those to no-longer at risk:</p>
-<pre><code>db.gpas.count({ gpa: { $gt: 2 }, atRisk: true })
-db.gpas.updateMany({ gpa: { $gt: 2 }, atRisk: true }, { $set: { atRisk: false }})</code></pre>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">count</span>(<span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$gt</span><span class="op">:</span> <span class="dv">2</span> <span class="op">},</span> <span class="dt">atRisk</span><span class="op">:</span> <span class="kw">true</span> <span class="op">}</span>)
+<span class="va">db</span>.<span class="va">gpas</span>.<span class="at">updateMany</span>(<span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$gt</span><span class="op">:</span> <span class="dv">2</span> <span class="op">},</span> <span class="dt">atRisk</span><span class="op">:</span> <span class="kw">true</span> <span class="op">},</span> <span class="op">{</span> <span class="dt">$set</span><span class="op">:</span> <span class="op">{</span> <span class="dt">atRisk</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}}</span>)</code></pre></div>
 <p>Now we want to search for all students that are not at risk. We cannot simply look for <code>atRisk: false</code> because this doesn't include those students where there is no <code>atRisk</code> entry at all. We can do this in two ways:</p>
-<pre><code>db.gpas.count({
-  $or: [
-    { atRisk: { $exists: false } },
-    { atRisk: true }
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">gpas</span>.<span class="at">count</span>(<span class="op">{</span>
+  <span class="dt">$or</span><span class="op">:</span> [
+    <span class="op">{</span> <span class="dt">atRisk</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$exists</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}</span> <span class="op">},</span>
+    <span class="op">{</span> <span class="dt">atRisk</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}</span>
   ]
-})
+<span class="op">}</span>)
 
-db.gpas.count({
-  atRisk: { $ne: false }
-})</code></pre></li>
+<span class="va">db</span>.<span class="va">gpas</span>.<span class="at">count</span>(<span class="op">{</span>
+  <span class="dt">atRisk</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$ne</span><span class="op">:</span> <span class="kw">true</span> <span class="op">}</span>
+<span class="op">}</span>)</code></pre></div></li>
 <li><p>We will now arbitrarily assign all students into four groups. This may take a while as it has to update each entry:</p>
-<pre><code>db.gpas.find().forEach(function(doc) {
+<pre class="true"><code>db.gpas.find().forEach(function(doc) {
   db.gpas.update(doc, { $set: { group: Math.ceil(_rand() * 4) }})
 })</code></pre>
 <p>This is also the first time where we say the use of a <em>cursor method</em>: The result of the <code>find</code> call is a &quot;cursor&quot;, which is basically a fancy word for something that we can iterate over. We therefore perform a <code>forEach</code> on it. That takes an arbitrary function as input, and it executes that function for every result. Let's see how the above worked. Everyone should be more or less equally divided into four &quot;groups&quot;, identified by the numbers 1 through 4:</p>
-<pre><code>for (var i = 1; i &lt; 5; i++) {
+<pre class="true"><code>for (var i = 1; i &lt; 5; i++) {
   print(db.gpas.count({ group: i }))
 }</code></pre></li>
 </ul>
@@ -109,44 +146,5 @@ db.gpas.count({
 <li>Remove from the collection all students with a gpa less than 1.</li>
 <li>Find all at-risk students and put them in their own &quot;group&quot;, with number 5.</li>
 </ul>
-<h3 id="aggregation">Aggregation</h3>
-<p>A powerful part of Mongo is the aggregation framework. This allows us to set up a <strong>pipeline</strong> of operations to be performed. The collection of documents passes through these <em>stages</em> and produces a final result. For example some possible <a href="https://docs.mongodb.com/v3.2/reference/operator/aggregation/#aggregation-pipeline-operator-reference">stages</a> are:</p>
-<ul>
-<li><code>$project</code> reshapes each document, for example by adding or removing fields.</li>
-<li><code>$match</code> filters the list of documents based on a query. Only documents that match continue.</li>
-<li><code>$group</code> groups the documents based on some criteria, and returns one document for each group.</li>
-</ul>
-<p>These first three are the most powerful tools. But there are some more:</p>
-<ul>
-<li><code>$limit</code> set a limit on the number of returned documents.</li>
-<li><code>$skip</code> skips through a number of documents.</li>
-<li><code>$sample</code> randomly selects some number of results.</li>
-<li><code>$sort</code> sorts the results.</li>
-<li><code>$out</code> can be used to immediately write the results on another collection. It must be the last step if used.</li>
-</ul>
-<p>Let's look at some examples. We want to count the number of documents for each value of the &quot;group&quot; field. We could do something like this:</p>
-<pre><code>db.gpas.aggregate([
-  { $project: { group: &quot;$group&quot;, n: { $literal: 1 } }},
-  { $group: { _id: &quot;$group&quot;, count: { $sum: &quot;$n&quot; } }}
-])</code></pre>
-<p>Here's what's happening:</p>
-<ul>
-<li>The <code>$project</code> step goes through each document, and keeps only the group information (and automatically the id) and also sets a new field called n with value 1. We will use those in the next step to count. The <code>$group</code> tells it to populate the new field called <code>group</code> with the value from the &quot;group&quot; field in the documents.</li>
-<li>The <code>$group</code> step takes these documents from the previous step, and groups them under a new <code>_id</code> given by the &quot;group&quot; field of the documents from the previous step. For all the documents with the same &quot;new&quot; <code>_id</code>, i.e. for all the documents of the same group, we perform the aggregation operator described in the <code>{ $sum: &quot;$n&quot; }</code>, namely we add the values in the field called <code>n</code>, namely all those 1s. This ends up counting how many cases there are. And the result is stored in a field named <code>count</code>.</li>
-</ul>
-<p>Let's try another example. We will find for each group: The minimum gpa, the maximum gpa, and the average gpa. We will also write the results to a collection called &quot;averages&quot;.</p>
-<pre><code>db.gpas.aggregate([
-  { $project: { group: &quot;$group&quot;, gpa: true }},
-  { $group: {
-    _id: &quot;$group&quot;,
-    avg: { $avg: &quot;$gpa&quot; },
-    min: { $min: &quot;$gpa&quot; },
-    max: { $max: &quot;$gpa&quot; }
-  }},
-  { $out: &quot;summaries&quot; }
-])
-db.summaries.find()</code></pre>
-<p>Notice the phrase <code>gpa: true</code> here. It tells mongo to include the &quot;gpa&quot; field to the document before moving on to the next group.</p>
-<p>TODO</p>
 </body>
 </html>
