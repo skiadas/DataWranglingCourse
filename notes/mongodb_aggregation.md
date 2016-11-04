@@ -175,9 +175,17 @@ db.zips.aggregate([
 
 **Practice**: Add a "sort" step to the above, to order the resulting states by their highest city's population, starting with the highest.
 
+**Practice**: Add instead a "project" step to the above, so that the information about the city doesn't appear within a "highest" element, but is at the top level. So each result should have: id with the state, a city entry, and a population entry.
+
 **Practice**: Create a suitable aggregate where we compute for each state the average population of the cities in it.
 
 **Practice**: Create a suitable aggregate where we compute for each state the average population of the cities in it, but only for those cities that have over 10000 population. You also should record the number of cities that the state has with over 10000 population.
+
+**Practice (overall)**: Create a suitable aggregate where we look at the 50 most populous cities, and we organize them by state. So the resulting documents will end up having the state as an id, and an entry which is a list of objects containing a city name and population. The states should be ordered based on their highest-populated city, and the list of cities within a state should be ordered from highest to lowest.
+
+**Practice (overall)**: Compute how many "small cities" with population less than 5000 each state has, then order the states starting from the one with the most small cities. Your documents should include the state and the number of small cities.
+
+**Practice (challenge)**: Compute what percent of the state population is in "small cities" as defined above, and order the states based on that percent, starting with the highest.
 
 Now let's consider another problem to illustrate the use of the `$sample` operator. We want to select a zip code at random, but we want to do it so that all states are equally likely. Since some states have more zip codes than others, we can't just select a document at random. We must:
 
