@@ -89,21 +89,21 @@ A week-by-week breakdown of the material.
 - Day 2
     - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
 - Day 3
-    - Map-Reduce Philosophy
+    - More practice with aggregation
 
 ## Week 10 (11/07-11/11)
 
 - Day 1
-    - Introduction to Hadoop
+    - [Assignment 6: MongoDB from Python via PyMongo](notes/mongodb_pymongo.md)
 - Day 2
-    - Authorization and OAuth2
+    - Map-Reduce Philosophy
 - Day 3
-    - TBA
+    - Introduction to Hadoop
 
 ## Week 11 (11/14-11/18)
 
 - Day 1
-    - TBA
+    - Authorization and OAuth2
 - Day 2
     - TBA
 - Day 3

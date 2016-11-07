@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="lab-assignment-6-working-with-the-mongo-shell">Lab Assignment 6: Working with the Mongo Shell</h1>
+<p>In this assignment you will practice more working with MongoDb and its shell. We will be using the text from the Game of Thrones (Song of Ice and Fire) series of books, that can be found <a href="http://www.readbooksvampire.com/George_R.R._Martin/">here</a>.</p>
+<p>I have prepared a Python script that you will need to run first. This script downloads the text from those webpages, and organizes it in a big JSON file. You will then write that JSON file to your database. You will need to do the following:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">curl</span> https://raw.githubusercontent.com/skiadas/DataWranglingCourse/gh-pages/labs/got.py <span class="kw">&gt;</span> got.py
+<span class="kw">python3</span> got.py
+<span class="kw">mongoimport</span> -h ds011168.mlab.com:11168 -d wranging -c got -u haris -p haris --file got.json --jsonArray</code></pre></div>
+<p>You will need to change the name of the server, database and username and password on the third line, to match your database. The first line downloads the python script, the second executes it and creates a <code>got.json</code> file, and the thirs pushes that to the database. The second and third step will take some time.</p>
+<p>Now your database has a new collection called <code>got</code>. Log into your database, then ask it to show you one entry:</p>
+<pre><code>db.got.findOne()</code></pre>
+<p>You should see a long document, which has three main properties:</p>
+<ul>
+<li>A book <code>title</code>.</li>
+<li>A book <code>chapter</code> number.</li>
+<li>The <code>text</code>, which is a list/array. Each of the entries corresponds to a paragraph, and it is itself a list/array of the sentences that comprise the paragraph.</li>
+</ul>
+<p>For some queries this data structure might be useful. But for other queries, we will bring it in a more familiar form, by &quot;unwinding&quot; those lists. <a href="https://docs.mongodb.com/v3.2/reference/operator/aggregation/unwind/#pipe._S_unwind"><code>$unwind</code></a> takes a field of the document whose contents is an array, and creates clones of the document, one for each value in the array. It offers you two forms, where on the second form it also creates a new field to keep track of the array index. We use this in the following code, to unwind the nested arrays of paragraphs and sentences into separate documents. This is what this next code does, and it writes the result in a new collection, called <code>got2</code>:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">got</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$unwind</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">path</span><span class="op">:</span> <span class="st">&quot;$text&quot;</span><span class="op">,</span>
+    <span class="dt">includeArrayIndex</span><span class="op">:</span> <span class="st">&quot;paragraph&quot;</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$unwind</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">path</span><span class="op">:</span> <span class="st">&quot;$text&quot;</span><span class="op">,</span>
+    <span class="dt">includeArrayIndex</span><span class="op">:</span> <span class="st">&quot;sentence&quot;</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$project</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span>
+    <span class="dt">chapter</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span>
+    <span class="dt">title</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span>
+    <span class="dt">paragraph</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span>
+    <span class="dt">sentence</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span>
+    <span class="dt">text</span><span class="op">:</span> <span class="kw">true</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$out</span><span class="op">:</span> <span class="st">&quot;got2&quot;</span> <span class="op">}</span>
+])</code></pre></div>
+<p>Now run the following to see what these entries look like:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">got2</span>.<span class="at">findOne</span>()</code></pre></div>
+<p>You will see a document that corresponds to a sentence. It contains 5 main entries:</p>
+<ul>
+<li>The <code>title</code> and <code>chapter</code> number as before.</li>
+<li>A <code>paragraph</code> number and a <code>sentence</code> number that count starting at 0.</li>
+<li>The actual <code>text</code> for that sentence.</li>
+</ul>
+<p>For future use, we will also &quot;index&quot; the text in those documents, with the following:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">got2</span>.<span class="at">createIndex</span>(<span class="op">{</span> <span class="dt">text</span><span class="op">:</span> <span class="st">&quot;text&quot;</span> <span class="op">}</span>)</code></pre></div>
+<p>Finally we will create one more collection. This collection contains individual word entries. This will also take some time to run:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">var</span> requests <span class="op">=</span> []<span class="op">;</span>
+<span class="va">db</span>.<span class="va">got2</span>.<span class="at">find</span>().<span class="at">forEach</span>(<span class="kw">function</span>(doc) <span class="op">{</span>
+  <span class="va">requests</span>.<span class="at">push</span>(<span class="op">{</span>
+    <span class="dt">title</span><span class="op">:</span> <span class="va">doc</span>.<span class="at">title</span><span class="op">,</span>
+    <span class="dt">chapter</span><span class="op">:</span> <span class="va">doc</span>.<span class="at">chapter</span><span class="op">,</span>
+    <span class="dt">paragraph</span><span class="op">:</span> <span class="va">doc</span>.<span class="at">paragraph</span><span class="op">,</span>
+    <span class="dt">sentence</span><span class="op">:</span> <span class="va">doc</span>.<span class="at">sentence</span><span class="op">,</span>
+    <span class="dt">words</span><span class="op">:</span> <span class="va">doc</span>.<span class="va">text</span>.<span class="at">split</span>(<span class="ss">/</span><span class="sc">\W+</span><span class="ss">/</span>)
+  <span class="op">}</span>)<span class="op">;</span>
+<span class="op">}</span>)
+<span class="va">db</span>.<span class="va">got3</span>.<span class="at">insertMany</span>(requests)</code></pre></div>
+<p>After you have done this, try <code>db.got3.findOne()</code> to see how one entry looks like. You will see that each document corresponds to a sentence with the words in it split into an array.</p>
+<p>Here are the questions to answer. Add your answers to this <a href="https://raw.githubusercontent.com/skiadas/DataWranglingCourse/gh-pages/assignments/assignment6.js">assignment6.js file</a>. The file is not meant to run as is, it's just a place where you put your answers.</p>
+<ol style="list-style-type: decimal">
+<li>Find out how many sentences there are on each book. This should be a simple aggregate on the <code>got2</code> collection, with a <code>$group</code> stage.</li>
+<li>Find out how many sentences there are on each paragraph. Order the results by the &quot;longest&quot; paragraph. You can do this with an aggregate on the <code>got2</code> collection, with a <code>$group</code> stage with a suitable <code>_id</code> entry to group the appropriate entries, followed by a <code>$sort</code> stage.</li>
+<li>The following line finds all &quot;sentences&quot; with length no more than 3 characters: <code>db.got2.count({ $where: &quot;this.text.length &lt;= 3&quot; })</code> Change it to instead remove these entries from the <code>got2</code> collection altogether.</li>
+<li>Compute the average number of sentences per paragraph for each chapter of each book. Order the results by decreasing average number of sentences per paragraph. You can do this with an aggregate on the <code>got2</code> collection, consisting of two <code>$group</code> stages, one to compute the number of sentences within each paragraph, and one to average those numbers over all paragraphs of each chapter.</li>
+<li>Similar to the 4th problem, compute the average number of sentences per paragraph, but now for each book rather than for each chapter separately.</li>
+<li>Count how many times each word appears. You will need to use an aggregate on <code>got3</code> with <code>$unwind</code> as a first step. Order the words based on their frequency, starting from the most frequent. By manual inspection, go through the first 30-40 entries and identify at least 5 results that you consider &quot;interesting&quot; in some way, and why.</li>
+<li>Count how many times each word appears within each book. So the resulting &quot;documents&quot; will contain a title field, and a word field, that together would form the <code>_id</code>, and also a <code>count</code> field that counts the occurences of the word within the titled book. Order the results by descending frequency.</li>
+<li>(This is more challenging) Continuing from the previous problem, we want to select from each book the 20 most frequently occuring words. To do so, you need to add more stages to your pipeline from the previous problem, to do the following:
+<ul>
+<li>Use a <code>$group</code> stage with a suitable <code>$push</code> operator in it to create a document for each book, with a field that contains an array of objects, each containing a word and its frequency. See <a href="https://docs.mongodb.com/v3.2/reference/operator/aggregation/push/#grp._S_push">here</a> for an example.</li>
+<li>Use a <code>$project</code> with a <code>$slice</code> operator to only keep the first 20 entries. See <a href="https://docs.mongodb.com/v3.2/reference/operator/aggregation/slice/#exp._S_slice">this doc</a> for an example.</li>
+<li>Use <code>$unwind</code> to expand this array of entries into separate documents. You should end up with 20 entries for each document. See <a href="https://docs.mongodb.com/v3.2/reference/operator/aggregation/unwind/#pipe._S_unwind">here</a> for use of <code>$unwind</code>.</li>
+</ul></li>
+<li>Choose six people from the first five Game of Thrones books. Then using the <code>got2</code>collection find the number of sentences where each person is mentioned. This would be six different queries, or you can do a for-loop. You will want to use the <a href="https://docs.mongodb.com/v3.2/text-search/"><code>$text</code> operator</a>. Note especially the &quot;exact phrase&quot; syntax, if you want to match a person by both their full name (first and last name). This is not an <code>aggregate</code> query, you will probably want to use a <code>count</code> query, or a <code>find</code> query when you want to look at the answers.</li>
+</ol>
+<p>When you are ready to submit, make sure the <code>assignment6.js</code> file you have been working on is saved and contains all the answers clearly marked, then email it to me.</p>
+</body>
+</html>
