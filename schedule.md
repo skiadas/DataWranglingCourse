@@ -94,9 +94,9 @@ A week-by-week breakdown of the material.
 ## Week 10 (11/07-11/11)
 
 - Day 1
-    - [Assignment 6: MongoDB from Python via PyMongo](notes/mongodb_pymongo.md)
+    - [Assignment 6: More MongoDb practice](assignments/6.md)
 - Day 2
-    - Map-Reduce Philosophy
+    - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
 - Day 3
     - Introduction to Hadoop
 
