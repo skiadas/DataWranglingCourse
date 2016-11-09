@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="map-reduce-in-mongodb">Map-Reduce in MongoDb</h1>
+<h2 id="reading">Reading</h2>
+<ul>
+<li><a href="https://docs.mongodb.com/v3.2/core/map-reduce/">Map-Reduce overview in MongoDb</a></li>
+<li><a href="https://docs.mongodb.com/v3.2/reference/command/mapReduce/">mapReduce command in MongoDb</a></li>
+<li><a href="https://docs.mongodb.com/v3.2/reference/method/db.collection.mapReduce/#db.collection.mapReduce">Simplified &quot;collection&quot; mapReduce</a></li>
+</ul>
+<h3 id="reading-questions">Reading questions</h3>
+<h2 id="notes">Notes</h2>
+<h3 id="map-reduce-in-general">Map-Reduce in general</h3>
+<p>Similar to the aggregation framework, the map-reduce framework is a powerful general approach to processing data. A map-reduce process contains the following steps, in this order:</p>
+<dl>
+<dt>filter/sort</dt>
+<dd>The collection's documents can pass through a pre-processing stage where some documents are filtered out and where the documents are ordered in a specific way.
+</dd>
+<dt>map</dt>
+<dd>The documents then pass to a <code>map</code> function. For each document the map function produces a <code>key</code> and a <code>value</code>. Different documents may have the same key, in which case these will treated together in the <code>reduce</code> step. Think of the keys as the <code>_id</code> in a <code>$group</code> operation.
+</dd>
+<dt>reduce</dt>
+<dd>Those documents with the same key are passed to a <code>reduce</code> function which takes the individual values from all the documents and produces a single value for all. This may be as simple as adding the individual values, or something more complicated. The result is one document per key, with a value that somehow accumulates all the values from the various key-value pairs with the same key.
+</dd>
+<dt>finalize</dt>
+<dd>A final processing the resulting key-value pairs can be performed.
+</dd>
+</dl>
+<p>One of the big advantages of this approach is that it can be distributed: If the database is sharded, then each shard can perform the filter/map/reduce steps for its own data, and the combined results can then be passed on to the main server, which now has less work to do.</p>
+<h3 id="map-reduce-in-mongodb-1">Map-Reduce in MongoDb</h3>
+<p>In MongoDb the map-reduce functionality is provided via the mapReduce command. There are two versions of it, that you can read about in the links above. We will use the &quot;collection&quot; one, that looks as follows:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">collection</span>.<span class="at">mapReduce</span>(
+  ... <span class="at">map</span> <span class="at">function</span> <span class="va">here</span> ...<span class="op">,</span>
+  ... <span class="at">reduce</span> <span class="at">function</span> <span class="va">here</span> ...<span class="op">,</span>
+  <span class="op">{</span>    <span class="co">// these are further optional settings</span>
+    <span class="dt">out</span><span class="op">:</span> ... <span class="at">collection</span> <span class="va">name</span> ...<span class="op">,</span>
+    <span class="dt">query</span><span class="op">:</span> ... <span class="at">query</span> <span class="va">specification</span> ...<span class="op">,</span>
+    <span class="dt">sort</span><span class="op">:</span> ... <span class="at">ordering</span> <span class="va">specification</span> ...<span class="op">,</span>
+    <span class="dt">limit</span><span class="op">:</span> ... <span class="at">limit</span> <span class="va">results</span> ...<span class="op">,</span>
+    <span class="dt">finalize</span><span class="op">:</span> ... <span class="at">function</span> <span class="at">to</span> <span class="at">run</span> <span class="at">on</span> <span class="at">final</span> <span class="va">results</span> ...<span class="op">,</span>
+    <span class="dt">scope</span><span class="op">:</span> ... <span class="at">specifies</span> <span class="at">global</span> <span class="at">variables</span> <span class="at">that</span> <span class="at">can</span> <span class="at">be</span> <span class="at">shared</span> <span class="at">with</span> <span class="at">the</span> <span class="at">map</span>/reduce <span class="va">functions</span> ...
+  <span class="op">}</span></code></pre></div>
+<p>The map/reduce/finalize functions are &quot;standard&quot; Javascript functions, and in that sense they are similar to Python functions with the flexibility that these offer. In that sense the map-reduce framework is more flexible than the aggregation framework, which required those specific dollar-sign operators.</p>
+<h4 id="the-map-function">The <code>map</code> function</h4>
+<p>The <code>map</code> function looks like this:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">function</span>() <span class="op">{</span>
+  ... <span class="at">javascript</span> <span class="at">code</span> <span class="va">here</span> ...
+  ... <span class="at">use</span> <span class="at">the</span> <span class="at">word</span> <span class="st">&quot;this&quot;</span> to refer to the current <span class="va">document</span> ...
+  ... <span class="at">at</span> <span class="at">some</span> <span class="at">point</span> <span class="at">you</span> <span class="at">can</span> <span class="at">do</span> <span class="at">the</span> <span class="at">following</span><span class="op">:</span> ...
+  <span class="at">emit</span>(key<span class="op">,</span> value)<span class="op">;</span>
+<span class="op">}</span></code></pre></div>
+<p>It must obey the following requirements:</p>
+<ul>
+<li>You can use <code>this</code> to refer to the current document. For instance <code>this.gpa</code> will return the value of the <code>gpa</code> field of the current document.</li>
+<li>You cannot access the database in any way other than the <code>this</code> document provided to you.</li>
+<li>You cannot produce &quot;side-effects&quot;, for instance change some global values.</li>
+<li>You may call <code>emit</code> as many times as desired to produce <code>key-value</code> pairs for further processing.</li>
+</ul>
+<h4 id="the-reduce-function">The <code>reduce</code> function</h4>
+<p>The <code>reduce</code> function looks like this:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">function</span>(key<span class="op">,</span> values) <span class="op">{</span>
+  ... <span class="at">Do</span> <span class="at">stuff</span> <span class="va">here</span> ...
+  ... <span class="at">Compute</span> <span class="at">a</span> <span class="at">resulting</span> <span class="at">result</span> <span class="at">based</span> <span class="at">on</span> <span class="at">the</span> <span class="va">values</span> ...
+  <span class="cf">return</span> result<span class="op">;</span>
+<span class="op">}</span></code></pre></div>
+<p>It must obey the following requirements:</p>
+<ul>
+<li>You cannot access the database in any way.</li>
+<li>You should not effect &quot;side-effects&quot;.</li>
+<li>The <code>reduce</code> function will only be called in the case where we have multiple key-value pairs. It will then be provided with the value for the key, and an array of values that correspond to that key. And it must produce a result.</li>
+<li>The <code>reduce</code> function may be called multiple times on the same key, in which case the value computed at an earlier step is included in the array of values given to the next step. Therefore you must ensure that the result returned by reduce has the exact same form/type as the values provided.</li>
+<li>The <code>reduce</code> function may access the variables specified in the <code>scope</code> entry.</li>
+<li>The function must be <strong>associative</strong>. What this means is that if we are to process the elements A, B, C, then we can either do those in one <code>reduce</code> step that processes all three, or we can do a <code>reduce</code> step that processes the pair of B and C, and a second <code>reduce</code> step that processes A along with the result of the previous reduce that combined B and C.</li>
+<li>The <code>reduce</code> function called on an array with only one element should return that one element. This is called <strong>idempotent</strong>.</li>
+<li>The <code>reduce</code> function must be <strong>commutative</strong>: The order of entries in the values array should not matter.</li>
+</ul>
+<h4 id="the-finalize-function">The <code>finalize</code> function</h4>
+<p>You can often include a <code>finalize</code> function. This function has the following form:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">function</span>(key<span class="op">,</span> reducedValue) <span class="op">{</span>
+  ... <span class="at">do</span> <span class="at">suitable</span> <span class="at">work</span> <span class="at">to</span> <span class="at">the</span> <span class="at">reduced</span> <span class="va">value</span> ...
+  ... <span class="at">return</span> <span class="at">the</span> <span class="at">final</span> <span class="va">result</span> ...
+  <span class="cf">return</span> modifiedObject<span class="op">;</span>
+<span class="op">}</span></code></pre></div>
+<p>Similar to the other functions, the <code>finalize</code> function should not have side-effects and should not try to directly access the database.</p>
+<h4 id="examples">Examples</h4>
+<p>We start with a simple example, from our gpa example. We will compute the average gpa for each category. First the code:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">var</span> gpaMap <span class="op">=</span> <span class="kw">function</span>() <span class="op">{</span>
+  <span class="at">emit</span>(<span class="kw">this</span>.<span class="at">group</span><span class="op">,</span> <span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">gpa</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span>)<span class="op">;</span>
+<span class="op">};</span>
+<span class="kw">var</span> gpaReduce <span class="op">=</span> <span class="kw">function</span>(key<span class="op">,</span> values) <span class="op">{</span>
+  <span class="kw">var</span> result <span class="op">=</span> <span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">0</span> <span class="op">};</span>
+  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">values</span>.<span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) <span class="op">{</span>
+    <span class="va">result</span>.<span class="at">count</span> <span class="op">+=</span> values[i].<span class="at">count</span><span class="op">;</span>
+    <span class="va">result</span>.<span class="at">gpa</span> <span class="op">+=</span> values[i].<span class="at">gpa</span><span class="op">;</span>
+  <span class="op">}</span>
+  <span class="cf">return</span> result<span class="op">;</span>
+<span class="op">};</span>
+<span class="kw">var</span> gpaFinalize <span class="op">=</span> <span class="kw">function</span>(key<span class="op">,</span> reducedValue) <span class="op">{</span>
+  <span class="cf">return</span> <span class="va">reducedValue</span>.<span class="at">gpa</span> / <span class="va">reducedValue</span>.<span class="at">count</span><span class="op">;</span>
+<span class="op">};</span>
+
+<span class="kw">var</span> mapReduceResult <span class="op">=</span> <span class="va">db</span>.<span class="va">gpas</span>.<span class="at">mapReduce</span>(
+  gpaMap<span class="op">,</span>
+  gpaReduce<span class="op">,</span>
+  <span class="op">{</span>
+    <span class="dt">out</span><span class="op">:</span> <span class="op">{</span> <span class="dt">inline</span><span class="op">:</span> <span class="dv">1</span> <span class="op">},</span>
+    <span class="dt">finalize</span><span class="op">:</span> gpaFinalize
+  <span class="op">}</span>
+)
+mapReduceResult<span class="op">;</span>
+<span class="va">mapReduceResult</span>.<span class="at">results</span><span class="op">;</span></code></pre></div>
+<p>Let's look at what happens here:</p>
+<ul>
+<li>In the <code>gpaMap</code> function, we look at each document and simply emit the group as the key. The value is a combination of the gpa for that document, as well as a &quot;count&quot; of 1. This is to allow for the possibility of the reduce steps calling each other. We will compute the average by first computing the &quot;sum of the gpas&quot; and the &quot;count of the gpas&quot;.</li>
+<li>In the <code>gpaReduce</code> function, we take this array of gpa/count values corresponding to the same key/group, and we simply add them all up.</li>
+<li>Finally in the <code>gpaFinalize</code> function we show how from the pair of total-gpa and count we get an average.</li>
+<li>Every <code>mapReduce</code> call must include an <code>out</code> entry, to indicate whether it would write to collection, make changes to an existing collection, or simply print the results inline.</li>
+</ul>
+<p>Let's take a second example, based on our zip codes dataset. We will want to compute the population sizes and zip code numbers for each city on each state. Here is how that might look. We will use the functions directly in this case, rather than defining them separately. We will also write the results in a new collection.</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips</span>.<span class="at">mapReduce</span>(
+  <span class="kw">function</span>() <span class="op">{</span>   <span class="co">// The zip function</span>
+    <span class="kw">var</span> key <span class="op">=</span> <span class="op">{</span> <span class="dt">city</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">city</span><span class="op">,</span> <span class="dt">state</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">state</span> <span class="op">};</span>
+    <span class="kw">var</span> value <span class="op">=</span> <span class="op">{</span> <span class="dt">pop</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">pop</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">1</span> <span class="op">};</span>
+    <span class="at">emit</span>(key<span class="op">,</span> value)<span class="op">;</span>
+  <span class="op">},</span>
+  <span class="kw">function</span>(key<span class="op">,</span> values) <span class="op">{</span> <span class="co">// The reduce function</span>
+    <span class="kw">var</span> result <span class="op">=</span> <span class="op">{</span> <span class="dt">pop</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">0</span> <span class="op">};</span>
+    <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">values</span>.<span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) <span class="op">{</span>
+      <span class="va">result</span>.<span class="at">count</span> <span class="op">+=</span> values[i].<span class="at">count</span><span class="op">;</span>
+      <span class="va">result</span>.<span class="at">pop</span> <span class="op">+=</span> values[i].<span class="at">pop</span><span class="op">;</span>
+    <span class="op">}</span>
+    <span class="cf">return</span> result<span class="op">;</span>
+  <span class="op">},</span>
+  <span class="op">{</span>
+    <span class="dt">out</span><span class="op">:</span> <span class="op">{</span> <span class="dt">replace</span><span class="op">:</span> <span class="st">&quot;zips2&quot;</span> <span class="op">}</span>
+  <span class="op">}</span>
+)</code></pre></div>
+<p>Take a look at one of the entries in <code>zips2</code> to see the format. We will use it on the next query.</p>
+<p>We will now answer with mapReduce one of the questions we had in the aggregation framework. Back then we asked the following: Compute how many &quot;small cities&quot; with population less than 10000 each state has, as well as what percent of the state population comes from small cities. We will also compute what percent of the state's cities are &quot;small cities&quot;.</p>
+<p>Here's how this might happen with map-reduce. Remember that the input documents look like those in <code>zips2</code>.</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips2</span>.<span class="at">mapReduce</span>(
+  <span class="kw">function</span>() <span class="op">{</span>     <span class="co">// map function</span>
+    <span class="kw">var</span> key <span class="op">=</span> <span class="kw">this</span>.<span class="va">_id</span>.<span class="at">state</span><span class="op">;</span>
+    <span class="cf">if</span> (<span class="kw">this</span>.<span class="va">value</span>.<span class="at">pop</span> <span class="op">&lt;=</span> <span class="dv">10000</span>) <span class="op">{</span>
+      <span class="at">emit</span>(key<span class="op">,</span> <span class="op">{</span>
+        <span class="dt">pop</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">value</span>.<span class="at">pop</span><span class="op">,</span>
+        <span class="dt">count</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span>
+        <span class="dt">smallCityPop</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">value</span>.<span class="at">pop</span><span class="op">,</span>
+        <span class="dt">smallCityCount</span><span class="op">:</span> <span class="dv">1</span>
+      <span class="op">}</span>)<span class="op">;</span>
+    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span>
+      <span class="at">emit</span>(key<span class="op">,</span> <span class="op">{</span>
+        <span class="dt">pop</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">value</span>.<span class="at">pop</span><span class="op">,</span>
+        <span class="dt">count</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span>
+        <span class="dt">smallCityPop</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span>
+        <span class="dt">smallCityCount</span><span class="op">:</span> <span class="dv">0</span>
+      <span class="op">}</span>)<span class="op">;</span>
+    <span class="op">}</span>
+  <span class="op">},</span>
+  <span class="kw">function</span>(key<span class="op">,</span> values) <span class="op">{</span>     <span class="co">// reduce function</span>
+    <span class="kw">var</span> result <span class="op">=</span> <span class="op">{</span> <span class="dt">pop</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">smallCityPop</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">smallCityCount</span><span class="op">:</span> <span class="dv">0</span> <span class="op">};</span>
+    <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">values</span>.<span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) <span class="op">{</span>
+      <span class="va">result</span>.<span class="at">count</span> <span class="op">+=</span> values[i].<span class="at">count</span><span class="op">;</span>
+      <span class="va">result</span>.<span class="at">pop</span> <span class="op">+=</span> values[i].<span class="at">pop</span><span class="op">;</span>
+      <span class="va">result</span>.<span class="at">smallCityPop</span> <span class="op">+=</span> values[i].<span class="at">smallCityPop</span><span class="op">;</span>
+      <span class="va">result</span>.<span class="at">smallCityCount</span> <span class="op">+=</span> values[i].<span class="at">smallCityCount</span><span class="op">;</span>
+    <span class="op">}</span>
+    <span class="cf">return</span> result<span class="op">;</span>
+  <span class="op">},</span>
+  <span class="op">{</span>
+    <span class="dt">out</span><span class="op">:</span> <span class="op">{</span> <span class="dt">replace</span><span class="op">:</span> <span class="st">&quot;zips3&quot;</span> <span class="op">},</span>
+    <span class="dt">finalize</span><span class="op">:</span> <span class="kw">function</span>(key<span class="op">,</span> reducedValue) <span class="op">{</span>
+      <span class="va">reducedValue</span>.<span class="at">popPercent</span> <span class="op">=</span> <span class="va">reducedValue</span>.<span class="at">smallCityPop</span> / <span class="va">reducedValue</span>.<span class="at">pop</span><span class="op">;</span>
+      <span class="va">reducedValue</span>.<span class="at">cityPercent</span> <span class="op">=</span> <span class="va">reducedValue</span>.<span class="at">smallCityCount</span> / <span class="va">reducedValue</span>.<span class="at">count</span><span class="op">;</span>
+
+      <span class="cf">return</span> reducedValue<span class="op">;</span>
+    <span class="op">}</span>
+  <span class="op">}</span>
+)</code></pre></div>
+<p>Let's print the results:</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">var</span> percent <span class="op">=</span> <span class="kw">function</span>(v) <span class="op">{</span>
+  <span class="cf">return</span> <span class="va">Math</span>.<span class="at">round</span>(<span class="dv">10000</span> <span class="op">*</span> v) / <span class="dv">100</span> <span class="op">+</span> <span class="st">&quot;%&quot;</span><span class="op">;</span>
+<span class="op">};</span>
+<span class="va">db</span>.<span class="va">zips3</span>.<span class="at">find</span>().<span class="at">forEach</span>(<span class="kw">function</span>(doc) <span class="op">{</span>
+  <span class="at">print</span>(<span class="va">doc</span>.<span class="at">_id</span><span class="op">,</span> <span class="st">&quot;small cities count: &quot;</span> <span class="op">+</span> <span class="at">percent</span>(<span class="va">doc</span>.<span class="va">value</span>.<span class="at">cityPercent</span>)<span class="op">,</span> <span class="st">&quot;pop: &quot;</span> <span class="op">+</span> <span class="at">percent</span>(<span class="va">doc</span>.<span class="va">value</span>.<span class="at">popPercent</span>))
+<span class="op">}</span>)</code></pre></div>
+<p>Do you notice anything unusual about the results?</p>
+<p>Look for states that have a very high percentage of their population coming from small cities. Also look for states that have a high percentage of small cities.</p>
+<p>You can export the results to a csv file, suitable for work in Excel for example, via the following (you should alter it suitably to work with your database):</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript">mongoexport <span class="op">-</span>h <span class="va">ds011168</span>.<span class="va">mlab</span>.<span class="at">com</span><span class="op">:</span><span class="dv">11168</span>  <span class="op">-</span>u haris <span class="op">-</span>p haris <span class="op">--</span>type<span class="op">=</span>csv <span class="op">-</span>c zips3 <span class="op">-</span>d wranging <span class="op">--</span>fields _id<span class="op">,</span><span class="va">value</span>.<span class="at">popPercent</span><span class="op">,</span><span class="va">value</span>.<span class="at">cityPercent</span> <span class="op">&gt;</span> <span class="va">test</span>.<span class="at">csv</span></code></pre></div>
+<p>This exports in csv all documents from the collection zips3, keeping the three fields listed in the <code>fields</code> parameter. Doing some graphs of the data is quite interesting.</p>
+</body>
+</html>
