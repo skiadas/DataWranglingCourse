@@ -98,16 +98,16 @@ A week-by-week breakdown of the material.
 - Day 2
     - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
 - Day 3
-    - Case Study: Consumer Expenditure data
+    - Work on project
 
 ## Week 11 (11/14-11/18)
 
 - Day 1
-    - Web Scraping
+    - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
 - Day 2
     - Web Scraping
 - Day 3
-    - Authorization and OAuth2
+    - Web Scraping
 
 ## Week 12 (11/21-11/25)
 

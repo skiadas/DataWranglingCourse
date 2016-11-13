@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="mongodb-practice">MongoDb Practice</h1>
+<h2 id="notes">Notes</h2>
+<p>In this section we will carry out practice working with MongoDb, using as a database the &quot;Consumer Expenditure Survey&quot; public-use data, available <a href="http://www.bls.gov/cex/pumd.htm">here</a>. In particular we have downloaded the <a href="http://www.bls.gov/cex/pumd_data.htm#csv">data for 2015 from here</a>. We will look at only a small part of the massive datasets available there. You are encouranged to explore this data further.</p>
+<p>The datasets we will process contain coded information. Detailed info on the files and how to use them are provided <a href="http://www.bls.gov/cex/pumd_doc.htm#2015">here</a>. In particular we will make use of the information provided <a href="http://www.bls.gov/cex/2015/csxintvwdata.pdf">on this file</a>.</p>
+<p>The first task would be to get the various data inserted into mongodb. First, we should clean up the database a bit. Log in to your database, and drop any collections you no longer need. After that, do:</p>
+<pre><code>db.repairDatabase()</code></pre>
+<p>Then log back out to do the following import.</p>
+<p>We will download the data via curl, then use mongoimport (as usual you need to change the mongoimport line). We would ideally be able to download all quarters, but the 500MB storage limit does not allow us to.</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">curl</span> https://raw.githubusercontent.com/skiadas/DataWranglingCourse/gh-pages/labs/fmli151.csv <span class="kw">&gt;</span> fmli151.csv
+<span class="kw">mongoimport</span> -h ds011168.mlab.com:11168 -d wranging -c fmli -u haris -p haris --file fmli151.csv --type csv --headerline</code></pre></div>
+<p>We will later restrict to only the following variables, from the hundreds of variables included by default. But there is no easy way to do this in MongoDb directly, we will do it in Python when we later discuss Python's MongoDb interface.</p>
+<p>For now the data we will look at is over a single quarter and it measures a large number of families.</p>
+<p>Here is a list of the fields we will be using. You can look for their meaning in <a href="http://www.bls.gov/cex/2015/csxintvwdata.pdf">this document</a>.</p>
+<pre><code>NEWID,HH_CU_Q,CUID,BLS_URBN,CUTENURE,FAM_SIZE,FAM_TYPE,NO_EARNR,NUM_AUTO,PERSLT18
+PERSOT64,REGION,INCLASS,AGE_REF,EDUC_REF,MARITAL1,REF_RACE,SEX_REF,FINCATXM,FINCBTXM
+INC_HRS1,INC_HRS2,INCWEEK1,INCWEEK2,OCCUCOD1,OCCUCOD2,OTHRINCM,WELFAREM,ROYESTXM
+CREDITB,CREDYRB,IRAB,LIQUDYRB,LIQUIDB,OTHASTB,OTHLONB,STDNTYRB,STOCKB,STOCKYRB
+STUDNTB,INT_HOME,TOTEXPPQ,FOODPQ,FDHOMEPQ,FDAWAYPQ,FDMAPPQ,ALCBEVPQ,HOUSPQ,SHELTPQ
+OWNDWEPQ,MRTINTPQ,PROPTXPQ,MRPINSPQ,RENDWEPQ,UTILPQ,NTLGASPQ,ELCTRCPQ,ALLFULPQ
+TELEPHPQ,WATRPSPQ,DOMSRVPQ,BBYDAYPQ,OTHHEXPQ,HOUSEQPQ,APPARPQ,TRANSPQ,HEALTHPQ
+HLTHINPQ,MEDSRVPQ,PREDRGPQ,MEDSUPPQ,ENTERTPQ,PERSCAPQ,READPQ,EDUCAPQ,TOBACCPQ,TTOTALP</code></pre>
+<p>We will start with a simple question. The variable <code>CUID</code> contains a unique identifier for each &quot;consumer unit&quot;. Ideally, since we have loaded data for only one quarter, each document we have should correspond to a distinct consumer unit. We will count how many times each consumer unit appears and see if any of them appears more than once. We will do it via two aggregate methods. mapReduce is not suitable for this task.</p>
+<div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">fmli</span>.<span class="at">count</span>()        <span class="co">// How many documents total</span>
+<span class="co">// The following tries to find any CUIDs that appear more than once.</span>
+<span class="co">// It should result in no matches</span>
+<span class="va">db</span>.<span class="va">fmli</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$CUID&quot;</span><span class="op">,</span>
+    <span class="dt">count</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$match</span><span class="op">:</span> <span class="op">{</span> <span class="dt">count</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$gt</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}}}</span>
+])
+<span class="co">// The following adds all the CUIDs, counting each only once.</span>
+<span class="co">// It should return the same answer as db.fmli.count()</span>
+<span class="va">db</span>.<span class="va">fmli</span>.<span class="at">aggregate</span>([
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;$CUID&quot;</span>
+  <span class="op">}},</span>
+  <span class="op">{</span> <span class="dt">$group</span><span class="op">:</span> <span class="op">{</span>
+    <span class="dt">_id</span><span class="op">:</span> <span class="st">&quot;&quot;</span><span class="op">,</span>
+    <span class="dt">count</span><span class="op">:</span> <span class="op">{</span> <span class="dt">$sum</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span>
+  <span class="op">}}</span>
+])</code></pre></div>
+<p>Next we will look into the education levels of the primary contact on each unit. Here's what the key numbers for that variable mean:</p>
+<pre><code>00 Never attended school
+10 First through eighth grade
+11 Ninth through twelfth grade (no H.S. diploma)
+12 High school graduate
+13 Some college, less than college graduate
+14 Associate&#39;s degree (occupational/vocational or academic) 15 Bachelor&#39;s degree
+16 Master&#39;s degree, (professional/Doctorate degree)*</code></pre>
+<p>And here's the code in aggregate and map-reduce form. we will compute counts only in the aggregate form, and both.</p>
+<pre><code>db.fmli.aggregate([
+  { $group: {
+    _id: &quot;$EDUC_REF&quot;,
+    count: { $sum: 1 }
+  }}
+])
+// The mapReduce way
+// First we compute total number of documents that have an `EDUC_REF` entry.
+var total = db.fmli.count({ EDUC_REF: { $gte: 0 }})
+db.fmli.mapReduce(
+  function() {
+    emit(this.EDUC_REF, 1);
+  },
+  function(key, values) {
+    return Array.sum(values);
+  },
+  {
+    out: { inline: 1 },
+    finalize: function(key, reducedValue) {
+      return { count: reducedValue, percent: reducedValue/total };
+    },
+    scope: { total: total }
+  }
+).results</code></pre>
+<p>Looking at the results, make some statements about the education level of the respondents.</p>
+<p><strong>Practice</strong>: Try the same to look at the racial breakdown of the main respondents, which is given by the variable <code>REF_RACE</code>.</p>
+<p><strong>Practice</strong>: Find out what happened to the hispanic population. It does not really appear in the race data.</p>
+<p>Next we will look at some numerical data, like the total income before taxes, coded in the field <code>FINCBTXM</code>. We start with computing the average income. Here's how that might work:</p>
+<pre><code>db.fmli.aggregate([
+  { $group: {
+    _id: &quot;&quot;,
+    income: { $avg: &quot;$FINCBTXM&quot; }
+  }}
+])</code></pre>
+<p>Now let's find the average income per education level. Compare with what we expect, that the higher the education level the higher the income, on average.</p>
+<pre><code>db.fmli.aggregate([
+  { $group: {
+    _id: &quot;$EDUC_REF&quot;,
+    income: { $avg: &quot;$FINCBTXM&quot; }
+  }},
+  { $sort: { _id: 1 }}
+])</code></pre>
+<p><strong>Practice</strong>: We would like to compare the average incomes per education level, but now separately for each of the four regions given by the variable <code>REGION</code> (Northeast, Midwest, South, West). You will need to use a more complicated <code>_id</code> for the <code>$group</code>. Sort the results by education level then by region, so that you can look at the results of the same level close to each other. Ansewr the following question: Are there instances that within the same education level, the income varies quite a lot between regions?</p>
+<p><strong>Practice</strong>: Continuing from the previous problem, add alongside the average income values a count of the number of cases in each group.</p>
+<p>We will now try to compare the education levels between men and women. We will use the <code>SEX_REF</code> variable for that. We start with counting within each group:</p>
+<pre><code>db.fmli.aggregate([
+  { $group: {
+    _id: { level: &quot;$EDUC_REF&quot;, sex: &quot;$SEX_REF&quot; },
+    count: { $sum: 1 }
+  }},
+  { $sort: { &quot;_id.level&quot;: 1, &quot;_id.sex&quot;: 1 }}
+])</code></pre>
+<p><strong>Question</strong>: Which education-level categories have more women respondents than men respondents?</p>
+</body>
+</html>
