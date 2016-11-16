@@ -105,9 +105,9 @@ A week-by-week breakdown of the material.
 - Day 1
     - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
 - Day 2
-    - Web Scraping
+    - [Web Scraping](notes/web_scraping.md)
 - Day 3
-    - Web Scraping
+    - Guest Lecture
 
 ## Week 12 (11/21-11/25)
 

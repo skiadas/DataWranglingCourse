@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="web-scraping">Web Scraping</h1>
+<p>In this section we will learn about Web Scraping and how to use it to collect information from web-pages.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="http://acmsel.safaribooksonline.com/9781491910290">Web Scraping with Python</a> chapters 1 through 3</li>
+<li><a href="http://docs.python-requests.org/en/master/">Python's <code>requests</code> library</a></li>
+<li><a href="https://www.crummy.com/software/BeautifulSoup/">Python's <code>BeautifulSoup</code> library</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>Web Scraping is the process of extracting data from web pages. This consists of a number of activities:</p>
+<ul>
+<li>Programmatically access a web page's content.</li>
+<li>Optionally, submit query data by programmatically filling out a form.</li>
+<li>Programmatically detect and follow links on the web page.</li>
+<li>Parse and process a page's HTML content and extract key information.</li>
+</ul>
+<p>This would typically involve two libraries:</p>
+<ul>
+<li>A library to make HTTP requests, like Python's <a href="http://docs.python-requests.org/en/master/"><code>requests</code> library</a>.</li>
+<li>A library to parse and process web-pages. We will use Python's <a href="https://www.crummy.com/software/BeautifulSoup/"><code>BeautifulSoup</code> library</a>.</li>
+</ul>
+<h3 id="web-scraping-vs-apis">Web Scraping vs APIs</h3>
+<p>Web Scraping differs from APIs and Web Services. These APIs are designed to be <em>read by programs</em>, rather than humans. They require a considerable investment on the part of the server, and therefore not all websites with useful information expose that information via an API.</p>
+<p>On the other hand, web-scraping processes the same web-page that humans see on a browser, with the only difference that it can read more of the underlying structure of the page, rather than just the visible text. But in essence, web-scraping requires that we program the computer to read information that was designed to be read by humans. This is a somewhat more challenging endeavor, but it can also be applied to more situations, as there are many more web pages out there than there are web services.</p>
+<p><em>If you can view it in your browser, you can access it via a Python script</em>.</p>
+<dl>
+<dt>Web APIs</dt>
+<dd>Not human-readable. Optimized for programmatic consumption. Not all sites offer them. Some times expose only limited functionality.
+</dd>
+<dt>Web Pages</dt>
+<dd>Human-readable. Optimized for human consumption. Much more prevalent.
+</dd>
+</dl>
+<h3 id="basic-web-scraping">Basic Web-Scraping</h3>
+<p>The basic structure of a web-scraping script would be something like this:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> requests
+<span class="im">import</span> bs4     <span class="co"># Beautiful Soup</span>
+
+http_response <span class="op">=</span> requests.get(<span class="st">&quot;... web page address ...&quot;</span>)
+
+<span class="co"># Possibly consider http_response.status_code to see</span>
+<span class="co"># if the page could not be found</span>
+
+page_content <span class="op">=</span> BeautifulSoup(http_response.content)
+
+<span class="co"># Navigate the page_content object</span>
+<span class="co"># Extract the desired information</span>
+<span class="co"># Print or save results</span></code></pre></div>
+<p>As a start example, we will show you how we downloaded the game of thrones books. This would tell us what kind of web address to use.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> requests
+<span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup
+
+base_site <span class="op">=</span> <span class="st">&quot;http://www.readbooksvampire.com&quot;</span>
+author <span class="op">=</span> <span class="st">&quot;/George_R.R._Martin/&quot;</span>
+http_response <span class="op">=</span> requests.get(base_site <span class="op">+</span> author)
+bsObj <span class="op">=</span> BeautifulSoup(http_response.content, <span class="st">&quot;html.parser&quot;</span>)
+<span class="bu">print</span>(bsObj.prettify())</code></pre></div>
+<p>This <code>bsObj</code> represents the entire HTML document, and what you see from the last command is a prinout of that HTML document. You will see a nested structure in terms of &quot;tags&quot;, like <code>&lt;html&gt;</code>, <code>&lt;body&gt;</code> etc, which match with closing tags <code>&lt;/html&gt;</code>. This creates a nested structure, that we can try to dig in. For instance we can get to the title tag via:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bsObj.html.head.title</code></pre></div>
+<p>In this case, given there is only one title tag around, we could also do:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bsObj.title</code></pre></div>
+<p>The main document contents is all within the <code>&lt;body&gt;</code> tag within the <code>&lt;html&gt;</code> tag.</p>
+<p><strong>Tag objects</strong> in BeautifulSoup provide many functionalities. They all have a &quot;name&quot; property that speaks to the kind of tag we have:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bsObj.title.name</code></pre></div>
+<p>We can also get a look at the attributes, if any:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bsObj.body.div
+bsObj.body.div.attrs
+bsObj.body.div[<span class="st">&#39;class&#39;</span>]
+bsObj.body.div.get(<span class="st">&#39;class&#39;</span>)     <span class="co">## Safer, returns None if attribute is not there</span></code></pre></div>
+<p>We can also access its chidren, i.e. the contained tags. This is an enumerable structure, and we can iterate over it.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">for</span> tag <span class="op">in</span> bsObj.body.div.children:
+  <span class="bu">print</span>(tag)</code></pre></div>
+<p>Or we can use a list comprehension and turn it into an actual list or do something else:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+  tag <span class="cf">for</span> tag <span class="op">in</span> bsObj.body.div.children
+]</code></pre></div>
+<p>Note all the extra &quot;newline&quot; tags. They also count as children. We should try to take them out. These represent the text entries within the document, and they can be detected by the fact that they don't have a name:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+  tag
+  <span class="cf">for</span> tag <span class="op">in</span> bsObj.body.div.children
+  <span class="cf">if</span> tag.name <span class="op">is</span> <span class="op">not</span> <span class="va">None</span>
+]</code></pre></div>
+<p>Based on these tools we can now do more complex operations. For instance notice the &quot;a&quot; tag inside the div tags above. It has an &quot;href&quot; field. We can use it to read the &quot;links&quot;. That's what <code>&lt;a&gt;</code> tags are, links to other pages.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+  tag.a[<span class="st">&#39;href&#39;</span>]
+  <span class="cf">for</span> tag <span class="op">in</span> bsObj.body.div.children
+  <span class="cf">if</span> tag.name <span class="op">is</span> <span class="op">not</span> <span class="va">None</span>
+]</code></pre></div>
+<p>We can also try to directly grab all &quot;a&quot; links, via the <code>findAll</code> method:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+  tag[<span class="st">&#39;href&#39;</span>]
+  <span class="cf">for</span> tag <span class="op">in</span> bsObj.find_all(<span class="st">&#39;a&#39;</span>)
+]</code></pre></div>
+<p>If we scroll through the initial list of items, we will see that the links we want, to the various books we want to include, are all inside table tags. We can therefore do the following:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+  tag[<span class="st">&#39;href&#39;</span>]
+  <span class="cf">for</span> table <span class="op">in</span> bsObj.find_all(<span class="st">&#39;table&#39;</span>)
+  <span class="cf">for</span> tag <span class="op">in</span> table.find_all(<span class="st">&#39;a&#39;</span>)
+]</code></pre></div>
+<p>Let's also grab a bit more information from each link:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">books <span class="op">=</span> [
+  {
+    <span class="st">&#39;link&#39;</span>: tag[<span class="st">&#39;href&#39;</span>],
+    <span class="co">&#39;title&#39;</span>: tag[<span class="st">&#39;title&#39;</span>]
+  }
+  <span class="cf">for</span> table <span class="op">in</span> bsObj.find_all(<span class="st">&#39;table&#39;</span>)
+  <span class="cf">for</span> tag <span class="op">in</span> table.find_all(<span class="st">&#39;a&#39;</span>)
+]</code></pre></div>
+<p>Before we move on, we note that the first item in that list is not actually an individual book, but the name of the whole collection. So we'll leave it out.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">books.pop(<span class="dv">0</span>)</code></pre></div>
+<p>Before we move on, let's discuss the overall plan:</p>
+<ul>
+<li>We collect the link of all books, as above</li>
+<li>For each book, we visit its page and collect links to all chapters</li>
+<li>For each chapter, we visit its page and collect the text</li>
+</ul>
+<h3 id="following-links">Following links</h3>
+<p>Following links simply requires making a new request. For instance let's grab the first book, and use its link to download a new resource.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">book1 <span class="op">=</span> books[<span class="dv">0</span>]
+http_response1 <span class="op">=</span> requests.get(base_site <span class="op">+</span> book1[<span class="st">&#39;link&#39;</span>])
+bookObj1 <span class="op">=</span> BeautifulSoup(http_response1.content, <span class="st">&quot;html.parser&quot;</span>)
+<span class="bu">print</span>(bookObj1.prettify())</code></pre></div>
+<p>We now need to grab the chapter links. It is not easy to see a way to get hold of them, but we can use regular expressions.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> re
+bookObj1.find_all(<span class="st">&#39;a&#39;</span>, { <span class="st">&#39;href&#39;</span>: re.<span class="bu">compile</span>(<span class="st">&quot;\d+\.html&quot;</span>) })</code></pre></div>
+<p>The regular expression <code>\d+\.html</code> basically tells BeautifulSoup to look for links whose href contains &quot;at least one (+) digit () followed by a dot (.) followed by the word html&quot;.</p>
+<p>Let's write it slightly differently:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">chapters1 <span class="op">=</span> [
+  {
+    <span class="st">&quot;title&quot;</span>: book1[<span class="st">&quot;title&quot;</span>],
+    <span class="co">&quot;link&quot;</span>: tag[<span class="st">&quot;href&quot;</span>],
+    <span class="co">&quot;chapter&quot;</span>: ....
+  }
+  <span class="cf">for</span> tag <span class="op">in</span> bookObj1.find_all(<span class="st">&#39;a&#39;</span>, { <span class="st">&#39;href&#39;</span>: re.<span class="bu">compile</span>(<span class="st">&quot;\d+\.html&quot;</span>) })
+]</code></pre></div>
+<p>We just need to figure out what to put in the &quot;chapter&quot;. We need to grab the number part of the url. Here's how we can do that:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">chapters1 <span class="op">=</span> [
+  {
+    <span class="st">&quot;title&quot;</span>: book1[<span class="st">&quot;title&quot;</span>],
+    <span class="co">&quot;link&quot;</span>: tag[<span class="st">&quot;href&quot;</span>],
+    <span class="co">&quot;chapter&quot;</span>: re.search(<span class="st">&quot;\d+&quot;</span>, tag[<span class="st">&quot;href&quot;</span>]).group()
+  }
+  <span class="cf">for</span> tag <span class="op">in</span> bookObj1.find_all(<span class="st">&#39;a&#39;</span>, { <span class="st">&#39;href&#39;</span>: re.<span class="bu">compile</span>(<span class="st">&quot;\d+\.html&quot;</span>) })
+]</code></pre></div>
+<p>Regular expressions are quite powerful at extracting parts of strings!</p>
+<p>We should automate this into a function &quot;getChapters&quot;:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> getChapters(book):
+  http_response <span class="op">=</span> requests.get(base_site <span class="op">+</span> book[<span class="st">&#39;link&#39;</span>])
+  bookObj <span class="op">=</span> BeautifulSoup(http_response.content, <span class="st">&quot;html.parser&quot;</span>)
+  <span class="cf">return</span> [
+    {
+      <span class="st">&quot;title&quot;</span>: book[<span class="st">&quot;title&quot;</span>],
+      <span class="co">&quot;link&quot;</span>: tag[<span class="st">&quot;href&quot;</span>],
+      <span class="co">&quot;chapter&quot;</span>: re.search(<span class="st">&quot;\d+&quot;</span>, tag[<span class="st">&quot;href&quot;</span>]).group()
+    }
+    <span class="cf">for</span> tag <span class="op">in</span> bookObj.find_all(<span class="st">&#39;a&#39;</span>, { <span class="st">&#39;href&#39;</span>: re.<span class="bu">compile</span>(<span class="st">&quot;\d+\.html&quot;</span>) })
+  ]
+
+allChapters <span class="op">=</span> [
+  chapter
+  <span class="cf">for</span> book <span class="op">in</span> books
+  <span class="cf">for</span> chapter <span class="op">in</span> getChapters(book)
+]</code></pre></div>
+<h3 id="getting-the-text-out">Getting the text out</h3>
+<p>Now we will try to visit a chapter, and look at its format.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">chapter1 <span class="op">=</span> allChapters[<span class="dv">0</span>]
+chapter1</code></pre></div>
+<p>We will now grab the link:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">http_response1 <span class="op">=</span> requests.get(base_site <span class="op">+</span> chapter1[<span class="st">&#39;link&#39;</span>])
+bookObj <span class="op">=</span> BeautifulSoup(http_response1.content, <span class="st">&quot;html.parser&quot;</span>)
+<span class="bu">print</span>(bookObj.prettify())</code></pre></div>
+<p>Scrolling through this, we find that the paragraphs are inside <code>&lt;div&gt;</code> elements, all inside a main <code>&lt;td&gt;</code> element of class &quot;concss&quot;. We'll try to get hold of that:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bookObj.find(<span class="st">&#39;td&#39;</span>, { <span class="st">&quot;class&quot;</span>: <span class="st">&quot;concss&quot;</span> }).find_all(<span class="st">&#39;div&#39;</span>)</code></pre></div>
+<p>If you look through the list, you will see some empty divs. We probably don't want those. But we also don't really want the &quot;div&quot; parts, only their contents:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+  tag.get_text()
+  <span class="cf">for</span> tag <span class="op">in</span> bookObj.find(<span class="st">&#39;td&#39;</span>, { <span class="st">&quot;class&quot;</span>: <span class="st">&quot;concss&quot;</span> }).find_all(<span class="st">&#39;div&#39;</span>)
+]</code></pre></div>
+<p>You will see entries that contain: <code>'\xa0'</code>. These are the whitespaces that we want to remove. We'll therefore filter them out:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+  tag.get_text()
+  <span class="cf">for</span> tag <span class="op">in</span> bookObj.find(<span class="st">&#39;td&#39;</span>, { <span class="st">&quot;class&quot;</span>: <span class="st">&quot;concss&quot;</span> }).find_all(<span class="st">&#39;div&#39;</span>)
+  <span class="cf">if</span> tag.get_text() <span class="op">!=</span> <span class="st">&#39;</span><span class="ch">\xa0</span><span class="st">&#39;</span>
+]</code></pre></div>
+<p>We now have our list of paragraphs! Now let's turn this into a function:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> getParagraphs(chapter):
+  http_response <span class="op">=</span> requests.get(base_site <span class="op">+</span> chapter[<span class="st">&#39;link&#39;</span>])
+  chapterObj <span class="op">=</span> BeautifulSoup(http_response.content, <span class="st">&quot;html.parser&quot;</span>)
+  <span class="cf">return</span> [
+    {
+      <span class="st">&quot;paragraph&quot;</span>: ind,
+      <span class="st">&quot;text&quot;</span>: tag.get_text(),
+      <span class="co">&quot;title&quot;</span>: chapter[<span class="st">&quot;title&quot;</span>],
+      <span class="co">&quot;chapter&quot;</span>: chapter[<span class="st">&quot;chapter&quot;</span>]
+    }
+    <span class="cf">for</span> ind, tag <span class="op">in</span> <span class="bu">enumerate</span>(bookObj.find(<span class="st">&#39;td&#39;</span>, { <span class="st">&quot;class&quot;</span>: <span class="st">&quot;concss&quot;</span> }).find_all(<span class="st">&#39;div&#39;</span>))
+    <span class="cf">if</span> tag.get_text() <span class="op">!=</span> <span class="st">&#39;</span><span class="ch">\xa0</span><span class="st">&#39;</span>
+  ]</code></pre></div>
+<p>Finally, we'll put it all together:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">allParagraphs <span class="op">=</span> [
+  paragraph
+  <span class="cf">for</span> book <span class="op">in</span> books
+  <span class="cf">for</span> chapter <span class="op">in</span> getChapters(book)
+  <span class="cf">for</span> paragraph <span class="op">in</span> getParagraphs(chapter)
+]</code></pre></div>
+<p>We could then proceed to, for instance, write the <code>allParagraphs</code> list to a json file.</p>
+</body>
+</html>
