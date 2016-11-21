@@ -112,7 +112,7 @@ A week-by-week breakdown of the material.
 ## Week 12 (11/21-11/25)
 
 - Day 1
-    - TBA
+    - [Assignment 7: Web Scraping practice](assignments/7.md)
 
 - Day 2
     - Thanksgiving

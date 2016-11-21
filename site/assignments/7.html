@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="lab-assignment-7-web-scraping-wikipedia">Lab Assignment 7: Web Scraping Wikipedia</h1>
+<p>In this assignment you will practice web-scraping, by extracting information about programming languages from their wikipedia page. In particular we will be interested in three questions:</p>
+<ul>
+<li>What paradigms the language follows</li>
+<li>What type disciplines a language implements</li>
+<li>What languages influenced it</li>
+<li>What languages it influenced</li>
+</ul>
+<p>You will be working with <a href="https://github.com/skiadas/DataWranglingCourse/blob/gh-pages/assignments/assignment7.py">this script</a>. Download it and save it in whatever location you want to use.</p>
+<p>Your assignment will be roughly split in 3 parts:</p>
+<ol style="list-style-type: decimal">
+<li>Read the list of programming languages with Wikipedia pages</li>
+<li>Read individual information for each programming language</li>
+<li>Ask various questions about the collection of programming languages</li>
+</ol>
+<h2 id="collecting-the-list-of-programming-languages">Collecting the list of programming languages</h2>
+<p>The <code>listPage</code> variable in the file, defined around line 16, contains the content of the Wikipedia page that lists all programming languages. You will need to process this list.</p>
+<p>Start by viewing the contents of the page. You should do this in two ways. From a Python shell, you can do <code>print(listPage.prettify())</code>. And from a browser, you can open <a href="https://en.wikipedia.org/wiki/List_of_programming_languages">the page with the languages list</a>, then open the developer tools of your browser, and in particular the &quot;element inspector&quot;. Your goal is to find a way to identify the elements that form the various languages.</p>
+<p>The script is not ready to be run. You will need to start a Python interpreter, and copy-paste parts of the script as you make progress. You should start by copy-pasting the first 19 lines of the script into your Python shell.</p>
+<p>Look closely at the web-page contents. You should find that the lists that we are after are broken down by letter of the alphabet. Find the elements that define those sections. You should find them to be <code>div</code>s with some <code>class</code> attributes that you can target.</p>
+<ul>
+<li><strong>Exercise 1</strong>. Line 23 has a start for computing a list of these sections, one for each letter of the alphabet. You will need to fix this line, by passing appropriate arguments to the <code>find_all</code> call, to target the required elements. If you have done this correctly, <code>len(letterSections)</code> should return 26.</li>
+<li><strong>Exercise 2</strong>. A skeleton for a function called <code>getLanguagesFromSection</code> is provided. It takes as input a section as those in <code>letterSections</code> and should return a list of the programming languages contains. It does this by a list comprehension, which produces a dictionary for every language. Your task is to fill in the values for this dictionary: It should have a &quot;link&quot; field, that contains the (relative) url for the language's page. You should be able to find this within the anchor link <code>&lt;a&gt;</code> within the list item that you iterate. It should also have a &quot;name&quot; field, that contains the name of the language. You should find that as the text contents of the <code>&lt;a&gt;</code> tag that is in the link. You should only need to add 2 lines.</li>
+<li><strong>Exercise 3</strong>. We have provided the start of a list comprehension that computes the list of all languages. It should go over all the <code>letterSections</code>, and for each section go through all the languages returned by <code>getLanguagesFromSection</code> for that section, and make one long list of them all. You should only need to add 3 lines.</li>
+</ul>
+<p>This concludes the first set of problems. At the end of the day you have a list of all languages for which Wikipedia has a page. In the next section we will reach into each of these pages and read out some of its information.</p>
+<h2 id="read-individual-information-for-a-language">Read individual information for a language</h2>
+<p>We will now look into reading information for a particular language. As an example we will use the page for the C programming language. Make sure to open that page so you can see it.</p>
+<ul>
+<li><p><strong>Exercise 4</strong>. In this exercise we have provided you with the skeleton for a function <code>getSidebar</code> that given a language object will return the sidebar on the corresponding page. There are two lines you need to fix. The first is the line computing the &quot;langContents&quot;. This must use the <code>getPage</code> function that is defined near the top of the file, to access the link stored inside the language object. Take a look at the <code>clang</code> variable, defined in line 57, for how the <code>lang</code> argument to your function is supposed to look like.</p>
+Next you will need to fix the call to &quot;find&quot; in the return line. That &quot;find&quot; needs to locate the sidebar. You should be able to identify the sidebar as being a table tag with a specific class argument. Look at the page in your browser, using the element inspector, to get an idea.</li>
+<li><strong>Exercise 5</strong>. This does not require you to add any code, only to read code and comment on it. You are asked to read three functions and add comments, both above each function and if needed inline, to explain what these functions do. You may want to start with the larger function, as it calls the others. For that one, you can use the list produced by <code>cSidebar.find_all(&quot;th&quot;)</code> if you want to understand what the elements in the for-loop look like, and you can manually work and test with this list of elements, along with looking at the tag structure in the web-browser, to understand what is happening. Make sure you understand why there are double-uses of <code>next_sibling</code> at times.</li>
+<li><p><strong>Exercise 6</strong>. In order to be able to do further work with the list of languages, we will turn it into a dictionary, called <code>allLangDict</code>. You will need to go through the <code>allLanguages</code> list, and populate the allLangDict dictionary as you go along. Each language should be placed in the object with key the link used for it, e.g. the C language's key should be <code>'/wiki/C_(programming_language)'</code>. A simple 2-line for-loop should suffice. This would allow us to follow for example a chain of influences from one language to another.</p></li>
+</ul>
+<h2 id="work-with-the-language-structure">Work with the language structure</h2>
+<p>We will now perform various tasks on this list of languages.</p>
+<p>We will start by looking at completeness of the master-list of programming languages, as follows: For each language in our list, we will look at its &quot;influenced&quot; list and its &quot;influencedBy&quot; list, and see if all the entries there are languages in our dictionary. If they are not, that means that Wikipedia does have an entry for the language but it does not have it listed in the &quot;list of programming languages&quot; page.</p>
+<ul>
+<li><p><strong>Exercise 7</strong>. Loop over the allLanguages list. For each language loop over the languages it influenced and the languages that it was influenced by. If any of these languages does not appear as a key in the <code>allLangDict</code> dictionary, add it to the dictionary called <code>missingLanguages</code> and print the language link. Make sure to not print any language twice.</p>
+<p>Optional: Find out how Wikipedia pages can be updated, and help add the missing languages to the list.</p></li>
+</ul>
+<p>We will now look for consistency between the influenced/influenced-by lists. For each language we will look at the languages it influenced, and make sure that each such language mentioned the original language in its &quot;influencedBy&quot; list. We will print any inconsistencies. Remember that the &quot;influencedBy&quot; list holds links.</p>
+<ul>
+<li><strong>Exercise 8</strong>. Loop over the allLanguages list. For each language loop over the languages it influenced. Use <code>allLangDict</code> to look at each of these languages, and see if they mention the original language in their &quot;influencedBy&quot; list. Do a second loop the other way around. Remember to only look at languages that are not missing (i.e. that are in the <code>allLangDict</code> entries).</li>
+</ul>
+<p>We will now turn our attention to the programming paradigms of the various languages, and the programming disciplines. You should study the results of these last two parts.</p>
+<ul>
+<li><strong>Exercise 9</strong>. The dictionary <code>allParadigms</code> is supposed to contain as keys each programming paradigm and as value for a key it has an array of all the languages that follow that paradigm. Using a double loop over the languages and the paradigms in them, populate this dictionary.</li>
+<li><strong>Exercise 10</strong>. Repeat with type disciplines. A <code>typeDisciplines</code> dictionary is initialized for you. I urge you to learn a bit more about some of these type disciplines.</li>
+</ul>
+<h2 id="optional-questions">Optional Questions</h2>
+<p>These are some optional extra questions. You should NOT submit these. But they are here in case you want to expand on this previous work. Instructions for submitting your homework are after this list.</p>
+<ol style="list-style-type: decimal">
+<li>(easy) <code>missingLanguages</code> contains a number of languages that we have not loaded into allLanguages. Do so. These new languages might then show you more new languages we had missed before. Add those and repeat until no new languages are produced.</li>
+<li>(easy) Some language links appear with different capitalization when in the &quot;influenced&quot; or &quot;influencedBy&quot; arrays, as opposed to the &quot;link&quot; fields. Uniformize all cases by turning all three to lowercase.</li>
+<li>(medium) Enhance the &quot;influencedBy&quot; and &quot;influenced&quot; fields in the languages objects based on the languages missing, as you found in exercise 8.</li>
+<li>(easy) Order the languages based on how &quot;influential&quot; they've been, i.e. how many languages they have influenced. Similarly, order them by how many other languages influenced them.</li>
+<li>(medium) For all pairs of distinct paradigms, compute the number of languages that have both paradigms, then sort the pairs based on that number, starting with the highest. This will show you which paradigms are most often combined.</li>
+<li>(medium) Do the same for pairs of type disciplines.</li>
+<li>(medium) This and the remaining problems require some knowledge of graph theory. We can consider the set of languages as a directed graph, where the vertices are the languages and an edge from language A to B means that language A influenced language B. We can represent this graph in two ways: As a list of (ordered) pairs <code>(A, B)</code>, or as an object whose keys are the languages and the value for the key corresponding to language A is the list of all languages B that are influenced by B. The latter form already exists within the <code>allLangDict</code> dictionary. Use it to construct the former form.</li>
+<li>(medium) Write a function that given a language A constructs the list of all languages that are (possibly indirectly) influenced by it. In terms of our graph picture this is the set of all edges that can be reached from A. You can use a recursive function, but beware of cycles.</li>
+<li>(medium) Compute for each language/vertex the number of vertices that can be reached (as described in the previous problem). Then order the languages according to which reaches the most languages/vertices. You may either run the function you created in the previous part on all vertices, or you can try an algorithm that tries to compute them all at once as follows:
+<ul>
+<li>Start with a dictionary of numbers, with the languages as keys, initially populated by the value 0. The entries on the array are meant to determine how many languages each language influences.</li>
+<li>For each entry, look at the languages it influences, add their numbers, and store it in the language entry. If it differs from the previously stored entry, remember that fact.</li>
+<li>Repeat the process until the numbers stabilize, i.e. until the last pass you make does not update any entries. If an entry exceeds the total number of languages, then that means your graph has a cycle.</li>
+</ul></li>
+<li>(hard) Write a function that determines for any two languages/vertices whether they have a &quot;common ancestor&quot;. This should include the case where one of the languages is an ancestor of the other.</li>
+<li>(hard) Study a &quot;topological sorting&quot; algorithm and implement it on this graph. Topological sorting arranges the vertices in a linear order so that no edges &quot;go backwards&quot;. Most standard topological sorting algorithms use depth-first-search techniques.</li>
+<li>(hard) Compute the &quot;strongly connected components&quot; of this graph. The topological sort algorithm and some google search can help with that.</li>
+<li>(hard) Find the longest path in the graph.</li>
+<li>(hard) Implement some form of the <a href="https://en.wikipedia.org/wiki/PageRank">PageRank</a> algorithm on this graph, and order the languages by their rank starting from the highest. For the purposes of this problem, use the &quot;reverse&quot; graph: If A influences B, then you should think of that as an edge from B to A. A language should gain value from the languages it influenced.</li>
+</ol>
+<h2 id="submit">Submit</h2>
+<p>When you are ready to submit, make sure the <code>assignment7.py</code> file you have been working on is saved and contains all the answers clearly marked, then email it to me.</p>
+</body>
+</html>
