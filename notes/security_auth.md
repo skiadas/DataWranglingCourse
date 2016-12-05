@@ -20,18 +20,18 @@ In this section we collect a variety of information related to security, culmina
 We start with a broad description of security principles. There are three key areas of concern when discussing security:
 
 Confidentiality
-  ~ Our ability to protect the data from those not authorized to access it. A good example of this principle is the advice to not share with anyone what your password is. We try to present confidentiality when we for example make sure noone is looking at us as we type in our password, or if we try to hide the ATM screen when typing in our PIN.
+  ~ Our ability to protect the data from those not authorized to access it. A good example of this principle is the advice to not share with anyone what your password is. We try to preserve confidentiality when we for example make sure noone is looking at us as we type in our password, or if we try to hide the ATM screen when typing in our PIN.
 
 Integrity
   ~ Our ability to prevent change in our data in an unauthorized or undesirable manner. This of course includes preventing unauthorized access, but it also incorporates the ability to recover and reverse any undesirable changes. A common example of this is our use of hard drive or database backups, so that if something happens to our computer we don't lose all our data. Integrity is particularly important for example in medical information, as corrupted data may result in the wrong treatment given to a patient.
 
 Availability
-  ~ Our ability to access the data when needed. For example we can provide confidentiality and integrity by burying a hard drive inside of concrete, but then we also lose our ability to get to that data. Another example of loss of availability is the so-called Denial of Service (DoS) attacks.
+  ~ Our ability to provide the data when needed to those authorized to access it. For example we can provide confidentiality and integrity by burying a hard drive inside a block of concrete, but then we also lose our ability to get to that data. Another example of loss of availability is the so-called Denial of Service (DoS) attacks.
 
 Along with the aforementioned goals, we must also consider various attack methods. These fit broadly into four groups:
 
 Interception
-  ~ attacks allow unauthorized access to the data.
+  ~ attacks attempt to access the data without proper authorization.
 
 Interruption
   ~ attacks prevent our access to the data, temporarily or permanently.
@@ -42,11 +42,11 @@ Modification
 Fabrication
   ~ attacks aim to produce manufactured data. A malware sending email from our account is a good example of this.
 
-Group activity: Suppose that the "data" we want to protect is the contents of the desk in your room. Consider various approaches to "securing" this data, and their tradeoffs/vulnerabilities regarding the above three concepts. What possible attacks on that data can you envision?
+*Group activity:* Suppose that the "data" we want to protect is the contents of the desk in your room. Consider various approaches to "securing" this data, and their tradeoffs/vulnerabilities regarding the above three concepts. Start with considering the kinds of possible attacks on that data.
 
 ### Identification and Authentication
 
-At the core of any security system is the ability to correctly identify and authenticate individuals attempting to access the system.
+At the core of any security system is the ability to correctly identify and authenticate individuals attempting to access the system. This naturally breaks into two steps.
 
 Identification
   ~ is the claim that of what someone or something is. For instance using our debit card in an ATM is an identification. Another example would be claiming to be over 21 in a bar.
@@ -54,19 +54,19 @@ Identification
 Authentication
   ~ is the process of establishing that the claimed identification is true. For instance asking for the cardholder to type in the PIN number for the debit card is an authentication. Showing our ID to confirm our age would be another example of authentication.
 
-Group activity: Think of other practical examples of identification and authentication.
+*Group activity:* Think of other practical examples of identification and authentication.
 
-Group activity: Think of computer-related examples of identification and authentication.
+*Group activity:* Think of computer-related examples of identification and authentication.
 
 One topic worthy of discussion is the difference between *identity verification* and *authentication*. In general, authentication is more secure. The difference can be seen in a bank giving someone access to their account. Simply presenting an ID to verify your identity would not be sufficient to authenticate you as an account holder. You will likely need to possibly know the account number or have a bank card or key.
 
-When considering authentication, the different methods fall into categories, called **factors**. The standard factors are the following:
+Authentication methods naturally fall into categories, called **factors**. The standard factors are the following:
 
 Something you know
   ~ For example a password, PIN number, social security number, date of birth etc. By itself this is a somewhat weak form of security, as the moment this information is exposed it is no longer secure.
 
 Something you are
-  ~ This can consist of a variety of physical attributes, often known as biometrics. It would include your height, weight, eye color, iris/retina patterns, dna, fingerprints.
+  ~ This can consist of a variety of physical attributes, often known as biometrics. It would include your height, weight, eye color, iris/retina patterns, DNA, fingerprints. Some of this information is fairly transient (e.g. height or weight), while other parts like DNA can be fairly secure ways of identifying you. They are also expensive to set up.
 
 Something you have
   ~ This consists of the physical of electronic possession of some item or device. ATM cards and ID cards are good examples, as is your mobile phone or your email account when used in that fashion.
@@ -81,9 +81,9 @@ A common practice is the so-called **multi-factor authentication**, when we are 
 
 Another example of this is using an ATM. You need to both have your debit card (something you have) and type in your PIN (something you know).
 
-Group activity: Describe the authentication systems, if any, in place when using a credit card for a purchase, both physically at a store as well as online.
+*Group activity:* Describe the authentication systems, if any, in place when using a credit card for a purchase, both physically at a store as well as online.
 
-Group activity: Think of some single-factor systems and describe how we may turn them into multi-factor systems.
+*Group activity:* Think of some single-factor systems and describe how we may turn them into multi-factor systems.
 
 ### Authorization
 
@@ -131,7 +131,7 @@ Capabilities
 
     Another example of this would be a prescription for a medicine. Anyone can pick up the medicine as long as they have the filled out prescription (and possibly an ID).
 
-Group activity: Think of other authorization situations from your experience, and describe them according to the aforementioned groups.
+*Group activity:* Think of other authorization situations from your experience, and describe them according to the aforementioned groups.
 
 ### Cryptographic Tools
 
@@ -140,12 +140,12 @@ When it comes to electronic security, Cryptography has given us a powerful set o
 Let us clarify some terms used in a cryptographic system
 
 message
-  ~ The message the piece of information that needs to be communicated between two parties.
+  ~ A piece of information that needs to be communicated between two parties.
 
 ciphertext
   ~ An encrypted version of the message.
 
-secret key
+(secret) key
   ~ A piece of information that in combination with the message produces the ciphertext
 
 cipher
@@ -178,7 +178,7 @@ The asymmetric key ciphers differ from symmetric key ciphers in that they use tw
 
 The advantage of these ciphers is that they do not need for the parties to have had any prior "conversation" (in the symmetric key case the two parties must already share a secret key). The sender simply asks the receiver for their public key, and uses it to send the message.
 
-Asymmetric ciphers are often used during the "handshake" part of a client-server interaction, to establish a common secret key that the two parties can use for further information exchange via a symmetric cipher. For instance the first time your computer (the client) tries to connect to your bank's web server, they might initiate such an exchange. It might go something like that:
+Asymmetric ciphers are often used during the "handshake" portion of a client-server interaction, to establish a common secret key that the two parties can use for further information exchange via a symmetric cipher. For instance the first time your computer (the client) tries to connect to your bank's web server, they might initiate such an exchange. It might go something like that:
 
 1. The client asks the server for their public key.
 2. The server sends the public key back.
@@ -235,7 +235,7 @@ Digital Certificates can be used to link a public key to a particular individual
 
 Digital Certificates are issued by a **Certificate Authority (CA)**, which is a trusted party that digitally signs the certificates using their key. This way we only need to trust the certificate authority, rather than trust each individual or company to give us their true public keys. VeriSign is one such widely used CA.
 
-There is a larger infrastructure that makes working with public keys effective. It is called a **public key infrastructure**.
+There is a larger infrastructure that makes working with public keys effective. It is called a **Public Key Infrastructure** (PKI).
 
 ### Web server/service Authentication
 
