@@ -122,17 +122,17 @@ A week-by-week breakdown of the material.
 ## Week 13 (11/28-12/02)
 
 - Day 1
-    - TBA
+    - Work on project
 - Day 2
-    - TBA
+    - Work on project
 - Day 3
-    - TBA
+    - Work on project
 
 ## Week 14 (12/05-12/09)
 
 - Day 1
-    - TBA
+    - [Security and Authentication](notes/security_auth.md)
 - Day 2
     - TBA
 - Day 3
-    - Project presentations
+    - TBA

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="security-and-authentication">Security and Authentication</h1>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2742551&amp;type=elsevier">The Basics of Information Security</a>, chapters 1, 2, 3, 5, 10, 12</li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2821217&amp;type=24">Web Security</a></li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2829333&amp;type=24">Web Application Security: A Beginner's Guide</a></li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1214959&amp;type=24">Foundations of Security</a></li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2505467&amp;type=elsevier">Computer and Information Technology Handbook</a></li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1841673&amp;type=elsevier">Network and System Security</a></li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2988382&amp;type=24">Principles of Computer Security</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>In this section we collect a variety of information related to security, culminating in a description of how to properly access or offer access to protected resources.</p>
+<h3 id="security-in-general">Security in general</h3>
+<p>We start with a broad description of security principles. There are three key areas of concern when discussing security:</p>
+<dl>
+<dt>Confidentiality</dt>
+<dd>Our ability to protect the data from those not authorized to access it. A good example of this principle is the advice to not share with anyone what your password is. We try to present confidentiality when we for example make sure noone is looking at us as we type in our password, or if we try to hide the ATM screen when typing in our PIN.
+</dd>
+<dt>Integrity</dt>
+<dd>Our ability to prevent change in our data in an unauthorized or undesirable manner. This of course includes preventing unauthorized access, but it also incorporates the ability to recover and reverse any undesirable changes. A common example of this is our use of hard drive or database backups, so that if something happens to our computer we don't lose all our data. Integrity is particularly important for example in medical information, as corrupted data may result in the wrong treatment given to a patient.
+</dd>
+<dt>Availability</dt>
+<dd>Our ability to access the data when needed. For example we can provide confidentiality and integrity by burying a hard drive inside of concrete, but then we also lose our ability to get to that data. Another example of loss of availability is the so-called Denial of Service (DoS) attacks.
+</dd>
+</dl>
+<p>Along with the aforementioned goals, we must also consider various attack methods. These fit broadly into four groups:</p>
+<dl>
+<dt>Interception</dt>
+<dd>attacks allow unauthorized access to the data.
+</dd>
+<dt>Interruption</dt>
+<dd>attacks prevent our access to the data, temporarily or permanently.
+</dd>
+<dt>Modification</dt>
+<dd>attacks aim to tamper with our assets/data. A hacker changing our bank account's balance would be a good example of that.
+</dd>
+<dt>Fabrication</dt>
+<dd>attacks aim to produce manufactured data. A malware sending email from our account is a good example of this.
+</dd>
+</dl>
+<p>Group activity: Suppose that the &quot;data&quot; we want to protect is the contents of the desk in your room. Consider various approaches to &quot;securing&quot; this data, and their tradeoffs/vulnerabilities regarding the above three concepts. What possible attacks on that data can you envision?</p>
+<h3 id="identification-and-authentication">Identification and Authentication</h3>
+<p>At the core of any security system is the ability to correctly identify and authenticate individuals attempting to access the system.</p>
+<dl>
+<dt>Identification</dt>
+<dd>is the claim that of what someone or something is. For instance using our debit card in an ATM is an identification. Another example would be claiming to be over 21 in a bar.
+</dd>
+<dt>Authentication</dt>
+<dd>is the process of establishing that the claimed identification is true. For instance asking for the cardholder to type in the PIN number for the debit card is an authentication. Showing our ID to confirm our age would be another example of authentication.
+</dd>
+</dl>
+<p>Group activity: Think of other practical examples of identification and authentication.</p>
+<p>Group activity: Think of computer-related examples of identification and authentication.</p>
+<p>One topic worthy of discussion is the difference between <em>identity verification</em> and <em>authentication</em>. In general, authentication is more secure. The difference can be seen in a bank giving someone access to their account. Simply presenting an ID to verify your identity would not be sufficient to authenticate you as an account holder. You will likely need to possibly know the account number or have a bank card or key.</p>
+<p>When considering authentication, the different methods fall into categories, called <strong>factors</strong>. The standard factors are the following:</p>
+<dl>
+<dt>Something you know</dt>
+<dd>For example a password, PIN number, social security number, date of birth etc. By itself this is a somewhat weak form of security, as the moment this information is exposed it is no longer secure.
+</dd>
+<dt>Something you are</dt>
+<dd>This can consist of a variety of physical attributes, often known as biometrics. It would include your height, weight, eye color, iris/retina patterns, dna, fingerprints.
+</dd>
+<dt>Something you have</dt>
+<dd>This consists of the physical of electronic possession of some item or device. ATM cards and ID cards are good examples, as is your mobile phone or your email account when used in that fashion.
+</dd>
+<dt>Something you do</dt>
+<dd>These are more complex aspects of who you are, for instance your gait, keyboard typing pattern or handwriting. These are difficult to falsify, but often result in false negatives when legitimate users may be incorrectly rejected.
+</dd>
+<dt>The place you are</dt>
+<dd>For example certain servers are only accessible by terminals physically in the same room.
+</dd>
+</dl>
+<p>A common practice is the so-called <strong>multi-factor authentication</strong>, when we are using more than one factor to authenticate. A special case is the so-called two-factor authentication. For instance many online games now require you to download an &quot;authenticator&quot; to your phone, and when you want to log in to the game you need to both type your password (something you know) and type in the number shown on the authenticator (something you have).</p>
+<p>Another example of this is using an ATM. You need to both have your debit card (something you have) and type in your PIN (something you know).</p>
+<p>Group activity: Describe the authentication systems, if any, in place when using a credit card for a purchase, both physically at a store as well as online.</p>
+<p>Group activity: Think of some single-factor systems and describe how we may turn them into multi-factor systems.</p>
+<h3 id="authorization">Authorization</h3>
+<p>After identification and authentication have been performed, the next step is authorization, namely providing access to only those assets that the authenticated party is supposed to be able to access. In other words, <strong>authorization</strong> determines what the authenticated party can and cannot do. These controls can be physical (a guard, gate etc), or logical (electronic lock).</p>
+<p>A key principle when considering authorization is the following:</p>
+<blockquote>
+<p><strong>Principle of least priviledge</strong></p>
+<p>We should only allow the bare minimum of access to an authorized party, in order for it to perform the needed functionality.</p>
+</blockquote>
+<p>There are many examples of this principle. For instance the staff working in the registrar's office should not have direct access to your business office information, and conversely someone working in the business office should not be able to sign you up for classes.</p>
+<p>The system that we have in place right now in the college does not follow this principle. It would be nice if you could give your parents limited access to the &quot;billing&quot; part of your account, so they could monitor it and pay and so on, but the only way to really do that right now is to give them your password, which also gives them access to your email, classes, grades etc.</p>
+<p>Another example is a web server. The process that is running the web server should be given access only to the files it needs to do its job, and not the rest of the system. Oftentimes however the process acting as the web server is a superuser of the system. This could allow an intruder to exploit a web vulnerability and execute instructions as a superuser/administrator.</p>
+<p>Most systems implement a separate user account, often called &quot;apache&quot; in the case of the Apache web server, and all webpages get that user's more limited permissions.</p>
+<p>Many problems on personal computers are caused by the (default) user account also being the administrator account. This means that any application or program downloaded from the internet will be executed with full administrator priviledges on the computer, and would thus be capable to do a lot of damage. Therefore it is a common guideline to always create separate &quot;user&quot; and &quot;administrator&quot; accounts.</p>
+<p>Authorization is described most often in terms of <strong>access control</strong>. Every use case can be described in terms of the following basic operations:</p>
+<dl>
+<dt>Allowing access</dt>
+<dd>The most straightforward example of this is how a key gives you access to a locked room.
+</dd>
+<dt>Denying access</dt>
+<dd>This should typically be the default. Placing a guard or a lock on a door is a typical example. Often times access is denied based on the time (for example campus buildings are locked after a certain time).
+</dd>
+<dt>Limiting access</dt>
+<dd>It is often important to restrict the actions that can be taken. This is often described as running in a <em>sandbox</em> environment. A physical example would be that you may be allowed to access certain files in a room, but you may be forbidden from copying them or taking them out of the room. Another example would be access to a limited set of resources. For instance most faculty on campus have keys to their office building but not to other buildings, while some select personel have master keys that can open any door on campus.
+</dd>
+<dt>Revoking access</dt>
+<dd>The system should be able to revoke the access it has given to someone, e.g. if they get fired.
+</dd>
+</dl>
+<p>There are fundamentally two ways in which one can provide access control.</p>
+<dl>
+<dt>Access Control Lists</dt>
+<dd><p>These are very common in many systems, from filesystems to web services. These list for any resource the identifiers of the parties that are allowed to access the resource, and what tasks they are allowed to perform. For instance you may protect a file against writing, and only allow it to be read. Also we would prevent users from being able to access each other's files.</p>
+<p>Another example of ACLs is the firewall that we use at the college, which blocks access to many resources from out of campus, while allowing emails or web requests through. In this instance the &quot;identifier&quot; is the specific IP address of the incoming request and &quot;port&quot; that it comes at. Email and web requests use specific ports, so the firewall blocks all other ports.</p>
+</dd>
+<dt>Capabilities</dt>
+<dd><p>These are less common, and their goal is to provide access based on a <em>token</em> rather than an identification of the individual. The holder of the token is given access, and thus for example a user can obtain a token for a specific action, then give that token to someone else. That other party can then use the token to obtain access to the resource. A good example of this is our college card system. If you give someone your card, then they can use it to for instance open a door, make photocopies, etc. But their access is mostly limited to those actions that the card enables. They still can't check your email for example, as they do not have your password.</p>
+<p>Another example of this would be a prescription for a medicine. Anyone can pick up the medicine as long as they have the filled out prescription (and possibly an ID).</p>
+</dd>
+</dl>
+<p>Group activity: Think of other authorization situations from your experience, and describe them according to the aforementioned groups.</p>
+<h3 id="cryptographic-tools">Cryptographic Tools</h3>
+<p>When it comes to electronic security, Cryptography has given us a powerful set of tools. We will very briefly discuss some of these tools in this section. The full topic would go far beyond the scope of the course.</p>
+<p>Let us clarify some terms used in a cryptographic system</p>
+<dl>
+<dt>message</dt>
+<dd>The message the piece of information that needs to be communicated between two parties.
+</dd>
+<dt>ciphertext</dt>
+<dd>An encrypted version of the message.
+</dd>
+<dt>secret key</dt>
+<dd>A piece of information that in combination with the message produces the ciphertext
+</dd>
+<dt>cipher</dt>
+<dd>The specific algorithm describing how the message and the key are to be combined to produce the ciphertext.
+</dd>
+<dt>sender</dt>
+<dd>The sender wants to send a message. They instead compute the ciphertext, a process called <strong>encryption</strong>, and send that.
+</dd>
+<dt>receiver</dt>
+<dd>The receiver receives the ciphertext, and reverses the process to obtain the message. This is called <strong>decryption</strong>.
+</dd>
+<dt>attacker</dt>
+<dd>The attacker attempts to determine the message based on the ciphertext. In various settings the attacker has varying capabilities, including asking the sender to encode various messages or trying to send various texts to the receiver and seeing what the receiver does with them.
+</dd>
+</dl>
+<p>A fundamental tenet of modern cryptographic systems is that everything else about the process is known to an attacker, except for the message and the secret key. The attacker gets to see the ciphertext and also has full knowledge of how the message and the secret key were processed to obtain that ciphertext. The attacker then wants to learn the message or the key, and if the system is secure then they should not be able to do so. The converse approach, trying to secure something by hiding the details, is called &quot;security through obscurity&quot;, and is considered a bad and brittle approach.</p>
+<p>The remarkable fact is that mathematics provides us with the means of producing these secure ciphers. Even though an attacker knows perfectly well what the ciphertext is and how it was obtained, they have no way at all to determine the message and key that gave rise to the ciphertext.</p>
+<h4 id="symmetric-key-cryptography">Symmetric Key Cryptography</h4>
+<p>There are various kinds of ciphers. A first fundamental example is that of <em>symmetric key ciphers</em>, also known as <em>private key</em> ciphers. In this situation, there is a <em>common key</em> between the sender and the receiver, somehow agreed upon in advance. This same key is then used for both encryption and decryption.</p>
+<p>These ciphers come in two flavors. The <strong>stream ciphers</strong> operate on one bit of the message at a time. The <strong>block ciphers</strong> on the other hand operate on blocks of bits, typically 64 bit, as a group. Most symmetric key ciphers in use nowadays are block ciphers.</p>
+<p>Popular examples of symmetric key ciphers are DES, AES, RC5 and Blowfish.</p>
+<h4 id="asymmetric-key-cryptography">Asymmetric Key Cryptography</h4>
+<p>The asymmetric key ciphers differ from symmetric key ciphers in that they use two keys. The sender is given a <strong>public key</strong> which they use to encrypt the message, while the receiver has a <strong>private key</strong> that they use to descrypt the ciphertext.</p>
+<p>The advantage of these ciphers is that they do not need for the parties to have had any prior &quot;conversation&quot; (in the symmetric key case the two parties must already share a secret key). The sender simply asks the receiver for their public key, and uses it to send the message.</p>
+<p>Asymmetric ciphers are often used during the &quot;handshake&quot; part of a client-server interaction, to establish a common secret key that the two parties can use for further information exchange via a symmetric cipher. For instance the first time your computer (the client) tries to connect to your bank's web server, they might initiate such an exchange. It might go something like that:</p>
+<ol style="list-style-type: decimal">
+<li>The client asks the server for their public key.</li>
+<li>The server sends the public key back.</li>
+<li>The client then creates a message M that consists of say 256 random bits.</li>
+<li>The client uses the public key to encrypt that message and sends it over to the server.</li>
+<li>The server uses their private key to decrypt the ciphertext and also learn the message M.</li>
+<li>Now both client and server share this secret message M. They can now use it as the secret key for a symmetric cipher, to continue the rest of their conversation.</li>
+</ol>
+<p>The reason you may want to do that is that asymmetric ciphers are a lot slower than symmetric ciphers.</p>
+<p>Asymmetric ciphers often rely on deep mathematical conjectures. For instance the RSA cipher relies on our belief that for two very large prime numbers, if we are only given their product then we cannot recover the numbers.</p>
+<p>Some popular asymmetric ciphers are the RSA, which is used to implement the SSL protocol used for all secure web exchanges (e.g. HTTPS), ElGamal and Diffie-Hellman.</p>
+<p>This system relies on a level of trust when the server sends its public key to the rest of the world. <em>Certificates</em> are used to keep this kind of information somewhat protected. But this is a more complicated topic.</p>
+<p>It's worth pointing out that in the past many of these algorithms were considered state secrets. For instance a popular cipher called PGP was on its release considered a <em>munition</em>, and its creator who released it to the world spent considerable time being accused of arms trafficking violations.</p>
+<h4 id="cryptographic-hash-functions">Cryptographic Hash Functions</h4>
+<p>Cryptographic Hash functions are another tool in our arsenal. They are key-less, in the sense that they do not employ a secret key, and are one-way, in the sense we will describe in a moment.</p>
+<p>A cryptographic hash function (briefly a hash function) turns a message into a much shorter <strong>message digest</strong> or <strong>hash</strong>. The resulting hash has a number of useful properties:</p>
+<ul>
+<li>It is extremely unlikely for two messages to produce the same hash. The hash can therefore act as a verification for the validity of the message.</li>
+<li>Even small changes in the original message result in vastly different hashes.</li>
+<li>It is infeasible to recover any part of the message from the hash.</li>
+<li>Given a hash, it is infeasible to produce a message that would result in that hash.</li>
+</ul>
+<p>NOTE: Hash functions are also used to construct hash tables and dictionaries in many programming languages. These functions do NOT have all the good properties described above.</p>
+<p>Some popular hash functions are MD5, SHA2 and SHA3.</p>
+<p>MD5 in particular is extensively used to validate file downloads. Though it is slowly supplanted by SHA in recent instances. A company that has released a file/executable may provide you with multiple mirrors/locations from which you can download it. But to prevent the possibility that someone might change that executable and corrupt your system they also provide you with the MD5 hash for the executable. You can then run this hash on the downloaded file before executing it, to make sure it matches what the company gave you.</p>
+<h4 id="digital-signatures">Digital Signatures</h4>
+<p>Hash functions along with asymmetric key encryptions can be used to &quot;digitally sign&quot; a document. The server is here the one who wants to send a signed document to the client. The steps are as follows:</p>
+<ol style="list-style-type: decimal">
+<li>The server computes a hash of the document they want to send.</li>
+<li>The server uses their private key to encrypt the hash, then appends the encrypted version to the document.</li>
+<li>The server then sends that document to the client.</li>
+<li>The client takes apart the portion of the document that is the encrypted hash.</li>
+<li>The client uses the public key of the server to decrypt that encrypted hash, and therefore recover the hash that the server had computed.</li>
+<li>The client separately computes the hash of the document that the server sent.</li>
+<li>If the two hashes don't match, that means that someone tampered with the document in transit.</li>
+</ol>
+<p>Digital Signatures thus assure the integrity of the message. If confidentiality is also needed, then we can add a symmetric encryption phase to ensure that as well, though it is important to get the details right and we will not discuss this further here.</p>
+<h4 id="digital-certificates">Digital Certificates</h4>
+<p>Digital Certificates can be used to link a public key to a particular individual or company. Therefore when we need to obtain someone's key, we instead obtain their certificate instead of directly asking them. This prevents so-called man-in-the-middle attacks.</p>
+<p>Digital Certificates are issued by a <strong>Certificate Authority (CA)</strong>, which is a trusted party that digitally signs the certificates using their key. This way we only need to trust the certificate authority, rather than trust each individual or company to give us their true public keys. VeriSign is one such widely used CA.</p>
+<p>There is a larger infrastructure that makes working with public keys effective. It is called a <strong>public key infrastructure</strong>.</p>
+<h3 id="web-serverservice-authentication">Web server/service Authentication</h3>
+<p>In this section we will discuss how to implement web-server authentication.</p>
+<p>TODO</p>
+</body>
+</html>
