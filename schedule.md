@@ -133,6 +133,6 @@ A week-by-week breakdown of the material.
 - Day 1
     - [Security and Authentication](notes/security_auth.md)
 - Day 2
-    - TBA
+    - [Security and Authentication](notes/security_auth.md)
 - Day 3
     - TBA

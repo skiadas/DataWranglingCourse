@@ -5,6 +5,7 @@
 - [The Basics of Information Security](http://learning.acm.org/books/book_detail.cfm?id=2742551&type=elsevier), chapters 1, 2, 3, 5, 10, 12
 - [Web Security](http://learning.acm.org/books/book_detail.cfm?id=2821217&type=24)
 - [Web Application Security: A Beginner's Guide](http://learning.acm.org/books/book_detail.cfm?id=2829333&type=24)
+- [The Open Web Application Security Project (OWASP)](https://www.owasp.org/index.php/Main_Page) has many guidelines for applications.
 - [Foundations of Security](http://learning.acm.org/books/book_detail.cfm?id=1214959&type=24)
 - [Computer and Information Technology Handbook](http://learning.acm.org/books/book_detail.cfm?id=2505467&type=elsevier)
 - [Network and System Security](http://learning.acm.org/books/book_detail.cfm?id=1841673&type=elsevier)
@@ -239,8 +240,51 @@ There is a larger infrastructure that makes working with public keys effective. 
 
 ### Web server/service Authentication
 
-In this section we will discuss how to implement web-server authentication.
+In this section we will discuss how to implement web-server authentication. The most standard system in place is a username-password system, with session information preserved. Typically this consists of the following:
 
-TODO
+1. Users are able to register for accounts by providing a username and password (and often an email address for verification and password recovery).
+2. To access the site, users provide their username and password.
+3. A session is created when users successfully log in. This session is somehow maintained so users don't have to provide their password on every single page.
+4. Users have the option to log out of that session at any time.
+5. Sessions typically time out after a while.
 
+We will discuss how such a system can be implemented, and various gotchas along the way. Here are some things to watch out for:
 
+1. If someone is monitoring the HTTP traffic, they should not be able to see the user's password.
+2. Ideally, someone gaining access to the database should not be able to see the users' passwords.
+3. Session IDs should not contain any sensitive information about the session, and the user should not be able to manipulate them.
+4. An attacker should not be able to obtain a user's session ID and access that user's information.
+
+#### HTTPS
+
+One first key tool is the use of HTTPS instead of HTTP. This adds a number of steps in the process:
+
+1. A "secure transport" system is used, either SSL or TLS, to ensure the confidentiality and integrity of all the information sent back and forth between client and server. This ensures that anyone monitoring the HTTP traffic does not get to see any of the actual content, except more or less for the client and server addresses. You should never have any password submission page that is not HTTPS.
+2. In order for that system to work, at least one of the sides must be using a digital certificate. This is often the server, so HTTPS protocols require a little bit more setup on the server side.
+3. An asymmetric encryption system is used to establish a common secret key, and a symmetric encryption system based on that secret key is then used for all subsequent communications between client and server. This is all negotiated during what is known as the **handshake** phase.
+
+While in some instances HTTPS is used only for the login page, it is preferable to instead use it throughout the site to better protect the session information.
+
+#### Password Management
+
+Another key component is how passwords are being managed.
+
+1. While we could simply store passwords in a database, this is not advisable. Any vulnerability to the database can expose the user's passwords to an attacker.
+2. Instead, we store *hashes* of the passwords using an algorithm like md5. When a user attempts to log in and send us their password, we then compute its hash and compare it to the stored value.
+3. As hashing is one-way, the database never stores a user's password. This is why whenever you report that you have forgotten your password, a new one is generated instead of telling you your password; because the server literally does not know your password.
+4. As most people's passwords tend to have small "entropy" (i.e. the number of different possibilities is not all that big), they are often subject to what **dictionary attacks** or **rainbow table attacks**. To combat this, we often use what is known as a **salt**.
+
+    The salt is a randomly generated sequence of fixed length (say 20 bytes) that we append to the password before hashing. We generate the salt when the user first creates their account, and we store it in the database alongside the username and hashed password. When the user tries to log in later, we recover the salt from the database, combine it with the password the user provided, compute the hash and compare it to the stored hash.
+
+    This adds a bit of randomness to each account. Even if two users have the exact same password, they will have different salts and therefore will produce different hashes.
+
+#### Session management
+
+Session aim to maintain user information across multiple HTTP(S) requests. This is what allows us to not have to log on every single page of a site. In order to achieve that, sessions are created.
+
+1. When a user first logs in, a session is created. We can think of the session as a dictionary of useful and relevant information that should be available to the web page as the user navigate the site. It may include their username, role, expiration time of the session, temporary "shopping cart" type information etc.
+2. A random session ID is generated. That ID is then to be used as the session identity. We store it in a database, alongside the actual data that comprise that session.
+3. We effectively send the session ID back to the user, and when the user moves to the "next page", that ID is sent back to the server so that the server knows what the state of the system is.
+4. This random ID is preferable to storing the various session information on the client side. That approach would potentially make it easier for the user to "change" that information to serve their purposes. But it has the downside that we must maintain a database of active sessions. (This can however be done on an in-memory database like Redis)
+5. In order to prevent a user from trying to type in a session ID and potentially use another user's settings, the server **digitally signs** the session ID. Recall that this entails computing the ID's hash, then encrypting that hash with the server's private key and appending it to the ID before sending the ID back to the client. The server would then only accept IDs that are accompanied by this extra hash bit, which the server can decrypt and compare to the session ID's hash to make sure noone tried to change the hash.
+6. Typically **cookies** are used to communicate the session ID information back and forth. It is important that the cookies are set up as **secure** and **httpOnly**. This ensures that the browser only sends the session information over an HTTP**S** connection, and also does not expose the cookie to the Javascript code running on the page.
