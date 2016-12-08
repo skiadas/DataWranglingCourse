@@ -135,4 +135,4 @@ A week-by-week breakdown of the material.
 - Day 2
     - [Security and Authentication](notes/security_auth.md)
 - Day 3
-    - TBA
+    - [Final study guide](notes/midterm2_study_guide.md)
