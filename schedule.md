@@ -2,10 +2,13 @@
 
 A week-by-week breakdown of the material.
 
+IMPORTANT: This syllabus is revised daily as we move through the material. Notes more than 1 day in the future may be out of date.
+
 ## Week  1 (09/05-09/09)
 
 - Day 1
     - [Introduction, case studies](notes/intro.md)
+    - [Some Python fundamentals](notes/intro_python.md)
 - Day 2
     - [Data Formats](notes/data_formats.md)
 - Day 3

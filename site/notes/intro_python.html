@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="introduction-to-python">Introduction to Python</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">Python Dictionaries</a></li>
+<li><a href="https://docs.python.org/3/library/stdtypes.html#typesmapping">More docs on Python Dictionaries</a></li>
+<li><a href="https://docs.python.org/3/tutorial/datastructures.html">Python Lists</a></li>
+<li><a href="https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences">Python Tuples</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>In this section we will review some of the key Python data structures and describe suitable uses for them. This is not meant to be a complete introduction to Python, but only a refresher of some key ideas, with an emphasis on how information may be stored in Python and the consequences of different storage decisions.</p>
+<h3 id="lists-tuples-and-dictionaries">Lists, Tuples and Dictionaries</h3>
+<p>Regardless of the programming language of choice, there are some common types used when representing data. They come in two flavors:</p>
+<ul>
+<li>Basic types for representing character <em>strings</em>, <em>numbers</em>, <em>dates</em> (some times), <em>boolean</em> values.</li>
+<li>Compound/Container types that can hold many values. The three most important compound types are <em>lists</em>, <em>tuples</em> and <em>dictionaries</em> (often also called <em>maps</em>). Understanding what each of these does and when it is suitable is an important distinction.</li>
+</ul>
+<h4 id="lists">Lists</h4>
+<p>Chances are you are already quite familiar with lists.</p>
+<ul>
+<li>A list contains zero or more elements in a sequence. They can contain an arbitrary number of elements.</li>
+<li>We can iterate over the elements of a list with a <code>for-in</code> loop. Or we can access a specific location if we know its index.</li>
+<li>A list can in theory contain arbitrary elements, though in practice all elements we put in a list will be of the same type (e.g. all numbers).</li>
+<li>We can create a list with the literal notation like <code>[2, 5, 6]</code> or starting with an empty list like <code>list()</code>.</li>
+<li>We can use indexing like <code>x[2]</code> to get at a value in the list (indices start at 0).</li>
+<li>We can add elements to a list using <code>append</code>.</li>
+</ul>
+<p>As a simple example, we could have a list containing the names of all teams in our conference (data obtained from <a href="http://www.heartlandconf.org/" class="uri">http://www.heartlandconf.org/</a>:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">teams <span class="op">=</span> [<span class="st">&quot;HANOVER&quot;</span>, <span class="st">&quot;MOUNT ST. JOSEPH&quot;</span>, <span class="st">&quot;ROSE-HULMAN&quot;</span>,
+         <span class="st">&quot;TRANSYLVANIA&quot;</span>, <span class="st">&quot;ANDERSON&quot;</span>, <span class="st">&quot;BLUFFTON&quot;</span>,
+         <span class="st">&quot;FRANKLIN&quot;</span>, <span class="st">&quot;EARLHAM&quot;</span>, <span class="st">&quot;MANCHESTER&quot;</span>, <span class="st">&quot;DEFIANCE&quot;</span>]
+teams[<span class="dv">2</span>]   <span class="co"># Rose-Hulman</span>
+teams[<span class="dv">2</span>:<span class="dv">4</span>] <span class="co"># A &quot;slice&quot; of entries 2 through 4</span>
+
+<span class="cf">for</span> team <span class="kw">in</span> teams:
+    <span class="bu">print</span>(team)
+
+<span class="co"># Creating a new empty list then copying the elements over</span>
+<span class="co"># This is meant as an example. Do NOT copy lists this way.</span>
+<span class="co"># Use teams.copy() instead.</span>
+teamsCopy <span class="op">=</span> <span class="bu">list</span>()
+<span class="cf">for</span> team <span class="kw">in</span> teams:
+    teamsCopy.append(team)</code></pre></div>
+<h4 id="tuples">Tuples</h4>
+<p>May not have used tuples before, but they are quite useful in putting together heterogeneous but coupled elements.</p>
+<ul>
+<li>A tuple is a sequence of values that has a <em>fixed</em> number of elements, often called its <em>arity</em>.</li>
+<li>The elements in the tuple can be of any type.</li>
+<li>A tuple is &quot;immutable&quot;. We cannot add elements to it or change existing elements.</li>
+<li>Tuples are formed by using parentheses around a set of values separated by commas. For instance: <code>t=(&quot;HANOVER&quot;, 14, 4)</code></li>
+<li>We can access an element in a tuple using index notation: <code>t[0]</code>.</li>
+<li>We can also assign all tuple values to variables at once using multiple assignment, as in the example below.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">t <span class="op">=</span> (<span class="st">&quot;HANOVER&quot;</span>, <span class="dv">14</span>, <span class="dv">4</span>)
+t[<span class="dv">0</span>]   <span class="co"># &lt;-- &quot;HANOVER&quot;</span>
+(name, wins, losses) <span class="op">=</span> t  <span class="co"># multiple assignment</span>
+name, wins, losses <span class="op">=</span> t    <span class="co"># also works</span></code></pre></div>
+<p>As a longer example, we could combine lists and tuples. For example we may have a list of tuples, and process it in a for-in loop with multiple assignment:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">results <span class="op">=</span> [
+    (<span class="st">&quot;HANOVER&quot;</span>, <span class="dv">14</span>, <span class="dv">4</span>), (<span class="st">&quot;MOUNT ST. JOSEPH&quot;</span>, <span class="dv">14</span>, <span class="dv">4</span>), (<span class="st">&quot;ROSE-HULMAN&quot;</span>, <span class="dv">14</span>, <span class="dv">4</span>),
+    (<span class="st">&quot;TRANSYLVANIA&quot;</span>, <span class="dv">12</span>, <span class="dv">6</span>), (<span class="st">&quot;ANDERSON&quot;</span>, <span class="dv">9</span>, <span class="dv">9</span>), (<span class="st">&quot;BLUFFTON&quot;</span>, <span class="dv">8</span>, <span class="dv">10</span>),
+    (<span class="st">&quot;FRANKLIN&quot;</span>, <span class="dv">7</span>, <span class="dv">11</span>), (<span class="st">&quot;EARLHAM&quot;</span>, <span class="dv">6</span>, <span class="dv">12</span>), (<span class="st">&quot;MANCHESTER&quot;</span>, <span class="dv">4</span>, <span class="dv">14</span>),
+    (<span class="st">&quot;DEFIANCE&quot;</span>, <span class="dv">2</span>, <span class="dv">16</span>)
+]
+
+<span class="cf">for</span> team, wins, losses <span class="kw">in</span> results:
+    <span class="bu">print</span>(<span class="st">&quot;</span><span class="sc">%s</span><span class="st">: </span><span class="sc">%d</span><span class="st"> Wins, </span><span class="sc">%d</span><span class="st"> Losses&quot;</span> <span class="op">%</span> (team, wins, losses))
+<span class="co"># Alternative:</span>
+<span class="cf">for</span> <span class="bu">tuple</span> <span class="kw">in</span> results:
+    <span class="bu">print</span>(<span class="st">&quot;</span><span class="sc">%s</span><span class="st">: </span><span class="sc">%d</span><span class="st"> Wins, </span><span class="sc">%d</span><span class="st"> Losses&quot;</span> <span class="op">%</span> <span class="bu">tuple</span>)</code></pre></div>
+<p>Notice the expression <code>&quot;%s: %d Wins, %d Losses&quot; % tuple</code> in the contents of the print statement. This is the use of the percent operator for doing <em>string formating</em>. It has the general form:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">string <span class="op">%</span> values</code></pre></div>
+<p>Where <code>values</code> is a tuple of values whose arity matches the placeholders in the string. Read more about it and other formats in the <a href="https://docs.python.org/3.1/tutorial/inputoutput.html#fancier-output-formatting">input/output</a> section of the Python tutorial.</p>
+<h4 id="dictionariesmaps">Dictionaries/Maps</h4>
+<p>A <em>dictionary</em>, often referred to also as a <em>map</em>, is a structure that associates &quot;keys&quot; with &quot;values&quot;.</p>
+<ul>
+<li>Each key has a unique value corresponding to it.</li>
+<li>Any immutable type can be used as a key. It is common to use strings.</li>
+<li>You can create a dictionary via its literal expression: <code>{ key1: value1, key2: value2 }</code></li>
+<li>You can create an empty dictionary with <code>dict()</code>.</li>
+<li>Elements can be accessed by key indexing, like so: <code>x[&quot;foo&quot;]</code>.</li>
+<li>You can also iterate over the keys and values.</li>
+<li>You can check for the presence of a key in a dictionary with the form: <code>key in dict</code></li>
+<li>You can update the value for a given key or add a new key to a dictionary.</li>
+<li>Typically the values in a dictionary are of the same type, but that is not a requirement.</li>
+</ul>
+<p>For example, we used a tuple earlier to represent the information of a team and their win and loss record. We could instead have used a dictionary:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">team <span class="op">=</span> { <span class="st">&quot;name&quot;</span>: <span class="st">&quot;HANOVER&quot;</span>, <span class="st">&quot;wins&quot;</span>: <span class="dv">14</span>, <span class="st">&quot;losses&quot;</span>: <span class="dv">4</span> }
+team[<span class="st">&quot;name&quot;</span>]     <span class="co"># &lt;-- &quot;HANOVER&quot;</span>
+
+<span class="co"># Iterate over the keys:</span>
+<span class="cf">for</span> key <span class="kw">in</span> team:
+    <span class="bu">print</span>(key, team[key])
+
+<span class="co"># Iterate over key-value pairs:</span>
+<span class="cf">for</span> key, value <span class="kw">in</span> team.items():
+    <span class="bu">print</span>(key, value)</code></pre></div>
+<p>As an example, we could store the teams we worked with earlier in a dictionary, indexed by the team names:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">results <span class="op">=</span> {
+    <span class="st">&quot;HANOVER&quot;</span>: (<span class="st">&quot;HANOVER&quot;</span>, <span class="dv">14</span>, <span class="dv">4</span>),
+    <span class="st">&quot;MOUNT ST. JOSEPH&quot;</span>: (<span class="st">&quot;MOUNT ST. JOSEPH&quot;</span>, <span class="dv">14</span>, <span class="dv">4</span>),
+    <span class="st">&quot;ROSE-HULMAN&quot;</span>: (<span class="st">&quot;ROSE-HULMAN&quot;</span>, <span class="dv">14</span>, <span class="dv">4</span>),
+    <span class="st">&quot;TRANSYLVANIA&quot;</span>: (<span class="st">&quot;TRANSYLVANIA&quot;</span>, <span class="dv">12</span>, <span class="dv">6</span>),
+    <span class="st">&quot;ANDERSON&quot;</span>: (<span class="st">&quot;ANDERSON&quot;</span>, <span class="dv">9</span>, <span class="dv">9</span>),
+    <span class="st">&quot;BLUFFTON&quot;</span>: (<span class="st">&quot;BLUFFTON&quot;</span>, <span class="dv">8</span>, <span class="dv">10</span>),
+    <span class="st">&quot;FRANKLIN&quot;</span>: (<span class="st">&quot;FRANKLIN&quot;</span>, <span class="dv">7</span>, <span class="dv">11</span>),
+    <span class="st">&quot;EARLHAM&quot;</span>: (<span class="st">&quot;EARLHAM&quot;</span>, <span class="dv">6</span>, <span class="dv">12</span>),
+    <span class="st">&quot;MANCHESTER&quot;</span>: (<span class="st">&quot;MANCHESTER&quot;</span>, <span class="dv">4</span>, <span class="dv">14</span>),
+    <span class="st">&quot;DEFIANCE&quot;</span>: (<span class="st">&quot;DEFIANCE&quot;</span>, <span class="dv">2</span>, <span class="dv">16</span>)
+}
+results[<span class="st">&quot;HANOVER&quot;</span>]</code></pre></div>
+<h3 id="an-example">An example</h3>
+<p>As a motivating example, we will consider the following problem: We have stored the text from a certain book in a text file. We will use for our example a transcript of the <em>Tale of Two Cities</em> by Charles Dickens, which can be found in <a href="http://www.textfiles.com/etext/FICTION/2city10.txt">this file</a> provided by the <a href="http://www.textfiles.com/etext/">&quot;E-Texts&quot; website</a>. We would like to process it in a way that would facilitate answering some questions. For example:</p>
+<ul>
+<li>How many words and how many paragraphs are there in the text?</li>
+<li>What words are the most frequent and how often do they appear?</li>
+<li>Same question but for each chapter.</li>
+<li>What are all the places where a specific word appears in the text?</li>
+<li>How often does a specific pair of words appear in the same paragraph?</li>
+<li>Which pairs of words appear most often in the same paragraph?</li>
+</ul>
+<p><strong>Activity</strong>: Discuss how you would represent the text of this book in Python to facilitate answering these questions, using the data structures described above. Present at least three different approaches and discuss advantages and disadvantages of each. Some approaches might make some of the questions easier but other questions harder.</p>
+<h3 id="practice">Practice</h3>
+<ol style="list-style-type: decimal">
+<li>You will store courses that you have taken, identifying the term that you took them on the course prefix (e.g. CS) and your grade as a gpa number. Decide how you would represent this in Python and then make a small list of such courses including at least two different terms and two different prefixes. You can of course make your grades up if you prefer. Store these in a variable called <code>courses</code>.</li>
+<li>Write code that would compute your overall gpa. You need to keep track of a running total as well a number of courses, in order to compute an average at the end.</li>
+<li>Write code that would compute your gpa for each of the prefixes. You may want to use a dictionary or two to store the results.</li>
+<li>Read up on how to sort a list of items in Python, and sort your courses based on grade, starting from the highest.</li>
+</ol>
+</body>
+</html>

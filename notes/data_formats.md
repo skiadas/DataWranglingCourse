@@ -13,7 +13,7 @@
 - [JSON's description](http://json.org/)
 - [Twitter's Rest API](https://dev.twitter.com/rest/public)
 - [Python's JSON support](https://docs.python.org/3/library/json.html)
-- ["Beginning JSON" book](http://learning.acm.org/books/book_detail.cfm?id=2746464&type=24) chapters 4 through 6. Focuses on usage in Javascript.
+- ["Beginning JSON" book](https://www.safaribooksonline.com/library/view/beginning-json/9781484202029/) chapters 4 through 6. Focuses on usage in Javascript.
 
 ### Practice questions on the reading
 
@@ -71,7 +71,7 @@ Binary
   ~ While we will discuss mostly text formats, it is worth mentioning that, especially in the past, data was often communicated via an ad-hoc, often proprietary, format that is rarely human-readable. This was done partly to save space, but the practice is somewhat more rare nowadays. Most image data is still communicated in this form however.
 
 Text
-  ~ Oftentimes our "data" is purely textual, and calling on further analysis. Textual data can appear in any number of formats, from a Word document (docx format) to a plain text file (txt) to the Markdown and RestructuredText that allow some semantic markup of the plain text. We will probably not look much into these.
+  ~ Oftentimes our "data" is purely textual, and calling on further analysis. For example they might be a book or poem, a contract, transcripts of a conversation etc. Textual data can appear in any number of formats, from a Word document (docx format) to a plain text file (txt) to the Markdown and RestructuredText formats that allow some semantic markup of the plain text. We will probably not look much into these.
 
 CSV
   ~ A popular tabular data format is the so-called "comma-separated-format". Information is written in rows, with individual entries in a row seperated by a comma. Double quotes are typically used to identify strings and to allow a comma to appear in the middle of an entry. Tabular data in Excel can be exported in this form.
@@ -87,7 +87,7 @@ JSON
 
 ### JSON
 
-We will focus on JSON and XML, as these are two of the most popular transmission formats. JSON stands for "JavaScript Object Notation", and it is fairly simple. Here is an example JSON document return from a search query to Twitter:
+We will focus on JSON and XML, as these are two of the most popular transmission formats. JSON stands for "JavaScript Object Notation", and it is fairly simple. Here is an example JSON document returned from a search query to Twitter:
 
 ```json
 {

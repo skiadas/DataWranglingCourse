@@ -1,18 +1,22 @@
 # Reference books
 
+## Python
+
+- [Official Python 3 Tutorial](https://docs.python.org/3/tutorial/)
+
 ## Databases
 
-- [Concise Guide to Databases: A Practical Introduction](http://learning.acm.org/books/book_detail.cfm?id=2560109&type=24)
-- [Big Data: Principles and best practices of scalable realtime data systems](http://learning.acm.org/books/book_detail.cfm?id=2717065&type=safari)
-- [Introduction to SQL: Mastering the Relational Database Language](http://learning.acm.org/books/book_detail.cfm?id=1208031&type=safari)
-- [MySQL](http://learning.acm.org/books/book_detail.cfm?id=2484635&type=safari)
-- [Learning SQL](http://learning.acm.org/books/book_detail.cfm?id=1611255&type=safari)
-- [NoSQL distilled](http://learning.acm.org/books/book_detail.cfm?id=2381014&type=safari)
-- [NoSQL For Dummies](http://learning.acm.org/books/book_detail.cfm?id=2829235&type=24)
+- [Concise Guide to Databases: A Practical Introduction](https://acm.skillport.com/skillportfe/main.action#summary/BOOKS/RW$31069:_ss_book:76983)
+- [Big Data: Principles and best practices of scalable realtime data systems](https://www.safaribooksonline.com/library/view/big-data-principles/9781617290343/)
+- [Introduction to SQL: Mastering the Relational Database Language](https://www.safaribooksonline.com/library/view/introduction-to-sql/0321305965/)
+- [MySQL](https://www.safaribooksonline.com/library/view/mysql-fifth-edition/9780133038552/)
+- [Learning SQL](https://www.safaribooksonline.com/library/view/learning-sql-2nd/9780596801847/)
+- [NoSQL distilled](https://www.safaribooksonline.com/library/view/nosql-distilled-a/9780133036138/)
+- [NoSQL For Dummies](https://acm.skillport.com/skillportfe/main.action#summary/BOOKS/RW$37281:_ss_book:80726)
 
 ## Data formats
 
-- [Beginning JSON](http://learning.acm.org/books/book_detail.cfm?id=2746464&type=24)
-- [Beginning XML](http://learning.acm.org/books/book_detail.cfm?id=2408362&type=24)
-- [XML in a Nutshell](http://learning.acm.org/books/book_detail.cfm?id=2167284&type=safari)
-- [RESTful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari)
+- [Beginning JSON](https://www.safaribooksonline.com/library/view/beginning-json/9781484202029/)
+- [Beginning XML](https://www.safaribooksonline.com/library/view/beginning-xml-5th/9781118239483/)
+- [XML in a Nutshell](https://www.safaribooksonline.com/library/view/xml-in-a/0596007647/)
+- [RESTful Web Services](https://www.safaribooksonline.com/library/view/restful-web-services/9780596529260/)
