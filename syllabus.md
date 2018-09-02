@@ -15,7 +15,7 @@ Office
   ~ SCH 111 / LYN 108
 
 Office Hours
-  ~ MWF 9:30am-10:30am, and by appointment
+  ~ MWF 9:30am-10:30am in SCH 111, and by appointment
 
 Book
   ~ [online ACM resources](http://learning.acm.org)
@@ -59,6 +59,8 @@ In the [class schedule page](skiadas.github.io/DataWranglingCourse/site/schedule
 ### Class Participation
 
 You are expected to attend every class meeting. You are only allowed to miss 3 classes without excuse. From that point on, every unexcused absence will result in a reduction of your final score by one percentage point, up to a total of 5 points. Excused absences should be arranged in advance, and backed by appropriate documentation. Emergencies will be dealt with on an individual basis. There are very few reasons that would qualify as an excuse for an absence.
+
+There will also be numerous in-class group activities that you will be expected to participate in.
 
 ### Lab Assignments
 
