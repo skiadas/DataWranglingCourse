@@ -53,18 +53,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1 id="data-formats">Data Formats</h1>
 <h2 id="reading-references">Reading / References</h2>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/Character_encoding">Character Encodings Wikipedia page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Unicode">Wikipedia page on Unicode</a></li>
-<li><a href="https://en.wikipedia.org/wiki/UTF-8">Wikipedia page on UTF-8</a></li>
+<li><a href="http://unicode.org/faq/utf_bom.html">UTF FAQ</a></li>
 <li><a href="http://net-informations.com/q/faq/encoding.html">Brief explanation of ASCII and Unicode encodings</a></li>
 <li><a href="http://www.asciitable.com/">ASCII Table</a></li>
-<li><a href="http://unicode.org/faq/utf_bom.html">UTF FAQ</a></li>
 <li><a href="http://www.unicodemap.org/">Unicode Map</a></li>
 <li><a href="https://docs.python.org/3/howto/unicode.html">Python's Unicode support</a></li>
 <li><a href="http://json.org/">JSON's description</a></li>
-<li><a href="https://dev.twitter.com/rest/public">Twitter's Rest API</a></li>
 <li><a href="https://docs.python.org/3/library/json.html">Python's JSON support</a></li>
 <li><a href="https://www.safaribooksonline.com/library/view/beginning-json/9781484202029/">&quot;Beginning JSON&quot; book</a> chapters 4 through 6. Focuses on usage in Javascript.</li>
+<li><a href="https://dev.twitter.com/rest/public">Twitter's Rest API</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Character_encoding">Character Encodings Wikipedia page</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Unicode">Wikipedia page on Unicode</a></li>
+<li><a href="https://en.wikipedia.org/wiki/UTF-8">Wikipedia page on UTF-8</a></li>
 </ul>
 <h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
 <ul>
@@ -86,7 +86,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2 id="notes">Notes</h2>
 <p>When trying to read or write data, there are a number of considerations:</p>
 <ul>
-<li><strong>Communication</strong> with the data source or target. This typically involves some established data transmission protocol, for instance HTTP which we will touch on later. It may also includes questions of authentication and authorization.
+<li><strong>Communication</strong> with the data source or target. This typically involves some established data transmission protocol, for instance HTTP which we will touch on later. It may also include questions of authentication and authorization.
 <ul>
 <li><strong>Authentication</strong> establishes that the requester is who they say they are.</li>
 <li><strong>Authorization</strong> establishes whether the requester has the necessary credentials to access the given resource.</li>
@@ -98,8 +98,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h3 id="character-encoding">Character Encoding</h3>
 <p>Character encodings allow us to associate characters to numbers that can then be stored in a computer.</p>
 <p>One of the earliest standards in that regard is <strong>ASCII</strong>, which represents 128 different characters with 7 bits. That space is enough to fit both lowercase and uppercase letters of the alphabet, as well as numbers and most common punctuation marks. It also includes a number of common &quot;control codes&quot; to describe key operations, like &quot;carriage return&quot; and &quot;new line&quot; for starting a new line, or a control code for &quot;backspace&quot;. Effectively every time you type something in your keyboard, it gets converted to a corresponding ASCII character.</p>
-<p>Even though this encoding standardized matters for a little while, it was very limited as computers spread around the world. There was a need to accomodate various languages and alphabets, and the 128 characters of ASCII were terribly insufficient. A number of encoding evolved at this time, each extending the ASCII encoding in some way, many simply by the addition of one more bit for 256 different characters and 128 new characters, enough to accomodate the alphabet of a new language. If you look at the Encoding menu of the View menu in your browser, you will see the proliferation of possible encoding formats. This was clearly a nightmare in terms of communication. The same file when opened in a computer in France might look very different than the same file opened in a computer in Germany under a different encoding.</p>
+<p>In Python, you can use the functions <code>ord</code> and <code>chr</code> to go back and forth between an ASCII character and its corresponding number. For example, the character <code>'a'</code> corresponds to the number 97, often written in hexadecimal form as <code>0x61</code>:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">ord</span>(<span class="st">&#39;a&#39;</span>)             <span class="co"># &lt;-- 97</span>
+<span class="bn">0x61</span>                 <span class="co"># &lt;-- 97</span>
+<span class="bu">chr</span>(<span class="dv">97</span>)              <span class="co"># &lt;-- &#39;a&#39;</span>
+<span class="bu">chr</span>(<span class="bu">ord</span>(<span class="st">&#39;a&#39;</span>) <span class="op">+</span> <span class="dv">3</span>)    <span class="co"># &lt;-- &#39;d&#39;</span>
+<span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>,<span class="dv">26</span>):
+  <span class="bu">print</span>(<span class="bu">chr</span>(<span class="dv">97</span> <span class="op">+</span> i))</code></pre></div>
+<p>Even though this encoding standardized matters for a little while, it was very limited as computers spread around the world. There was a need to accomodate various languages and alphabets, and the 128 characters of ASCII were terribly insufficient. A number of encodings evolved at this time, each extending the ASCII encoding in some way, many simply by the addition of one more bit for a total of 256 different characters and 128 new characters, enough to accomodate the alphabet of a new language. If you search for various encodings online, you will see the proliferation of possible encoding formats. This was clearly a nightmare in terms of communication. The same file when opened in a computer in France might look very different compared to the same file opened in a computer in Germany under a different encoding.</p>
 <p>Around 1988 efforts to provide a unified access to all the world's alphabets started, and evolved into what we now know as Unicode and its various encodings. The <strong>Unicode</strong> standard describes &quot;codes&quot; (numbers) for over 128,000 characters, including most of the world's alphabets as well as numerous special symbols from currency to emojis. The space has room for more characters in the future, and various committees are working on doing just that (see for instance <a href="http://unicode.org/emoji/charts/full-emoji-list.html">Unicode emoji</a>).</p>
+<p><strong>Practice</strong> The unicode space uses 21 bits. How many different characters can it represent?</p>
 <p>These &quot;codes&quot; can then be mapped in a variety of ways into actual bytes, which can then be transmitted between computers. This is achieved in a variety of ways, referred to as &quot;Unicode Transfer Formats&quot;. The most common of these format is called UTF-8. Some if its key features are:</p>
 <ul>
 <li>It uses only 1 byte to represent all ASCII characters. In that sense it is a strict extension of ASCII and can accomodate all ASCII documents without change.</li>
@@ -107,12 +115,15 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>It uses 3 bytes for some of the more extended alphabets, including all Chinese, Japanese and Korean characters.</li>
 <li>4 bytes are used for other symbols, for instance numerous mathematical symbols, emojis, other notations.</li>
 </ul>
-<p>UTF-8 is by far the most commonly used encoding. Almost every resource you find will be in that format. But it is important to be aware of the alternatives.</p>
+<p>UTF-8 is by far the most commonly used encoding. Almost every resource you find will be in that format, including over 90% of webpage content. But it is important to be aware of the alternatives.</p>
+<p>In Python, <code>chr</code> (or <code>unichr</code> on version 2), can return the unicode character represented by a given number:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">chr</span>(<span class="bn">0x2194</span>)   <span class="co">#  &lt;-- returns a double-sided arrow symbol.</span></code></pre></div>
+<p>In general, in Python 3 all strings are automatically considered to be in unicode encoding, more specifically UTF-8. But when reading from a file, it is still often required that you specify the encoding to be used.</p>
 <h3 id="data-formats-1">Data Formats</h3>
 <p>The resulting textual data might be in any number of different formats. Being able to read and process all (most) of these formats is paramount, and most programming languages offer ready access via numerous libraries. Here is just a small collection of the different formats that your data might come in.</p>
 <dl>
 <dt>Binary</dt>
-<dd>While we will discuss mostly text formats, it is worth mentioning that, especially in the past, data was often communicated via an ad-hoc, often proprietary, format that is rarely human-readable. This was done partly to save space, but the practice is somewhat more rare nowadays. Most image data is still communicated in this form however.
+<dd>While we will discuss mostly text formats, it is worth mentioning that, especially in the past, data was often communicated via an ad-hoc, often proprietary, format that is rarely human-readable. This was done partly to save space, but the practice is somewhat more rare nowadays. Most image data is still communicated in this form however. Try to open an image file in your favorite text editor one day. Excel files used to follow such a binary format until recent years, when an XML format started being in use (the <code>xlsx</code> extension).
 </dd>
 <dt>Text</dt>
 <dd>Oftentimes our &quot;data&quot; is purely textual, and calling on further analysis. For example they might be a book or poem, a contract, transcripts of a conversation etc. Textual data can appear in any number of formats, from a Word document (docx format) to a plain text file (txt) to the Markdown and RestructuredText formats that allow some semantic markup of the plain text. We will probably not look much into these.
@@ -121,17 +132,17 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <dd>A popular tabular data format is the so-called &quot;comma-separated-format&quot;. Information is written in rows, with individual entries in a row seperated by a comma. Double quotes are typically used to identify strings and to allow a comma to appear in the middle of an entry. Tabular data in Excel can be exported in this form.
 </dd>
 <dt>HTML</dt>
-<dd>Quite often our data is actually the information in a web page document. We'll need to ways to delve into such a document and extract key pieces of information.
+<dd>Quite often our data is actually the information in a web page document. We'll learn ways to delve into such a document and extract key pieces of information.
 </dd>
 <dt>XML</dt>
 <dd>A fairly popular structured data format where tags are used, similar to HTML, to convey information.
 </dd>
 <dt>JSON</dt>
-<dd>A popular loosely-structured data transmision format, inspired by Javascript's syntax for objects. It is extensively used these days, and we will delve more into it in the future.
+<dd>A popular loosely-structured data transmision format, inspired by Javascript's syntax for objects. It is extensively used these days, and we will now delve more into it.
 </dd>
 </dl>
 <h3 id="json">JSON</h3>
-<p>We will focus on JSON and XML, as these are two of the most popular transmission formats. JSON stands for &quot;JavaScript Object Notation&quot;, and it is fairly simple. Here is an example JSON document returned from a search query to Twitter:</p>
+<p>We will focus on JSON and XML, as these are two of the most popular transmission formats. They are both used to represented hierarchical structures. JSON stands for &quot;JavaScript Object Notation&quot;, and it is fairly simple. Here is an example JSON document returned from a search query to Twitter:</p>
 <div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
    <span class="dt">&quot;search_metadata&quot;</span><span class="fu">:</span> <span class="fu">{</span>
       <span class="dt">&quot;completed_in&quot;</span><span class="fu">:</span> <span class="fl">0.032</span><span class="fu">,</span>
@@ -161,16 +172,24 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="fu">}</span></code></pre></div>
 <p>Briefly:</p>
 <ul>
-<li>A JSON document consists of an &quot;object&quot;, indicated by an open and close brace.</li>
-<li>The object consists of a series of key-value pairs, where the key is some string in quotes, and the value can be a:</li>
-<li>number</li>
-<li>string</li>
-<li>array indicated by square brackets, whose elements are in turn any of the types listed here</li>
-<li>object</li>
+<li>A JSON document consists of an &quot;object&quot;, indicated by an open-close pair of curly braces.</li>
+<li>The object consists of a series of key-value pairs, where the key is some string in quotes, and the value can be:</li>
+<li>the keyword <code>null</code></li>
+<li>a number</li>
+<li>a string</li>
+<li>an array indicated by square brackets, whose elements are in turn any of the types listed here</li>
+<li>another object</li>
 </ul>
 <p>In the above example, we see that the top level object contains two entries, with keys &quot;search_metadata&quot; and &quot;statuses&quot;. The former's value is an object, and the latter's value is an array.</p>
 <p>And that's it! The format is intentionally kept simple. For an application to make use of such information, it would need to know what the possible keys are and what the corresponding values mean. This is often described as the API. Twitter's API describes all these entries in detail. It is worth a look. We will examine it closely during our first lab assignment.</p>
 <p>Those familiar with Javascript will recognize the above syntax, as we can create literal objects that way. And this is correct. JSON is however a bit more strict about the format.</p>
+<p><strong>Practice</strong>: Write a JSON object that contains the following:</p>
+<ul>
+<li>Your email login.</li>
+<li>Your first and last name.</li>
+<li>Your year in college.</li>
+<li>A list of the courses you are enrolled in, each course containing the information of its department code, its number, its name, and your grade.</li>
+</ul>
 <h3 id="xml">XML</h3>
 <p>XML, standing for eXtensible Markup Language, was a major effort to standardize data description and transmission with a format similar to HTML.</p>
 <ul>
@@ -223,6 +242,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
    <span class="kw">&lt;/book&gt;</span>
    ...
 <span class="kw">&lt;/catalog&gt;</span></code></pre></div>
-<p>There are various documents describing what tags to use depending on the situation, and there are many standards that focus on particular usage. This is a topic we will revisit later. For now note that XML is somewhat more &quot;verbose&quot; than JSON, with the opening and closing of all tags. It also does not readily provide arrays, though the contents of a tag are in effect a sort of list.</p>
+<p>There are various documents describing what tags to use depending on the situation, and there are many standards that focus on particular usage. This is a topic we may revisit later. For now note that XML is somewhat more &quot;verbose&quot; than JSON, with the opening and closing of all tags. It also does not readily provide arrays, though the contents of a tag are in effect a sort of list. But at the same time it offers a more diverse way of associating tags/names to bits of information. For example the <code>id=&quot;...&quot;</code> attributes used above are at a different level than the <code>author</code> tags below, they are literally a part of the opening tag. Under different conventions we could have written those instead as children tags like <code>&lt;id&gt;bk104&gt;&lt;/id&gt;</code>.</p>
+<p><strong>Practice</strong>: Write an XML that would represent the same information you wrote earlier for JSON.</p>
 </body>
 </html>

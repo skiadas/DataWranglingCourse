@@ -2,7 +2,7 @@
 
 A week-by-week breakdown of the material.
 
-IMPORTANT: This syllabus is revised daily as we move through the material. Notes more than 1 day in the future may be out of date.
+IMPORTANT: This schedule is revised daily as we move through the material. Notes more than 1 day in the future may be out of date.
 
 ## Week  1 (09/05-09/09)
 
@@ -11,14 +11,15 @@ IMPORTANT: This syllabus is revised daily as we move through the material. Notes
     - [Some Python fundamentals](notes/intro_python.md)
 - Day 2
     - [Data Formats](notes/data_formats.md)
+    - [List Comprehensions](notes/list_comprehensions.md)
 - Day 3
+    - [List Comprehensions (cont)](notes/list_comprehensions.md)
     - [Reading JSON from Python](notes/json_python.md)
-    - [Assignment 1: Working with JSON data](assignments/1.md)
 
 ## Week  2 (09/12-09/16)
 
 - Day 1
-    - [List Comprehensions](notes/list_comprehensions.md)
+    - [Assignment 1: Working with JSON data](assignments/1.md)
     - [Introduction to Web APIs and Web Services](notes/web_apis.md)
 - Day 2
     - [RESTful design](notes/rest.md)

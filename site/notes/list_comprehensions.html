@@ -53,8 +53,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1 id="pythons-list-comprehensions">Python's List Comprehensions</h1>
 <h2 id="reading-references">Reading / References</h2>
 <ul>
-<li><a href="https://docs.python.org/2/tutorial/datastructures.html#tut-listcomps">List comprehensions in Python's docs</a> for processing lists</li>
-<li><a href="http://www.secnetix.de/olli/Python/list_comprehensions.hawk">Some list comprehension examples</a></li>
+<li><a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions">List comprehensions in Python's docs</a> for processing lists</li>
 <li><a href="http://treyhunner.com/2015/12/python-list-comprehensions-now-in-color/">Visual explanation of list comprehensions</a></li>
 <li><a href="http://python-3-patterns-idioms-test.readthedocs.io/en/latest/Comprehensions.html">Even more examples of list comprehensions</a></li>
 </ul>
@@ -64,67 +63,98 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h3 id="simple-list-comprehensions">Simple list comprehensions</h3>
 <p>The simplest list comprehensions involve doing something simple with each element in the list. For instance if we have words, we could use a list comprehension to make them all uppercase:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">words <span class="op">=</span> [<span class="st">&quot;The&quot;</span>, <span class="st">&quot;big&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;Wolf&quot;</span>]
-uppers <span class="op">=</span> [ word.upper() <span class="cf">for</span> word <span class="op">in</span> words ]</code></pre></div>
-<p>Every list comprehension can be done via a for loop, just not as elegantly. So the above list comprehension could be written as:</p>
+uppers <span class="op">=</span> [ word.upper() <span class="cf">for</span> word <span class="kw">in</span> words ]</code></pre></div>
+<p>Don't confuse the brackets in the second line with the literal list construction of the first line. The brackets on the second line form a <em>list comprehension</em>, which in its simplest form has the following shape (where the angle-bracketed elements are variable):</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[<span class="op">&lt;</span>expression<span class="op">&gt;</span> <span class="cf">for</span> <span class="op">&lt;</span>x<span class="op">&gt;</span> <span class="kw">in</span> <span class="op">&lt;</span><span class="bu">list</span><span class="op">&gt;</span>]</code></pre></div>
+<p>This syntax expresses that a new list should be created by evaluating the <code>expression</code> once for each possible value of <code>x</code> taken from the <code>list</code>.</p>
+<p>Every list comprehension can be done via a <code>for-in</code> loop, just not as elegantly. So the above list comprehension could be written as:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">uppers <span class="op">=</span> []
-<span class="cf">for</span> word <span class="op">in</span> words:
+<span class="cf">for</span> word <span class="kw">in</span> words:
     uppers.append(word.upper())</code></pre></div>
 <p>Whenever you see a list comprehension, it essentially corresponds to some analogous &quot;for&quot; expression.</p>
 <p>Here is a variation that replaces each word with a pair of the word in capitals and its length:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">words <span class="op">=</span> [<span class="st">&quot;The&quot;</span>, <span class="st">&quot;big&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;Wolf&quot;</span>]
 pairs <span class="op">=</span> [
     [word.upper(), <span class="bu">len</span>(word)]
-    <span class="cf">for</span> word <span class="op">in</span> words
+    <span class="cf">for</span> word <span class="kw">in</span> words
 ]
 <span class="co"># Reading back the lengths from those pairs:</span>
-lengths <span class="op">=</span> [ p[<span class="dv">1</span>] <span class="cf">for</span> p <span class="op">in</span> pairs ]</code></pre></div>
+lengths <span class="op">=</span> [ p[<span class="dv">1</span>] <span class="cf">for</span> p <span class="kw">in</span> pairs ]</code></pre></div>
 <p>Practice problem: Work the same thing out via a &quot;for&quot; loop.</p>
+<p>List comprehensions are often just the first step in further processing. For example, we could use a list comprehension to get the lengths of the words in the list, then use the <code>sum</code> function to add up those lengths:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">lengths <span class="op">=</span> [<span class="bu">len</span>(word) <span class="cf">for</span> word <span class="kw">in</span> words]
+totalLength <span class="op">=</span> <span class="bu">sum</span>(lengths)</code></pre></div>
 <h3 id="filters">Filters</h3>
 <p>One neat feature of list comprehensions is that they allow you to filter the results in a suitable way. So imagine we wanted to collect all numbers from 1 to 20 that are odd, and square them. We could write:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">numbers <span class="op">=</span> []
-<span class="cf">for</span> n <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>):
+<span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>):
     <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span>:
         numbers.append(n <span class="op">*</span> n)</code></pre></div>
 <p>Instead we could do this via a list comprehension:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">numbers <span class="op">=</span> [ n <span class="cf">for</span> n <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>) <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span> ]
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">numbers <span class="op">=</span> [ n <span class="op">*</span> n <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>) <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span> ]
 <span class="co"># Or expanded:</span>
 numbers <span class="op">=</span> [
     n <span class="op">*</span> n
-    <span class="cf">for</span> n <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>)
+    <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>)
     <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span>
 ]</code></pre></div>
+<h4 id="practice">Practice</h4>
+<ol style="list-style-type: decimal">
+<li>Write a list comprehension that returns all numbers from 1 to 100 that produce a remainder of 3 when divided by 13.</li>
+<li>Write a list comprehension that is given a list of words and appends at the end of each word a space followed by the length. So the word <code>&quot;art&quot;</code> will become <code>&quot;art 3&quot;</code>.</li>
+<li>A string can be used as the &quot;list&quot; in a list comprehension, and it will then be treated as a list of its characters. Use this idea to start from a string and return a list of the ASCII/UTF8 codes for the characters in the string.</li>
+</ol>
 <h3 id="some-more-intricate-examples">Some more intricate examples</h3>
-<p>We will look at two more complicated examples. The one involves nested loops. Imagine for instance that we had a list of lists of numbers, and we wanted to flatten it all into a single list. One way to do this would be via a nested loop, the other would be via a list comprehension:</p>
+<p>We will look at two more complicated examples. The first involves nested loops. Imagine for instance that we had a list of lists of numbers, and we wanted to flatten it all into a single list. One way to do this would be via a nested loop, the other would be via a list comprehension:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">nums <span class="op">=</span> [[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]]
 <span class="co"># Via nested loop</span>
 result <span class="op">=</span> []
-<span class="cf">for</span> row <span class="op">in</span> nums:
-    <span class="cf">for</span> n <span class="op">in</span> row:
+<span class="cf">for</span> row <span class="kw">in</span> nums:
+    <span class="cf">for</span> n <span class="kw">in</span> row:
         result.append(n)
 <span class="co"># Via list comprehension:</span>
-result <span class="op">=</span> [ n <span class="cf">for</span> row <span class="op">in</span> nums <span class="cf">for</span> n <span class="op">in</span> row ]</code></pre></div>
+result <span class="op">=</span> [
+    n
+    <span class="cf">for</span> row <span class="kw">in</span> nums
+    <span class="cf">for</span> n <span class="kw">in</span> row
+]</code></pre></div>
+<p>So each subsequent <code>for-in</code> generator will happen within each case of the previous generators. So for every <code>row</code> in the <code>nums</code> list and every number <code>n</code> in that <code>row</code>, we read that number.</p>
 <p>Here is a more complicated example for finding all &quot;Pythagorian triples&quot; up to 100. A Pythagorian triple is three integers x, y, z such the squares of x and y add up to the squares of z. Here is how that might look via a list comprehension:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">triples <span class="op">=</span> [
     [x, y, z]
-    <span class="cf">for</span> x <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
-    <span class="cf">for</span> y <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
-    <span class="cf">for</span> z <span class="op">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
+    <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
+    <span class="cf">for</span> y <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
+    <span class="cf">for</span> z <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">101</span>)
     <span class="cf">if</span> x<span class="op">*</span>x <span class="op">+</span> y<span class="op">*</span>y <span class="op">==</span> z<span class="op">*</span>z
 ]</code></pre></div>
 <h3 id="dictionary-comprehensions">Dictionary comprehensions</h3>
 <p>A list comprehension can actually produce a dictionary instead. Here is an example where for each string in the list of words earlier we create a key in the dictionary, whose value is the length:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">{
     word: <span class="bu">len</span>(word)
-    <span class="cf">for</span> word <span class="op">in</span> words
+    <span class="cf">for</span> word <span class="kw">in</span> words
 }</code></pre></div>
-<p>If <code>tweets</code> is the list of tweets we are working with, here is a complex comprehension with a list and objects in it:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
-    {
-        <span class="st">&quot;text&quot;</span>: tweet[<span class="st">&#39;text&#39;</span>],
-        <span class="co">&quot;author&quot;</span>: tweet[<span class="st">&#39;user&#39;</span>][<span class="st">&#39;screen_name&#39;</span>]
-    }
-    <span class="cf">for</span> tweet <span class="op">in</span> tweets
-]</code></pre></div>
-<p>This results in a list of dictionaries, one for each tweet, containing the text and author information.</p>
+<h3 id="practice-1">Practice</h3>
+<ol style="list-style-type: decimal">
+<li>Start with a list of strings, and produce instead a single list containing all the individual characters.</li>
+<li><p>You provided a JSON representation of students earlier. It looked in general like so:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">{
+    <span class="st">&quot;login&quot;</span>: <span class="st">&quot;...&quot;</span>,
+    <span class="st">&quot;first&quot;</span>: <span class="st">&quot;...&quot;</span>,
+    <span class="st">&quot;last&quot;</span>: <span class="st">&quot;...&quot;</span>,
+    <span class="st">&quot;courses&quot;</span>: [
+        {
+            <span class="st">&quot;dept&quot;</span>: <span class="st">&quot;CS&quot;</span>,
+            <span class="st">&quot;name&quot;</span>: <span class="st">&quot;...&quot;</span>,
+            ...
+        },
+        ...
+    ]
+}</code></pre></div>
+Starting with a list of such objects as input, use a list comprehension to create a list that contains pairs <code>(login, number)</code> for each student and the number of courses the student has.</li>
+<li>Instead of a list comprehension, now use a dictionary comprehension where the logins will be the dictionary keys and the number of courses will be the corresponding values.</li>
+<li>With the same input as in problem 2, use a list comprehension to create a list of pairs <code>(login, coursename)</code> for each course a student is enrolled in.</li>
+<li>Starting with two lists of numbers, use a list comprehension to produce all possible sums of numbers, one from each list.</li>
+<li><p>Starting with a list of numbers, use a list comprehension to produce a list of strings, each string consisting of a number of asterisks equal to the corresponding number (multiplying a string with a number returns that string replicated that many times).</p></li>
+</ol>
 </body>
 </html>

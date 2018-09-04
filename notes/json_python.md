@@ -76,7 +76,7 @@ In this section we will discuss the process of accessing JSON information as ser
     # As you read through the twitter API, you'll find more possibilities
     req_url = base_url + page + '?q=%40HanoverCollege'
     ```
-6. We the perform a request, and process the result as JSON:
+6. We then perform a request, and process the result as JSON:
 
     ```python
     # We perform a request. Contains standard HTTP information
