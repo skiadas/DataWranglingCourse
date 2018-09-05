@@ -117,7 +117,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul>
 <p>UTF-8 is by far the most commonly used encoding. Almost every resource you find will be in that format, including over 90% of webpage content. But it is important to be aware of the alternatives.</p>
 <p>In Python, <code>chr</code> (or <code>unichr</code> on version 2), can return the unicode character represented by a given number:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">chr</span>(<span class="bn">0x2194</span>)   <span class="co">#  &lt;-- returns a double-sided arrow symbol.</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">chr</span>(<span class="bn">0x2194</span>)   <span class="co">#  &lt;-- returns a double-sided arrow symbol.</span>
+<span class="bu">chr</span>(<span class="bn">0x1f600</span>)  <span class="co">#  &lt;-- smile!</span></code></pre></div>
 <p>In general, in Python 3 all strings are automatically considered to be in unicode encoding, more specifically UTF-8. But when reading from a file, it is still often required that you specify the encoding to be used.</p>
 <h3 id="data-formats-1">Data Formats</h3>
 <p>The resulting textual data might be in any number of different formats. Being able to read and process all (most) of these formats is paramount, and most programming languages offer ready access via numerous libraries. Here is just a small collection of the different formats that your data might come in.</p>

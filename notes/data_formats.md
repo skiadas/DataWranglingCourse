@@ -78,6 +78,7 @@ UTF-8 is by far the most commonly used encoding. Almost every resource you find 
 In Python, `chr` (or `unichr` on version 2), can return the unicode character represented by a given number:
 ```python
 chr(0x2194)   #  <-- returns a double-sided arrow symbol.
+chr(0x1f600)  #  <-- smile!
 ```
 In general, in Python 3 all strings are automatically considered to be in unicode encoding, more specifically UTF-8. But when reading from a file, it is still often required that you specify the encoding to be used.
 
