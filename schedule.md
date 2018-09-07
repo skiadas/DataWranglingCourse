@@ -11,9 +11,8 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Some Python fundamentals](notes/intro_python.md)
 - Day 2
     - [Data Formats](notes/data_formats.md)
-    - [List Comprehensions](notes/list_comprehensions.md)
 - Day 3
-    - [List Comprehensions (cont)](notes/list_comprehensions.md)
+    - [List Comprehensions](notes/list_comprehensions.md)
     - [Reading JSON from Python](notes/json_python.md)
 
 ## Week  2 (09/12-09/16)

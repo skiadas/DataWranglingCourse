@@ -22,7 +22,7 @@ In this section we will discuss the process of accessing JSON information as ser
 ### Preparing the request
 
 1. Create an appropriate "application account" for the service you want to use, if that service requires something like that. For Twitter in particular you would go to [https://apps.twitter.com/](https://apps.twitter.com/). You will need to create a Twitter account first, and then create a new "application".
-2. The application will typically provide you with a "key" and a "secret". In Twitter you will need to go to your specific application's page, and look at the "keys and access tokens" page. While you are there, you may want to also alter the access level to be "read only".
+2. The application will typically provide you with a "key" and a "secret". In Twitter you will need to go to your specific application's page, and look at the "keys and access tokens" page. While you are there, you may want to also alter the access level to be "read only", meaning that your application is not permitted to post new tweets, only to read existing tweets.
 3. You need to store these pieces of information in a location that can be accessed by your scripts, but that is otherwise not visible to the world. A good way to do that is to create a JSON file in your work directory, that your scripts can access. We will call ours `keys.json`, and this is how it would look:
 
     ```json
@@ -74,7 +74,7 @@ In this section we will discuss the process of accessing JSON information as ser
 
     # Depending on the query we are interested in, we append the necessary string
     # As you read through the twitter API, you'll find more possibilities
-    req_url = base_url + page + '?q=%40HanoverCollege'
+    req_url = base_url + page + '?q=%40HanoverCollege&tweet_mode=extended'
     ```
 6. We then perform a request, and process the result as JSON:
 
@@ -106,26 +106,19 @@ The `search_metadata` entry contains information about the search performed. It 
 Ok so that is a list. We could access the first element and take a look at it:
 
 ```python
-type(results['statuses'][0])
-<class 'dict'>
->>> results['statuses'][0].keys()
-dict_keys(['in_reply_to_status_id_str', 'source', 'possibly_sensitive', 'user', 'metadata', 'retweet_count', 'text', 'favorited', 'geo', 'retweeted', 'favorite_count', 'place', 'quoted_status_id', 'quoted_status_id_str', 'id', 'entities', 'id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str', 'in_reply_to_screen_name', 'coordinates', 'is_quote_status', 'truncated', 'contributors', 'lang', 'created_at', 'in_reply_to_status_id', 'quoted_status'])
+type(results['statuses'][0])   # It's a dictionary
+results['statuses'][0].keys()  # Its keys
 ```
 
 Ok that is a dictionary, and we can look at its keys, and it seems there are a number of possibilities there. For example we can access the tweet's text via:
-
 ```python
->>> results['statuses'][0]['text']
-'@HanoverPanthers @HanoverCollege @StudentLifeHC @HanoverBooks  https://t.co/HguFqFRONz'
+results['statuses'][0]['full_text']
 ```
 
-Or we can see if someone has retweeded or favorited it:
-
+Or we can see if someone has retweeted or favorited it:
 ```python
->>> results['statuses'][0]['retweeted']
-False
->>> results['statuses'][0]['favorited']
-False
+results['statuses'][0]['retweeted']
+results['statuses'][0]['favorited']
 ```
 
 The possibilities are endless. Most of the times you would want to iterate over the statuses list:

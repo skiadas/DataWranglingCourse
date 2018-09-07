@@ -71,7 +71,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h3 id="preparing-the-request">Preparing the request</h3>
 <ol style="list-style-type: decimal">
 <li>Create an appropriate &quot;application account&quot; for the service you want to use, if that service requires something like that. For Twitter in particular you would go to <a href="https://apps.twitter.com/" class="uri">https://apps.twitter.com/</a>. You will need to create a Twitter account first, and then create a new &quot;application&quot;.</li>
-<li>The application will typically provide you with a &quot;key&quot; and a &quot;secret&quot;. In Twitter you will need to go to your specific application's page, and look at the &quot;keys and access tokens&quot; page. While you are there, you may want to also alter the access level to be &quot;read only&quot;.</li>
+<li>The application will typically provide you with a &quot;key&quot; and a &quot;secret&quot;. In Twitter you will need to go to your specific application's page, and look at the &quot;keys and access tokens&quot; page. While you are there, you may want to also alter the access level to be &quot;read only&quot;, meaning that your application is not permitted to post new tweets, only to read existing tweets.</li>
 <li><p>You need to store these pieces of information in a location that can be accessed by your scripts, but that is otherwise not visible to the world. A good way to do that is to create a JSON file in your work directory, that your scripts can access. We will call ours <code>keys.json</code>, and this is how it would look:</p>
 <div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
    <span class="dt">&quot;twitter&quot;</span><span class="fu">:</span> <span class="fu">{</span>
@@ -115,7 +115,7 @@ page <span class="op">=</span> <span class="st">&#39;search/tweets.json&#39;</sp
 
 <span class="co"># Depending on the query we are interested in, we append the necessary string</span>
 <span class="co"># As you read through the twitter API, you&#39;ll find more possibilities</span>
-req_url <span class="op">=</span> base_url <span class="op">+</span> page <span class="op">+</span> <span class="st">&#39;?q=%40HanoverCollege&#39;</span></code></pre></div></li>
+req_url <span class="op">=</span> base_url <span class="op">+</span> page <span class="op">+</span> <span class="st">&#39;?q=%40HanoverCollege&amp;tweet_mode=extended&#39;</span></code></pre></div></li>
 <li><p>We then perform a request, and process the result as JSON:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># We perform a request. Contains standard HTTP information</span>
 response <span class="op">=</span> oauth.get(req_url)
@@ -132,18 +132,13 @@ dict_keys([<span class="st">&#39;search_metadata&#39;</span>, <span class="st">&
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> <span class="bu">type</span>(results[<span class="st">&#39;statuses&#39;</span>])
 <span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;list&#39;</span><span class="op">&gt;</span></code></pre></div>
 <p>Ok so that is a list. We could access the first element and take a look at it:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">type</span>(results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>])
-<span class="op">&lt;</span><span class="kw">class</span> <span class="st">&#39;dict&#39;</span><span class="op">&gt;</span>
-<span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>].keys()
-dict_keys([<span class="st">&#39;in_reply_to_status_id_str&#39;</span>, <span class="st">&#39;source&#39;</span>, <span class="st">&#39;possibly_sensitive&#39;</span>, <span class="st">&#39;user&#39;</span>, <span class="st">&#39;metadata&#39;</span>, <span class="st">&#39;retweet_count&#39;</span>, <span class="st">&#39;text&#39;</span>, <span class="st">&#39;favorited&#39;</span>, <span class="st">&#39;geo&#39;</span>, <span class="st">&#39;retweeted&#39;</span>, <span class="st">&#39;favorite_count&#39;</span>, <span class="st">&#39;place&#39;</span>, <span class="st">&#39;quoted_status_id&#39;</span>, <span class="st">&#39;quoted_status_id_str&#39;</span>, <span class="st">&#39;id&#39;</span>, <span class="st">&#39;entities&#39;</span>, <span class="st">&#39;id_str&#39;</span>, <span class="st">&#39;in_reply_to_user_id&#39;</span>, <span class="st">&#39;in_reply_to_user_id_str&#39;</span>, <span class="st">&#39;in_reply_to_screen_name&#39;</span>, <span class="st">&#39;coordinates&#39;</span>, <span class="st">&#39;is_quote_status&#39;</span>, <span class="st">&#39;truncated&#39;</span>, <span class="st">&#39;contributors&#39;</span>, <span class="st">&#39;lang&#39;</span>, <span class="st">&#39;created_at&#39;</span>, <span class="st">&#39;in_reply_to_status_id&#39;</span>, <span class="st">&#39;quoted_status&#39;</span>])</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">type</span>(results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>])   <span class="co"># It&#39;s a dictionary</span>
+results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>].keys()  <span class="co"># Its keys</span></code></pre></div>
 <p>Ok that is a dictionary, and we can look at its keys, and it seems there are a number of possibilities there. For example we can access the tweet's text via:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;text&#39;</span>]
-<span class="co">&#39;@HanoverPanthers @HanoverCollege @StudentLifeHC @HanoverBooks  https://t.co/HguFqFRONz&#39;</span></code></pre></div>
-<p>Or we can see if someone has retweeded or favorited it:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;retweeted&#39;</span>]
-<span class="va">False</span>
-<span class="op">&gt;&gt;&gt;</span> results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;favorited&#39;</span>]
-<span class="va">False</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;full_text&#39;</span>]</code></pre></div>
+<p>Or we can see if someone has retweeted or favorited it:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;retweeted&#39;</span>]
+results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;favorited&#39;</span>]</code></pre></div>
 <p>The possibilities are endless. Most of the times you would want to iterate over the statuses list:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="cf">for</span> status <span class="kw">in</span> results[<span class="st">&#39;statuses&#39;</span>]:
     dosomething(status)</code></pre></div>
