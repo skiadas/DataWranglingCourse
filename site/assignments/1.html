@@ -18,10 +18,16 @@
 <p>You should be looking at the assignment1.py file as you read along.</p>
 <p>The first 67 lines of the script read from Twitter and create a list called &quot;tweets&quot; for you. You should not change these lines, and your answers in the rest of the file will make use of the &quot;tweets&quot; variable. This contains all tweets that mention the words &quot;Hanover&quot; and &quot;College&quot;, and it is limited to the last 8 or so days, as Twitter does not allow us to go further back in queries.</p>
 <ol style="list-style-type: decimal">
-<li>Write a list comprehension that will produce a list containing all the texts from the tweets. Assign the result to a variable called &quot;texts&quot;.</li>
+<li>Write a list comprehension that will produce a list containing all the texts from the tweets. Assign the result to a variable called &quot;texts&quot;. For each tweet, there is a field called <code>full_text</code> that contains the text of the tweet.</li>
+<li>This is a modification of the first exercise. When the entry you are looking at is a &quot;retweeted&quot; tweet, then the <code>full_text</code> entry doesn't actually contain the full tweet, but only an abbreviated version. You can see this in some of the texts you extracted, which probably ended in ellipses. To fix this, first write a function <code>get_full_text</code> that is given a tweet and returns the full tweet text as follows:
+<ul>
+<li>If there is no <code>retweeted_status</code> key/field present, then the tweet text is indeed in the <code>full_text</code> list as above.</li>
+<li>Otherwise, you must look into the field <code>retweeted_status</code>, and look at <em>its</em> <code>full_text</code> field.</li>
+</ul>
+<em>Next</em>, use this function to write a list comprehension that given a list of tweets returns the full texts of the tweets.</li>
 <li>After reviewing the <a href="https://dev.twitter.com/overview/api/tweets">tweet field guide</a>, and in particular the <a href="https://dev.twitter.com/overview/api/entities">entities</a> in it, create a list comprehension that produces a list that in place of each tweet contains the hashtags that were mentioned in the corresponding tweet. So your result would be a list, each of whose entries is itself a list of the hashtags that appeared in a particular tweet. Note that you should only record the text of the hashtag; by default Twitter provides more information, like the location of the tag within the tweet. Assign the result to a variable called <code>tags_per_tweet</code>.</li>
 <li>Using the variable you created in the previous assignment, create a dictionary called <code>hashtags</code>. Its keys would be the different hashtags, and the value for a hashtag is the number of times that tag occurred in the tweets. Implementing this will probably require a double iteration over the list of <code>tags_per_tweet</code>.</li>
-<li>Write code that would print the 30 most frequently occuring hashtags. Using the <code>sorted</code> function appropriately will get you partway there.</li>
+<li>Write code that would print the 6 most frequently occuring hashtags. Using the <code>sorted</code> function appropriately will get you partway there.</li>
 <li>Starting from the &quot;tweets&quot; list, produce a list of the tweets that have no hashtags. Use a list comprehension for this.</li>
 <li>(This one is a lot more complex than the previous problems) Produce a dictionary with one key for each hashtag. The value should itself be a dictionary, with the following:
 <ul>

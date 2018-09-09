@@ -39,7 +39,7 @@ page = 'search/tweets.json'
 
 # Depending on the query we are interested in, we append the necessary string
 # As you read through the twitter API, you'll find more possibilities
-req_url = base_url + page + '?q=Hanover+College&count=100'
+req_url = base_url + page + '?q=Hanover+College&tweet_mode=extended&count=100'
 
 # We perform a request. Contains standard HTTP information
 response = oauth.get(req_url)

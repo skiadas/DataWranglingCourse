@@ -115,7 +115,7 @@ Ok that is a dictionary, and we can look at its keys, and it seems there are a n
 results['statuses'][0]['full_text']
 ```
 
-Or we can see if someone has retweeted or favorited it:
+Or we can see if the currently authorized user has retweeted or favorited it:
 ```python
 results['statuses'][0]['retweeted']
 results['statuses'][0]['favorited']

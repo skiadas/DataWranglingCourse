@@ -136,7 +136,7 @@ dict_keys([<span class="st">&#39;search_metadata&#39;</span>, <span class="st">&
 results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>].keys()  <span class="co"># Its keys</span></code></pre></div>
 <p>Ok that is a dictionary, and we can look at its keys, and it seems there are a number of possibilities there. For example we can access the tweet's text via:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;full_text&#39;</span>]</code></pre></div>
-<p>Or we can see if someone has retweeted or favorited it:</p>
+<p>Or we can see if the currently authorized user has retweeted or favorited it:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;retweeted&#39;</span>]
 results[<span class="st">&#39;statuses&#39;</span>][<span class="dv">0</span>][<span class="st">&#39;favorited&#39;</span>]</code></pre></div>
 <p>The possibilities are endless. Most of the times you would want to iterate over the statuses list:</p>
