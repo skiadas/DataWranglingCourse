@@ -21,8 +21,8 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Assignment 1: Working with JSON data](assignments/1.md)
 - Day 2
     - [Introduction to Web APIs and Web Services](notes/web_apis.md)
-    - [RESTful design](notes/rest.md)
 - Day 3
+    - [RESTful design](notes/rest.md)
     - [RESTful design, case study](notes/rest_case_study.md)
     - [Assignment 2: Working more with Twitter API](assignments/2.md)
 
