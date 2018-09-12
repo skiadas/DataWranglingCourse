@@ -16,11 +16,15 @@
 <h1 id="restful-apis">RESTful APIS</h1>
 <h2 id="reading-references">Reading / References</h2>
 <ul>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">Restful Web Services</a>, chapters 4 and 5. Optionally 6, 7, 8.</li>
+<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">Restful Web Services</a>, chapters 1-5. Optionally 6, 7, 8.</li>
 <li><a href="https://tools.ietf.org/html/draft-ietf-httpbis-p2-semantics-21">Current HTTP Specification</a> for some &quot;light reading&quot;.</li>
 </ul>
 <h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
 <ul>
+<li>What is the <em>method information</em>? What are different ways it may be specified? What are their advantages/limitations? What are the drawbacks of using a system other than the HTTP verbs to communicate method information?</li>
+<li>What is the <em>scoping information</em>? What are various ways it can be communicated?</li>
+<li>How does REST differ from other web service approaches? What characterizes RESTful design?</li>
+<li>Describe what Amazon's S3 is and what its main components and terms are. What are the URI/URL schemes one would use to access S3 resources?</li>
 <li>Describe what <strong>addressability</strong> for resources means and its consequences.</li>
 <li>Describe what <strong>statelessness</strong> for resources means and its consequences.</li>
 <li>What is the difference between <strong>application state</strong> and <strong>resource state</strong>?</li>
@@ -38,6 +42,16 @@
 <p>The result is, amazingly, a simple, open (for now), almost universal platform for networked applications. This platform contains much of human knowledge and supports most fields of human endeavor. We think it’s time to seriously start applying its rules to distributed programming, to open up that information and those processes to automatic clients. If you agree, this book will show you how to do it.</p>
 </blockquote>
 <p>REST stands for &quot;REpresentational State Transfer&quot;, which is a bit of a mouthful, and is best described in terms of the goals it proposes for a Web API design. A key underlying principle is that REST attempts to use as much of the HTTP protocol as possible to communicate information. This is in contrast to other standards that place all pertinent information about the request mostly in the request's body.</p>
+<p>A key consideration when considering an HTTP request is the difference between <strong>method information</strong> and <strong>scoping information</strong>.</p>
+<dl>
+<dt>Method</dt>
+<dd>Method information is the information about &quot;what to do with the data&quot;. For example are we deleting some resource, are we creating some new resource, are we editing an existing resource, or are we simply trying to get some data?
+</dd>
+<dt>Scoping</dt>
+<dd>Scoping information tells the server which part of the data it should operate at. For example in an evaluations database we might have different scoping information for student lists, enrollments of students in classes, evaluations for the students to complete, information for a particular class, etc.
+</dd>
+</dl>
+<p>Here are some key elements of a REST protocol:</p>
 <dl>
 <dt>URIs</dt>
 <dd><strong>Scoping Information</strong> should be communicated via the URI/URL. That should contain all the information needed to determine which data is being requested or should change. The server should not need to read the body of the request to determine what data the request is about. And the client should not need to learn how to form the request's body to obtain the information it needs. This uses the <strong>addressability</strong> of HTTP. This way all the server needs to do to teach the client how to ask for something is to provide the URI for that resource.
@@ -99,7 +113,7 @@
 </tr>
 </tbody>
 </table>
-<p>Inline activity: Consider what other resources we have, what URIs we might use for them, and what links to other resources they would have.</p>
+<p>Inclass activity: Consider what other resources we have, what URIs we might use for them, and what links to other resources they would have.</p>
 <h3 id="connectivity">Connectivity</h3>
 <p>In the above example we also see another key feature of a RESTful design, using the &quot;hypermedia&quot; feature of the HTTP protocol. It may be a trivial thought these days, but the fact that we can link different pages together is key. For instance in the example above the student resource would include in it a link to the enrollment resources for that student. RESTful resources are fundamentally linked to one another, so that a client of our service can navigate their way by following these links, in much the same way that a user of a website navigates taht site by following links.</p>
 <h3 id="uniform-interface">Uniform Interface</h3>

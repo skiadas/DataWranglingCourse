@@ -2,11 +2,15 @@
 
 ## Reading / References
 
-- [Restful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari), chapters 4 and 5. Optionally 6, 7, 8.
+- [Restful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari), chapters 1-5. Optionally 6, 7, 8.
 - [Current HTTP Specification](https://tools.ietf.org/html/draft-ietf-httpbis-p2-semantics-21) for some "light reading".
 
 ### Practice questions on the reading
 
+- What is the *method information*? What are different ways it may be specified? What are their advantages/limitations? What are the drawbacks of using a system other than the HTTP verbs to communicate method information?
+- What is the *scoping information*? What are various ways it can be communicated?
+- How does REST differ from other web service approaches? What characterizes RESTful design?
+- Describe what Amazon's S3 is and what its main components and terms are. What are the URI/URL schemes one would use to access S3 resources?
 - Describe what **addressability** for resources means and its consequences.
 - Describe what **statelessness** for resources means and its consequences.
 - What is the difference between **application state** and **resource state**?
@@ -26,6 +30,16 @@
 > The result is, amazingly, a simple, open (for now), almost universal platform for networked applications. This platform contains much of human knowledge and supports most fields of human endeavor. We think it’s time to seriously start applying its rules to distributed programming, to open up that information and those processes to automatic clients. If you agree, this book will show you how to do it.
 
 REST stands for "REpresentational State Transfer", which is a bit of a mouthful, and is best described in terms of the goals it proposes for a Web API design. A key underlying principle is that REST attempts to use as much of the HTTP protocol as possible to communicate information. This is in contrast to other standards that place all pertinent information about the request mostly in the request's body.
+
+A key consideration when considering an HTTP request is the difference between **method information** and **scoping information**.
+
+Method
+  ~ Method information is the information about "what to do with the data". For example are we deleting some resource, are we creating some new resource, are we editing an existing resource, or are we simply trying to get some data?
+
+Scoping
+  ~ Scoping information tells the server which part of the data it should operate at. For example in an evaluations database we might have different scoping information for student lists, enrollments of students in classes, evaluations for the students to complete, information for a particular class, etc.
+
+Here are some key elements of a REST protocol:
 
 URIs
   ~ **Scoping Information** should be communicated via the URI/URL. That should contain all the information needed to determine which data is being requested or should change. The server should not need to read the body of the request to determine what data the request is about. And the client should not need to learn how to form the request's body to obtain the information it needs. This uses the **addressability** of HTTP. This way all the server needs to do to teach the client how to ask for something is to provide the URI for that resource.
@@ -65,7 +79,7 @@ section   Represents a       /section/{year}/{term}/{no} state       course
 -----------------------------------------------------------------------------------
 
 
-Inline activity: Consider what other resources we have, what URIs we might use for them, and what links to other resources they would have.
+Inclass activity: Consider what other resources we have, what URIs we might use for them, and what links to other resources they would have.
 
 ### Connectivity
 
