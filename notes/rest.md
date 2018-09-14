@@ -60,23 +60,23 @@ As an example let us consider the following entity-relation graph for the studen
 
 ![](images/EvalsModel.png)
 
-There are numerous resources in this instance. We name just two:
+There are numerous resources in this instance. We name just a few:
 
------------------------------------------------------------------------------------
-Resource  Description        URI Scheme                  Properties  Links
---------- ------------------ --------------------------  ----------- ------------------
-students  Represents the     /student                                students
+----------------------------------------------------------------------------------------
+Resource  Description        URI Scheme                    Properties  Links
+--------- ------------------ ----------------------------  ----------- -----------------
+students  Represents the     /student                      students
           list of students
 
-student   Represents a       /student/{login}            login       enrollments
-          student                                        first
-                                                         last
+student   Represents a       /student/{login}              login       enrollments
+          student                                          first
+                                                           last
 
-section   Represents a       /section/{year}/{term}/{no} state       course
-          specific offering                                          enrolled
-          of a course                                                year
-                                                                     term
------------------------------------------------------------------------------------
+section   Represents a       /section/{year}/{term}/{no}   state       course
+          specific offering                                            enrolled
+          of a course                                                  year
+                                                                       term
+----------------------------------------------------------------------------------------
 
 
 Inclass activity: Consider what other resources we have, what URIs we might use for them, and what links to other resources they would have.

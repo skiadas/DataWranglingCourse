@@ -24,11 +24,11 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 - Day 3
     - [RESTful design](notes/rest.md)
     - [RESTful design, case study](notes/rest_case_study.md)
-    - [Assignment 2: Working more with Twitter API](assignments/2.md)
 
 ## Week  3 (09/19-09/23)
 
 - Day 1
+    - [Assignment 2: Working more with Twitter API](assignments/2.md)
     - [Introduction to databases](notes/databases_intro.md)
     - [Relational Databases](notes/databases_relational.md)
 - Day 2
