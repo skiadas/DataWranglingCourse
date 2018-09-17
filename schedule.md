@@ -23,15 +23,15 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Introduction to Web APIs and Web Services](notes/web_apis.md)
 - Day 3
     - [RESTful design](notes/rest.md)
-    - [RESTful design, case study](notes/rest_case_study.md)
 
 ## Week  3 (09/19-09/23)
 
 - Day 1
-    - [Assignment 2: Working more with Twitter API](assignments/2.md)
+    - [RESTful design, case study](notes/rest_case_study.md)
+    - [Assignment 2: Interacting with a REST API](assignments/2.md)
+- Day 2
     - [Introduction to databases](notes/databases_intro.md)
     - [Relational Databases](notes/databases_relational.md)
-- Day 2
     - [Introduction to MySQL](notes/databases_mysql.md)
 - Day 3
     - [Joins, functions, updates and deletes](notes/databases_mysql.md)
