@@ -32,8 +32,8 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 - Day 2
     - [Introduction to databases](notes/databases_intro.md)
     - [Relational Databases](notes/databases_relational.md)
-    - [Introduction to MySQL](notes/databases_mysql.md)
 - Day 3
+    - [Introduction to MySQL](notes/databases_mysql.md)
     - [Joins, functions, updates and deletes](notes/databases_mysql.md)
     - [Assignment 3: Working with MySQL database tables](assignments/3.md)
 

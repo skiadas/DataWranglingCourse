@@ -2,9 +2,9 @@
 
 ## Reading / References
 
-- [Concise Guide to Databases: A Practical Introduction](http://learning.acm.org/books/book_detail.cfm?id=2560109&type=24) chapters 1-3
-- [Introduction to SQL: Mastering the Relational Database Language](http://learning.acm.org/books/book_detail.cfm?id=1208031&type=safari)
-- [MySQL](http://learning.acm.org/books/book_detail.cfm?id=2484635&type=safari)
+- [Concise Guide to Databases: A Practical Introduction](https://acm.skillport.com/skillportfe/main.action#summary/BOOKS/RW$31069:_ss_book:76983) chapters 1-3
+- [Introduction to SQL: Mastering the Relational Database Language](https://www.safaribooksonline.com/library/view/introduction-to-sql/0321305965/)
+- [MySQL](https://www.safaribooksonline.com/library/view/mysql-fifth-edition/9780133038552/)
 
 ### Practice questions on the reading
 
@@ -77,4 +77,4 @@ An important feature that led to the popularity of relational databases is the e
 
 ### NoSQL
 
-NoSQL, standing for "Not only SQL", is a term used to refer to a number of recent database models that do not rely on the rigid relational table structure, but store information in other more flexible formats. A number of popular systems exist and we will be looking at them all in the near future.
+NoSQL, standing for "Not only SQL", is a term used to refer to a number of recent database models that do not rely on the rigid relational table structure, but store information in other more flexible formats. A number of popular systems exist and we will be looking at some of them in future sessions.

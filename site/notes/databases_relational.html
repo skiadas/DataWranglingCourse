@@ -16,9 +16,9 @@
 <h1 id="relational-databases">Relational Databases</h1>
 <h2 id="reading-references">Reading / References</h2>
 <ul>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2560109&amp;type=24">Concise Guide to Databases: A Practical Introduction</a> chapter 4</li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1208031&amp;type=safari">Introduction to SQL: Mastering the Relational Database Language</a></li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2484635&amp;type=safari">MySQL</a></li>
+<li><a href="https://acm.skillport.com/skillportfe/main.action#summary/BOOKS/RW$31069:_ss_book:76983">Concise Guide to Databases: A Practical Introduction</a> chapter4</li>
+<li><a href="https://www.safaribooksonline.com/library/view/introduction-to-sql/0321305965/">Introduction to SQL: Mastering the Relational Database Language</a></li>
+<li><a href="https://www.safaribooksonline.com/library/view/mysql-fifth-edition/9780133038552/">MySQL</a></li>
 </ul>
 <h3 id="practice-questions-on-the-reading">Practice questions on the reading</h3>
 <ul>
@@ -57,7 +57,7 @@
 </tbody>
 </table>
 <p>This relation has three attributes, <code>login</code>, <code>first</code>, and <code>last</code>, all containing strings. It also has 3 tuples/records corresponding to three students.</p>
-<p>Every table/relation must also contain a <strong>primary key</strong>. A primary key is an attribute or combination of attributes that uniquely identify each row/record/tuple. In the example above, the <code>login</code> attribute itself can serve as a primary key. If we were discussing storing courses, a combination of the department prefix and course number can act as the primary key for the <code>course</code> table.</p>
+<p>Every table/relation must also contain a <strong>primary key</strong>. A primary key is an attribute or combination of attributes that uniquely identify each row/record/tuple. In the example above, the <code>login</code> attribute itself can serve as a primary key. If we were discussing storing courses, a combination of the department prefix and course number can act as the primary key for the <code>course</code> table. <em>Each row in a table must have a unique value for the primary key, different from all other rows</em>.</p>
 <p>Many tables may also contain <strong>foreign keys</strong>. These are attributes of a table that point to the primary keys in another table. For instance the course table will contain a foreign key identifying the department that a course is from. Foreign Keys is what links tables together.</p>
 <h3 id="normalization">Normalization</h3>
 <p>An important process in database design is that of normalization. *Normalization** is a process that aims to rewrite a database in such a way as to minimize the duplication of data values. This often leads to a reduced storage space, at the cost of creating possibly more tables. So we end up with <em>smaller but more tables</em>.</p>

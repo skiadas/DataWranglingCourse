@@ -2,14 +2,20 @@
 
 ## Reading / References
 
-- [Concise Guide to Databases: A Practical Introduction](http://learning.acm.org/books/book_detail.cfm?id=2560109&type=24) chapter 4
-- [Introduction to SQL: Mastering the Relational Database Language](http://learning.acm.org/books/book_detail.cfm?id=1208031&type=safari)
-- [MySQL](http://learning.acm.org/books/book_detail.cfm?id=2484635&type=safari)
+- [Concise Guide to Databases: A Practical Introduction](https://acm.skillport.com/skillportfe/main.action#summary/BOOKS/RW$31069:_ss_book:76983) chapter 4
+- [Introduction to SQL: Mastering the Relational Database Language](https://www.safaribooksonline.com/library/view/introduction-to-sql/0321305965/)
+- [MySQL](https://www.safaribooksonline.com/library/view/mysql-fifth-edition/9780133038552/)
 - [Stanford free online course on databases](https://lagunita.stanford.edu/courses/Home/Databases/Engineering/about)
 
 ## Notes
 
 There are numerous relational database systems out there, all with similar functionalities, and all supporting the SQL standard. So talking to one of them is not all that dissimilar to talking to any of the others.
+
+- [MySQL](https://www.mysql.com/) is one of the most popular openly available versions. [MariaDB](https://mariadb.org/) is a completely open-source fork of it.
+- [SQLite](https://www.sqlite.org/index.html) is a much lighter SQL version which is often used by Android apps for local storage.
+- [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server) is a Microsoft-owned   proprietary SQL database that also sees extensive use.
+- [PostgreSQL](https://www.postgresql.org/) is another free and open-source database that sees extensive use, and comes by default in many Linux distributions and also for macOS Server.
+- Many cloud services include some kind of database system.
 
 We will be using mySQL WorkBench to inteface with mySQL. You should find it under the Developer tab in your system's start menu. If you want to work on your own computers instead, you would need to install it manually, and possibly even install mySQL if it is not already installed.
 

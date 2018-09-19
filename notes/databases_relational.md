@@ -2,9 +2,9 @@
 
 ## Reading / References
 
-- [Concise Guide to Databases: A Practical Introduction](http://learning.acm.org/books/book_detail.cfm?id=2560109&type=24) chapter 4
-- [Introduction to SQL: Mastering the Relational Database Language](http://learning.acm.org/books/book_detail.cfm?id=1208031&type=safari)
-- [MySQL](http://learning.acm.org/books/book_detail.cfm?id=2484635&type=safari)
+- [Concise Guide to Databases: A Practical Introduction](https://acm.skillport.com/skillportfe/main.action#summary/BOOKS/RW$31069:_ss_book:76983) chapter4
+- [Introduction to SQL: Mastering the Relational Database Language](https://www.safaribooksonline.com/library/view/introduction-to-sql/0321305965/)
+- [MySQL](https://www.safaribooksonline.com/library/view/mysql-fifth-edition/9780133038552/)
 
 ### Practice questions on the reading
 
@@ -27,7 +27,7 @@ st3     Mary     Somebody
 
 This relation has three attributes, `login`, `first`, and `last`, all containing strings. It also has 3 tuples/records corresponding to three students.
 
-Every table/relation must also contain a **primary key**. A primary key is an attribute or combination of attributes that uniquely identify each row/record/tuple. In the example above, the `login` attribute itself can serve as a primary key. If we were discussing storing courses, a combination of the department prefix and course number can act as the primary key for the `course` table.
+Every table/relation must also contain a **primary key**. A primary key is an attribute or combination of attributes that uniquely identify each row/record/tuple. In the example above, the `login` attribute itself can serve as a primary key. If we were discussing storing courses, a combination of the department prefix and course number can act as the primary key for the `course` table. *Each row in a table must have a unique value for the primary key, different from all other rows*.
 
 Many tables may also contain **foreign keys**. These are attributes of a table that point to the primary keys in another table. For instance the course table will contain a foreign key identifying the department that a course is from. Foreign Keys is what links tables together.
 
