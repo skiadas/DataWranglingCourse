@@ -31,15 +31,15 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Assignment 2: Interacting with a REST API](assignments/2.md)
 - Day 2
     - [Introduction to databases](notes/databases_intro.md)
-    - [Relational Databases](notes/databases_relational.md)
 - Day 3
+    - [Relational Databases](notes/databases_relational.md)
     - [Introduction to MySQL](notes/databases_mysql.md)
-    - [Joins, functions, updates and deletes](notes/databases_mysql.md)
-    - [Assignment 3: Working with MySQL database tables](assignments/3.md)
 
 ## Week  4 (09/26-09/30)
 
 - Day 1
+    - [Joins, functions, updates and deletes](notes/databases_mysql_advanced.md)
+    - [Assignment 3: Working with MySQL database tables](assignments/3.md)
     - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
 - Day 2
     - [Accessing SQL from other languages (cont)](notes/databases_sqlalchemy.md)

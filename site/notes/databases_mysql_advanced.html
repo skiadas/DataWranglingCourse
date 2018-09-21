@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="more-advanced-mysql-constructs">More advanced MySQL constructs</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="https://acm.skillport.com/skillportfe/main.action#summary/BOOKS/RW$31069:_ss_book:76983">Concise Guide to Databases: A Practical Introduction</a> chapter 4</li>
+<li><a href="https://www.safaribooksonline.com/library/view/introduction-to-sql/0321305965/">Introduction to SQL: Mastering the Relational Database Language</a></li>
+<li><a href="https://www.safaribooksonline.com/library/view/mysql-fifth-edition/9780133038552/">MySQL</a></li>
+<li><a href="https://lagunita.stanford.edu/courses/Home/Databases/Engineering/about">Stanford free online course on databases</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<p>In this section we will consider some of the more advanced SQL constructs:</p>
+<ul>
+<li><strong>Subordinate SELECT queries</strong> allow us to use a whole SELECT query in the WHERE clause of another query. They are useful in some situations where the condition for the WHERE clause depends on the specific element values. But they are also costly to perform, so they should only be used when needed.</li>
+<li><strong>Joins</strong> are an extremely important construction that brings together tables along some related values.</li>
+<li>Specialized SQL <strong>functions</strong> can be used for basic and not-so-basic operations. They are often used in conjunction with <strong>GROUP BY</strong>, which allows us to obtain summary information from our tables based on some grouping of the rows.</li>
+<li><strong>DELETE</strong> and <strong>UPDATE</strong> operations have a slightly different syntax with its own challenges.</li>
+</ul>
+<h4 id="joins">Joins</h4>
+<p>Many times in the earlier sections we have had the need to consolidate different tables across foreign keys. Let us look at one more example, where we want to show all enrollments in terms of student name and course info. This task brings together information from different tables, namely the student, course and enrollment tables. We will do this task in steps.</p>
+<p>First, we will try to look at enrollments but instead of seeing student ids, we want to see all their information. Our first attempt would be this:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s, enrollments e;</code></pre></div>
+<p>Try it out and look at the result. You should see first the columns for the students, and then the ones from the enrollments. But take a closer look at the id column, holding the student id, and the <code>student_id</code> column, holding the student id stored in the enrollment. They don't always match! Right now we have every student listed with every enrollment, not only theirs but of all the other students as well! That's clearly wrong. We need to make sure to only see the pair of a student and an enrollment if the enrollment corresponds to <em>that</em> student. We need a WHERE clause for that:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s, enrollments e
+<span class="kw">WHERE</span> s<span class="ch">.</span>id = e<span class="ch">.</span>student_id;</code></pre></div>
+<p>Any time we bring together tables like that, it is called a <strong>join</strong>. SQL offers us an alternative way to describe such joins, like so:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s
+<span class="kw">JOIN</span> enrollments e <span class="kw">ON</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id;</code></pre></div>
+<p>If we had omitted the ON part it would have given us all pairs of students and enrollments. The ON part is the analog of the WHERE clause before.</p>
+<p>This is often called an &quot;inner&quot; join. We can also have something called a &quot;left join&quot;. Try it out and see the difference:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> students s
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> enrollments e <span class="kw">ON</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id;</code></pre></div>
+<p>You see that this includes a row for a student that is not enrolled in any classes. There is also a &quot;right join&quot; that would have instead done the same thing for &quot;enrollments&quot;, but that would not have given us anything new. There should also be a &quot;full join&quot; that preserves rows for values that appear in only one side, without a match on the other side, but MySQL does not support it. There are ways to emulate it however, and if you find yourself needing it just search online for the many answers.</p>
+<p>Here is a further example to incorporate the course info in the table:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> first, last, prefix, no
+<span class="kw">FROM</span> students <span class="kw">as</span> s
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> enrollments <span class="kw">as</span> e <span class="kw">ON</span> s<span class="ch">.</span>id = e<span class="ch">.</span>student_id
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> courses <span class="kw">as</span> c <span class="kw">ON</span> c<span class="ch">.</span>id = e<span class="ch">.</span>course_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> prefix, no;</code></pre></div>
+<p>Let us practice some more with joins. You can do these problems via either joins or just using a WHERE clause where appropriate.</p>
+<ul>
+<li>Find all pairs of students and courses where the student is enrolled in the course.</li>
+<li>Find all pairs of students and CS courses where the student is enrolled in the course.</li>
+<li>Find all pairs of ids for students that are in the same class. This would require joining two enrollments tables (i.e. joining the enrollments table with another copy of itself). You should not include pairs that consist of the same student twice.</li>
+<li>Find all pairs of students with the same last name but different first names.</li>
+<li>In the two problems above, find a way to make it so that pairs only appear once, i.e. if we have students s and t we would NOT see both the pair (s,t) and the pair (t,s).</li>
+<li>Find all pairs of courses that have a student in common.</li>
+</ul>
+<h4 id="subordinate-select-queries">Subordinate SELECT queries</h4>
+<p>Let's take it up one more notch. We want to find all students that are not enrolled in any computer science courses, and enroll them into the introductory CS course. Let's start by finding out those students' ids. This is tricky. Here is a verbal description:</p>
+<p>We want to select those students from s, whose id cannot be found in any enrollment where the course has prefix CS. So for each student we want to ask: &quot;Is there an enrollment in a course for this student and where the course is a CS course&quot;?</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> s<span class="ch">.</span>id
+<span class="kw">FROM</span> students <span class="kw">AS</span> s
+<span class="kw">WHERE</span> <span class="kw">NOT</span> <span class="kw">EXISTS</span> (<span class="kw">SELECT</span> prefix
+                  <span class="kw">FROM</span> enrollments <span class="kw">AS</span> e, courses <span class="kw">AS</span> c
+                  <span class="kw">WHERE</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+                  <span class="kw">AND</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id
+                  <span class="kw">AND</span> c<span class="ch">.</span>prefix = <span class="st">&quot;CS&quot;</span>
+                 );</code></pre></div>
+<p>Note the inner SELECT query, where we look for pairs of enrollments and courses, and we tie them together via the IDs.</p>
+<p>You might have been tempted to do the following instead, and it would have been wrong:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> student_id
+<span class="kw">FROM</span> enrollments <span class="kw">AS</span> e, courses <span class="kw">AS</span> c
+<span class="kw">WHERE</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+<span class="kw">AND</span> c<span class="ch">.</span>prefix &lt;&gt; <span class="st">&quot;CS&quot;</span>;</code></pre></div>
+<p>This would not have been right: It looks for all enrollments of students in courses. So it would include a student as long as they are enrolled in at least one non-CS course, even if the same student is also enrolled in a CS course.</p>
+<p><strong>Practice</strong>: Write a query to get back pairs of a student id and a course prefix, where the student is not enrolled in any courses with that prefix.</p>
+<p>Now that we got the list of the student IDs, we need to use that whole thing inside an INSERT query. This is a common practice: Work out the SELECT first, and when you have that working then put it in the INSERT clause. In fact we'll take one more step before the insert:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> s<span class="ch">.</span>id, c2<span class="ch">.</span>id
+<span class="kw">FROM</span> students <span class="kw">AS</span> s, courses <span class="kw">AS</span> c2
+<span class="kw">WHERE</span> c2<span class="ch">.</span>prefix = <span class="st">&quot;CS&quot;</span>
+<span class="kw">AND</span> c2<span class="ch">.</span>no = <span class="dv">220</span>
+<span class="kw">AND</span> <span class="kw">NOT</span> <span class="kw">EXISTS</span> (<span class="kw">SELECT</span> prefix
+                  <span class="kw">FROM</span> enrollments <span class="kw">AS</span> e, courses <span class="kw">AS</span> c
+                  <span class="kw">WHERE</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+                  <span class="kw">AND</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id
+                  <span class="kw">AND</span> c<span class="ch">.</span>prefix = <span class="st">&quot;CS&quot;</span>
+                 );</code></pre></div>
+<p>We needed to add some extra steps to get the correct course. We could have looked at the courses list, found the id and used that directly, but this way is a bit more elegant.</p>
+<p>Finally, adding the INSERT:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">INSERT</span> <span class="kw">INTO</span> enrollments (student_id, course_id)
+<span class="kw">SELECT</span> s<span class="ch">.</span>id, c2<span class="ch">.</span>id
+<span class="kw">FROM</span> students <span class="kw">AS</span> s, courses <span class="kw">AS</span> c2
+<span class="kw">WHERE</span> c2<span class="ch">.</span>prefix = <span class="st">&quot;CS&quot;</span>
+<span class="kw">AND</span> c2<span class="ch">.</span>no = <span class="dv">220</span>
+<span class="kw">AND</span> <span class="kw">NOT</span> <span class="kw">EXISTS</span> (<span class="kw">SELECT</span> prefix
+                  <span class="kw">FROM</span> enrollments <span class="kw">AS</span> e, courses <span class="kw">AS</span> c
+                  <span class="kw">WHERE</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+                  <span class="kw">AND</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id
+                  <span class="kw">AND</span> c<span class="ch">.</span>prefix = <span class="st">&quot;CS&quot;</span>
+                 );</code></pre></div>
+<h4 id="sql-functions">SQL functions</h4>
+<p>SQL contains a number of built-in functions, and even allows you to create your own, though that is a more advanced process. You can find a <a href="http://dev.mysql.com/doc/refman/5.7/en/func-op-summary-ref.html">full list of the available mySQL functions here</a>. We will highlight a few:</p>
+<ul>
+<li>AVG() returns the average</li>
+<li>CONCAT() concatenates strings</li>
+<li>COUNT() and COUNT(DISTINCT) return counts of matches</li>
+<li>MAX() and MIN() find maximum and minimum values</li>
+<li>RAND() produces a random floating point value</li>
+<li>SUM() adds up all the values</li>
+</ul>
+<p>Here is a simple example returning the concatenated first-last names of the students:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> <span class="fu">CONCAT</span>(first, <span class="st">&quot; &quot;</span>, last)
+<span class="kw">FROM</span> students;</code></pre></div>
+<p><strong>PRACTICE</strong>: Use the same approach to produce course names that look like so: <code>&quot;CS220: Fundamentals ...&quot;</code></p>
+<p>Let's learn a bit about how to use COUNT now. Here's a way to count all the students:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> <span class="fu">COUNT</span>(*)
+<span class="kw">FROM</span> students;</code></pre></div>
+<p>Let us look at how many students each course has. In order to do that we need to also learn about grouping. Look at the following:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> course_id, <span class="fu">COUNT</span>(*)
+<span class="kw">FROM</span> enrollments
+<span class="kw">GROUP</span> <span class="kw">BY</span> course_id;</code></pre></div>
+<p>OK! So it shows us the three courses that have students enrolled in them, as well as how many there are there. GROUP BY tells it to group all those rows with the same <code>course_id</code>, and perform the described operation to them. In such a case you are restricted into what you can put in the SELECT part. They must be either the entries in the GROUP_BY clause or functions that aggregate across the entire list of entries, like COUNT.</p>
+<h4 id="more-advanced-queries">More advanced queries</h4>
+<p>This is a bit unsatisfactory however. First, we would like to see the course prefix plus number, not just the ids. Second, we would like to see the courses with 0 students included. This is trickier.</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> prefix, no, (<span class="kw">SELECT</span> <span class="fu">COUNT</span>(student_id)
+                    <span class="kw">FROM</span> enrollments
+                    <span class="kw">WHERE</span> course_id = id) <span class="kw">AS</span> enrollment
+<span class="kw">FROM</span> courses;</code></pre></div>
+<p>This is a different example of a subordinate SELECT query. This time the whole SELECT query goes into one of the &quot;column&quot; in the outer SELECT. Within its form we can use the specific id for the course in that row. So what we are saying here is basically &quot;for each course, count the number of enrollments with that course id, and these numbers form the basis for the enrollment column&quot;.</p>
+<p>We may further want to order by that new column:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> prefix, no, (<span class="kw">SELECT</span> <span class="fu">COUNT</span>(student_id)
+                    <span class="kw">FROM</span> enrollments
+                    <span class="kw">WHERE</span> course_id = id) <span class="kw">AS</span> enrollment
+<span class="kw">FROM</span> courses
+<span class="kw">ORDER</span> <span class="kw">BY</span> enrollment <span class="kw">DESC</span>;</code></pre></div>
+<h4 id="delete">DELETE</h4>
+<p>We can use DELETE to remove entries. For instance let's remove all students with first name Peter from all classes. As this is a destructive operation, you want to do a SELECT query first to make sure you have the right cases. You should do this yourself: Find all enrollments where the student's name is &quot;Joe&quot;.</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> * <span class="kw">FROM</span> enrollments
+<span class="kw">WHERE</span> student_id <span class="kw">IN</span> (<span class="kw">SELECT</span> id <span class="kw">from</span> students
+                     <span class="kw">WHERE</span> first = <span class="st">&quot;Joe&quot;</span>);</code></pre></div>
+<p>Now we change this into a DELETE. Remember we just want to delete the enrollment, not the student record:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">DELETE</span> <span class="kw">FROM</span> enrollments
+<span class="kw">WHERE</span> student_id <span class="kw">IN</span> (<span class="kw">SELECT</span> id <span class="kw">from</span> students
+                     <span class="kw">WHERE</span> first = <span class="st">&quot;Joe&quot;</span>);</code></pre></div>
+<p>Oops, did you see the error message? The system refused to do this. By default mysql will discourage you from deleting in any situation where the WHERE clause doesn't include conditions on all key attributes. In this case that would have had to be the combined <code>student_id</code> and <code>course_id</code> columns, but we did not use the <code>course_id</code> ones. This is called &quot;safe update mode&quot; and it is there to protect us from making too many changes by accident. One way around this is to disable the mode altogether, then reconnect to the server. Another is to add a clause for the missing key, with a condition that is always true:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">DELETE</span> <span class="kw">FROM</span> enrollments
+<span class="kw">WHERE</span> student_id <span class="kw">IN</span> (<span class="kw">SELECT</span> id <span class="kw">from</span> students
+                     <span class="kw">WHERE</span> first = <span class="st">&quot;Joe&quot;</span>)
+<span class="kw">AND</span> course_id &gt; <span class="dv">0</span>;</code></pre></div>
+<h4 id="update">UPDATE</h4>
+<p>We can use the UPDATE method to set values within particular records. Some of the clauses in it are similar to that in a SELECT clause, where we need to identify which rows to act on. Here is an example. Let us say that we want to update the entry in a student's file that shows the number of credits the student has. This would entail adding up the credits from the various courses that the student is enrolled in. Let us first work out the SELECT query that would get that information for us. Do it yourself before reading on.</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> s<span class="ch">.</span>id, (<span class="kw">SELECT</span> <span class="fu">SUM</span>(c<span class="ch">.</span>credits)
+              <span class="kw">FROM</span> courses <span class="kw">AS</span> c
+              <span class="kw">JOIN</span> enrollments <span class="kw">AS</span> e <span class="kw">on</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+              <span class="kw">WHERE</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id)
+<span class="kw">FROM</span> students s;</code></pre></div>
+<p>When you run the above query you will notice that some of the sums are NULL. That is what happens for students that are not enrolled in any courses. We would rather have 0s there. We could do this using the function COALESCE that returns the first non-null argument in its list:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> s<span class="ch">.</span>id, (<span class="kw">SELECT</span> COALESCE(<span class="fu">SUM</span>(c<span class="ch">.</span>credits), <span class="dv">0</span>)
+              <span class="kw">FROM</span> courses <span class="kw">AS</span> c
+              <span class="kw">JOIN</span> enrollments <span class="kw">AS</span> e <span class="kw">on</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+              <span class="kw">WHERE</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id)
+<span class="kw">FROM</span> students <span class="kw">AS</span> s;</code></pre></div>
+<p>We could now turn this into an UPDATE query:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">UPDATE</span> students <span class="kw">AS</span> s
+<span class="kw">SET</span> s<span class="ch">.</span>credits = (<span class="kw">SELECT</span> COALESCE(<span class="fu">SUM</span>(c<span class="ch">.</span>credits), <span class="dv">0</span>)
+                 <span class="kw">FROM</span> courses <span class="kw">AS</span> c
+                 <span class="kw">JOIN</span> enrollments <span class="kw">AS</span> e <span class="kw">on</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+                 <span class="kw">WHERE</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id)
+<span class="kw">WHERE</span> s<span class="ch">.</span>id &gt; <span class="dv">0</span>;</code></pre></div>
+<p>The last line is needed for the same &quot;safe update&quot; reasons we ran into when we were trying to do a delete.</p>
+<p>Let us modify the above query a bit. We should only count students as having credits in courses in which they have received a letter grade. This would require us to change the inner SELECT query:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">UPDATE</span> students <span class="kw">AS</span> s
+<span class="kw">SET</span> s<span class="ch">.</span>credits = (<span class="kw">SELECT</span> COALESCE(<span class="fu">SUM</span>(c<span class="ch">.</span>credits), <span class="dv">0</span>)
+                 <span class="kw">FROM</span> courses <span class="kw">AS</span> c
+                 <span class="kw">JOIN</span> enrollments <span class="kw">AS</span> e <span class="kw">on</span> e<span class="ch">.</span>course_id = c<span class="ch">.</span>id
+                 <span class="kw">WHERE</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id
+                 <span class="kw">AND</span> e<span class="ch">.</span>letter_grade <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>)
+<span class="kw">WHERE</span> s<span class="ch">.</span>id &gt; <span class="dv">0</span>;</code></pre></div>
+<p>We should find all students to have 0 credits now, as there are no assigned grades so far.</p>
+<p>For your homework, you will create a new table to hold the numeric correspondence of letter grades to numbers, and then you would be able to use that to update the gpa entries.</p>
+</body>
+</html>
