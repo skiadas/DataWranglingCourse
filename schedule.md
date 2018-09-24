@@ -40,9 +40,8 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 - Day 1
     - [Joins, functions, updates and deletes](notes/databases_mysql_advanced.md)
     - [Assignment 3: Working with MySQL database tables](assignments/3.md)
-    - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
 - Day 2
-    - [Accessing SQL from other languages (cont)](notes/databases_sqlalchemy.md)
+    - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
 - Day 3
     - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
     - [Assignment 4: Tweets via SQL queries and SQLAlchemy](assignments/4.md)

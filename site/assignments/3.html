@@ -14,24 +14,62 @@
 </head>
 <body>
 <h1 id="lab-assignment-3-working-with-mysql">Lab Assignment 3: Working with MySQL</h1>
-<p>In this assignment we will continue the work on MySQL data that we carried on in class. Your data at this point should be the result after we execute all the commands in the mysql section of the notes, that we just went over together in class. You should download <a href="https://github.com/skiadas/DataWranglingCourse/blob/gh-pages/assignments/assignment3.sql">this SQL script from GitHub</a> and open the script file from mysqlworkbench. It contains instructions that would delete the tables we created and recreate them. When you want to &quot;reset&quot; the database, just execute that script. You will add your answers at the bottom of that file.</p>
+<p>In this assignment we will create some new tables that would help us handle parts of the simple messaging system we discussed earlier. You should download <a href="https://github.com/skiadas/DataWranglingCourse/blob/gh-pages/assignments/assignment3.sql">this SQL script from GitHub</a> and open the script file from mysqlworkbench. It contains instructions that would delete any tables we have created on the topic. You will add your own code this this file. When you want to &quot;reset&quot; the database, just execute that script.</p>
+<p>We will create three tables in this assignment:</p>
+<ul>
+<li><code>profiles</code> holds information about the users of the system. It contains their username and first and last name.</li>
+<li><code>messages</code> holds information about a message. A row in this table consists of a unique auto-generated message id, the username of the message's sender, the username of the message's recipient, the message's text, and the time and date when the text was sent. It also contains a boolean flag as to whether the message has been read by the recipient, and another field that contains the id of the message that this message responds to, if it is in response to another message.</li>
+<li><code>acquaintances</code> holds information about which user knows which other user.</li>
+</ul>
 <p>Make sure to do these assignments in order.</p>
 <ol style="list-style-type: decimal">
-<li>Write the SQL command to create a new table, called <code>grades</code>. It will have two attributes: One will be called &quot;letter&quot;, and it should be a fixed 2-byte character string (big enough to hold things like A+). The other should be called &quot;point&quot; and it should be a double-precision number. The letter attribute should be marked as a primary key, and the gpa attribute should be marked as unique.</li>
-<li>Now populate this table using an INSERT, to put it in the correspondence between letter grades and gpas outlined in the college catalog (for instance A would be paired with 4.0). You can get an online copy of the catalog at my.hanover.edu. You only need to includes grades up to F.</li>
-<li>Use ALTER TABLE to change the enrollments table so that it has a FOREIGN KEY on the <code>letter_grade</code> attribute, pointing to the <code>letter</code> attribute of the <code>grades</code> table. Do the same for the <code>point_grade</code> attribute, it should point to the <code>point</code> attribute of the <code>grades</code> table.</li>
-<li>Prepare UPDATE statements that add grades to student enrolled in courses as follows:
+<li>The first part of the assignment is to create the three tables.
 <ul>
-<li>Assign A to everyone with last name &quot;Somebody&quot; in all their classes.</li>
-<li>Assign C to everyone with last name &quot;Doe&quot; in all their CS classes.</li>
-<li>Assign B to every student on every course that they are enrolled in and that they don't have a grade yet.</li>
-<li>In each case you should be assigning both letter grades and point grades.</li>
+<li>Write the CREATE TABLE command for a table named <code>profiles</code>. It should contain the following fields:
+<ul>
+<li><code>username</code> should be a variable length character field with at most 20 characters. It should never be null, and it should be unique.</li>
+<li><code>first</code> should be a variable length character field with at most 40 characters. It is allowed to be null.</li>
+<li><code>last</code> should be a variable length character field with at most 40 characters. It is not allowed to be null.</li>
+</ul>
+Your table should also have the <code>username</code> column as its primary key.</li>
+<li>Write a CREATE TABLE command for a table named <code>messages</code>. It should contain the following fields:
+<ul>
+<li><code>id</code> should be a integer field that is never null, that is unique, and that is auto-incremented.</li>
+<li><code>sender</code> should be a variable length character field of length at most 20 characters. It should not be null.</li>
+<li><code>recipient</code> should be a variable length character field of length at most 20 characters. It should not be null.</li>
+<li><code>message</code> should be a variable length character field of length at most 400 characters. It should be not null, and it should have a default value of an empty string.</li>
+<li><code>is_read</code> should be a boolean field. You can use the <code>BOOLEAN</code> type, or the <code>TINYINT(1)</code> type if BOOLEAN does not work. You can use the values <code>0</code> or <code>FALSE</code> for false, and <code>1</code> or <code>TRUE</code> for true. The field should be set to be not null, and it should be set to have a default value of FALSE.</li>
+<li><code>sent_at</code> should be set to have the <a href="https://dev.mysql.com/doc/refman/5.5/en/date-and-time-type-overview.html"><code>TIMESTAMP</code> type</a>. It should be set to be not null, and to default to the value <code>CURRENT_TIMESTAMP</code>. Timestamps are recorded as seconds since what is known as the &quot;epoch&quot; (you can find out more than you'll ever want to know about this <a href="https://en.wikipedia.org/wiki/Unix_time">here</a>).</li>
+<li><code>in_reply_to</code> is an integer field that may be null, and it defaults to <code>NULL</code>.</li>
+</ul>
+<p>Your table should have the <code>id</code> as a primary key. It should also have three foreign key constraints:</p>
+<ul>
+<li>One foreign key constraint should specify that the <code>sender</code> field must reference the <code>username</code> field of the <code>profiles</code> table. It should cascade on delete.</li>
+<li>One foreign key constraint should specify that the <code>recipient</code> field must reference the <code>username</code> field of the <code>profiles</code> table. It should cascade on delete.</li>
+<li>One foreign key constraint should specify that the <code>in_reply_to</code> field must reference the <code>id</code> field of the <code>messages</code> table. It should be told <code>ON DELETE SET NULL</code> which means that if the referenced message is deleted, then this message should set this entry to <code>NULL</code> rather than also be deleted.</li>
 </ul></li>
-<li>Produce a SELECT query that for each student prints out the student's id along with the number of credits they have.</li>
-<li>Produce a SELECT query that prints out on each row the student's id along with their cumulative gpa. To compute that gpa you would need to do the following: You can do a join of the students, enrollments and courses, then have a GROUP BY clause for student id, then compute the sum of &quot;points times credits&quot; and divide by the sum of credits. Something like <code>SUM(point_grade*credits) / SUM(credits)</code> would do that part. Name the column &quot;gpa&quot;.</li>
-<li>Write a query to return the ids of students who are not enrolled in any CS courses.</li>
-<li>Write an UPDATE query that would correctly set the gpa and number of credits earned values in the students table.</li>
-<li>Write an INSERT that would find any student that got at least a B (use the point grade instead) in CS220, and enroll them in CS223.</li>
+<li>Write a <code>CREATE TABLE</code> command for a table named <code>acquaintances</code>. The acq table has the following fields:
+<ul>
+<li><code>source</code> should be a variable length character field of length at most 20 characters. It should not be null.</li>
+<li><code>target</code> should be a variable length character field of length at most 20 characters. It should not be null.</li>
+</ul>
+<p>The table should have the pair of source and target as a primary key.</p>
+<p>The table also has two foreign key constraints. The two foreign key constraints should specify that the <code>source</code> (respectively <code>target</code>) field references the <code>username</code> field in the <code>profiles</code> array. They should both cascade on delete.</p>
+The table's entries are meant to represent that given a source-target pair, the source user &quot;knows&quot; the target user (and can therefore send them messages).</li>
+</ul></li>
+<li>We now need to add some profiles. Write an INSERT command to create three new profiles. One of these profiles should have the username <code>admin</code>, with a null first name and with an <code>Admin</code> last name. Another profile should be yours, and a third should be your favorite Famous Computer Scientist (if you don't have one, now is a good time to find one). We will abbreviate this scientist in the rest as FCS.</li>
+<li>Write an INSERT command that will add one acquaintance pair to the <code>acquaintances</code> table, namely it should say that you know the famous computer scientist.</li>
+<li>We want to establish that the admin user knows all other users in the system. Start by constructing a SELECT query that will show you the usernames of all users except for the admin user, then use that query inside an INSERT query that adds entries to the <code>acquaintances</code> table. The entries should contain the <code>admin</code> user as the source, and should have all other users as the <code>target</code>. You <strong>must</strong> use and INSERT-SELECT combination for this, don't use INSERT-VALUES to explicitly list the other two users in your system. Your code should work just as well if there were 100 or 1000 users in the system.</li>
+<li><p>Create an INSERT command that adds a message, sent by you to the FCS, with text a sentence that congratulates them on something they accomplished (this should be something they actually did accomplish, find something on their wikipedia page or through google search. Do NOT make something up).</p>
+You do not need to provide values for the <code>id</code>, <code>is_read</code>, <code>sent_at</code> or <code>in_reply_to</code> fields, they should be automatically getting set. So your INSERT clause should specify which fields it provides and what their values would be.</li>
+<li>We now want to &quot;send&quot; to all users a greeting message. Do another INSERT-SELECT query to do the following: Add a new message with text <code>&quot;Welcome to our messaging service&quot;</code> with sender the <code>admin</code> and recipient each user that the admin knows through its <code>acquaintances</code> entries. Start by creating a SELECT query that returns the usernames of all users that are the <code>target</code>s of an <code>acquaintance</code> with source the admin user. Then use that query inside an INSERT. As in 5, your INSERT needs to specify the sender/recipient/message fields, but this time you should <strong>also</strong> specify the <code>is_read</code> field to be set to TRUE.</li>
+<li><p>We will now write a &quot;reply&quot; to the message you sent to the FCS (and possibly other messages the FCS has received). Your query should be an INSERT query that does the following:</p>
+<ul>
+<li>Locates all messages that were sent to the FCS and have not yet been read (via a SELECT).</li>
+<li>For each such message, creates a &quot;reply&quot; message from the FCS to the sender of that message, with the <code>in_reply_to</code> field set to the id of the received message, and with message text explaining that the FCS apologizes for not being able to reply to all the messages they receive from all their fans.</li>
+</ul>
+Follow the INSERT query with an UPDATE query which sets the <code>is_read</code> field for all those messages that the FCS has received to TRUE.</li>
+<li><p>Write a SELECT query that lists all the pairs of <code>sender</code> and <code>receiver</code> where there is a message from the <code>sender</code> to the <code>receiver</code> but the <code>sender</code> does not in fact know the <code>receiver</code> according to the <code>acquaintances table</code>. You should see one entry as a response, namely the reply that the FCS sent to you.</p></li>
 </ol>
 <p>You should submit your completed SQL script as an email attachment to me. The name of the file should include your first and last name, in addition to the assignment's number. It should contain no whitespaces.</p>
 </body>
