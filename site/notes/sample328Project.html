@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="sample-project-for-cs-328">Sample Project for CS 328<span class="small"> (<a href="328.pdf" class="small" title="328">pdf</a>)</span></h1>
+<h2 id="project-h.e.m.p.">Project H.E.M.P.</h2>
+<h3 id="overview">Overview</h3>
+<p>H.E.M.P (Helpful Event and Meeting Planner) is a service designed to manage people's schedules.</p>
+<ul>
+<li>It will keep track of individuals as well as events for these individuals.</li>
+<li>It will provide a way for individuals to see their calendar, to create new events and to search for common meeting times for a set of individuals.</li>
+</ul>
+<h3 id="information-retrieval-and-storage">Information Retrieval and Storage</h3>
+<p>We will maintain a database that likely contains the following tables:</p>
+<ul>
+<li><code>users</code> contains personal user information, such as a user's name, possibly an affiliation or role.</li>
+<li><code>events</code> contains events. An event has a title, some location information, start and end times/days, and an owner.</li>
+<li><code>participants</code> pairs events with &quot;participants&quot;. Each row contains an event, a participant/invitee to the event, and their &quot;status&quot; (accept/decline/waiting etc).</li>
+</ul>
+<p>Later on it would be nice to integrate our app with something like Google Calendar.</p>
+<h3 id="api">API</h3>
+<p>We describe here some of the resource paths we will consider.</p>
+<ul>
+<li><code>/user</code> gives access to the list of users.</li>
+<li><code>/user/{userid}</code> accesses a user's profile. Anyone can view/get, but may need permissions in order to edit/post.</li>
+<li><code>/schedule</code> provides schedules for a one or more users (userids passed as parameters). It expects also a timeframe, and provides information about the schedules of the users on that timeframe and any common free times they have.</li>
+<li><code>/event</code> provides access to the list of all events. It should allow passed parameters for filtering the list of events (e.g. all events that occur today). A lot of query possibilities here.</li>
+<li><code>/event/{eventId}</code> provides access to a specific event.</li>
+<li><code>/event/{eventId}/invite</code> is the list of invites to users for this event.</li>
+<li><code>/event/{eventId}/invite/{userId}</code> pertains to the invite of a specific user to the event, and its status.</li>
+</ul>
+</body>
+</html>
