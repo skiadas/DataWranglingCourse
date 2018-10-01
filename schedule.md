@@ -33,31 +33,31 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Introduction to databases](notes/databases_intro.md)
 - Day 3
     - [Relational Databases](notes/databases_relational.md)
-    - [Introduction to MySQL](notes/databases_mysql.md)
 
 ## Week  4 (09/26-09/30)
 
 - Day 1
-    - [Joins, functions, updates and deletes](notes/databases_mysql_advanced.md)
-    - [Assignment 3: Working with MySQL database tables](assignments/3.md)
+    - [Introduction to MySQL](notes/databases_mysql.md)
 - Day 2
-    - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
+    - [Joins, functions, updates and deletes](notes/databases_mysql_advanced.md)
 - Day 3
-    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
-    - [Assignment 4: Tweets via SQL queries and SQLAlchemy](assignments/4.md)
+    - [Joins, functions, updates and deletes (cont)](notes/databases_mysql_advanced.md)
+    - [Assignment 3: Working with MySQL database tables](assignments/3.md)
 
 ## Week  5 (10/03-10/07)
 
 - Day 1
-    - Guest lecture
+    - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
 - Day 2
-    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
+    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
 - Day 3
-    - [Assignment 5: Implementing a simple messaging web service](assignments/5.md)
+    - [Assignment 4: Tweets via SQL queries and SQLAlchemy](assignments/4.md)
 
 ## Week  6 (10/10-10/14)
 
 - Day 1
+    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
+    - [Assignment 5: Implementing a simple messaging web service](assignments/5.md)
     - [SQL Practice](notes/sql_practice.md)
 - Day 2
     - Midterm ([study guide](notes/midterm1_study_guide.md))

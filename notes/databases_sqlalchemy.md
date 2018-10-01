@@ -2,16 +2,17 @@
 
 ## Reading / References
 
-- [SQLAlchemy Core](http://docs.sqlalchemy.org/en/rel_0_9/core/index.html)
+- [SQLAlchemy Expression Language Tutorial](https://docs.sqlalchemy.org/en/latest/core/tutorial.html)
+- [SQLAlchemy Core](https://docs.sqlalchemy.org/en/latest/core/index.html)
 - [SQL Injection](https://en.wikipedia.org/wiki/SQL_injection)
-- [SQLAlchemy Describing Databases](http://docs.sqlalchemy.org/en/rel_0_9/core/metadata.html)
-- [SQLAlchemy Column and Data Types](http://docs.sqlalchemy.org/en/rel_0_9/core/types.html)
+- [SQLAlchemy Describing Databases](http://docs.sqlalchemy.org/en/latest/core/metadata.html)
+- [SQLAlchemy Column and Data Types](http://docs.sqlalchemy.org/en/latest/core/types.html)
 
 ## Notes
 
 ### SQL Injection
 
-We often need to communicate with databases from within a language like Python. One ways is to form an SQL query and then communicate with the database server to submit that query. There are many reasons to not do that. One of these is the various forms of **SQL injection**, that have catastrophic consequences and are harder to guard against when writing your own query code.
+We often need to communicate with databases from within a language like Python. One way is to form an SQL query and then communicate with the database server to submit that query. There are many reasons to not do that. One of these is the various forms of **SQL injection**, that have catastrophic consequences and are harder to guard against when writing your own query code.
 
 Let's consider a simple example. We have someone type in their name in a web form, then query the database about their information. We may have in mind a query like:
 ```sqlmysql
@@ -29,11 +30,11 @@ If we are not careful, the provided username might be something like: `'; DROP T
 SELECT * FROM users WHERE name = ''; DROP TABLE users; --';
 ```
 
-This would effectively execute the DROP TABLES command on the database, deleting our entire database. You must always take care to "clean up" your input and not blindly feed it into an SQL query. This is called "sanitizing".
+This would effectively execute the DROP TABLES command on the database, deleting our entire database. You must always take care to "clean up" your input and not blindly feed it into an SQL query. This is called **sanitizing**.
 
 > Always sanitize user input!
 
-This is easier to do when you use built-in libraries for database access. We will learn exactly one such library for Python, called SQLAlchemy. But we would be remiss if we didn't first link to this awesome and relevant xkcd coming:
+This is easier to do when you use built-in libraries for database access. We will learn exactly one such library for Python, called SQLAlchemy. But we would be remiss if we didn't first link to this awesome and relevant xkcd comic:
 
 ![Sanitize your inputs!](http://imgs.xkcd.com/comics/exploits_of_a_mom.png)
 
@@ -45,31 +46,39 @@ SQLAlchemy ORM
   ~ This offers a way to link objects directly to database tables, and work with Python as if we only had normal objects around. We will examine this later.
 
 SQLAlchemy Core
-  ~ Core offers a more direct access to the database, including an SQL Expression Language interface that allows us to write queries in Python.
+  ~ Core offers more direct access to the database, including an SQL Expression Language interface that allows us to write queries in Python. The huge advantage of this is that we can let the library worry about sanitizing the input, and we can also more easily create dynamic queries.
 
 We will spend this section looking at parts of the core, and specifically the expression language. We will use this also as an opportunity to revisit the Twitter API and store tweets in the database.
 
 #### Connecting
 
-We start by importing SQLAlchemy and contacting the database:
+Typically an interaction of SQLAlchemy with a database involves a number of steps:
+
+- Setting up the database parameters so that SQLAlchemy can properly authenticate with the database. In SQLAlchemy this is typically called "setting up an engine".
+- Setting up the **metadata**, i.e. telling SQLAlchemy about the various tables that exist in the database and how they should relate to Python entities. This can be omitted if the tables already exist, but is important if the tables must be created by SQLAlchemy
+- Using the **engine** object to establish a **connection** with the database
+- **Preparing** an SQL query.
+- **Executing** an SQL query
+- Processing the query **results**.
+
+We start by importing SQLAlchemy and setting up the database engine:
 ```python
-import sqlalchemy
+from sqlalchemy import *
 ## Reading database keys
 import json
 with open('keys.json', 'r') as f:
    vault = json.loads(f.read())['vault']
 
-engineUrl = ('mysql+mysqldb://' + vault['username'] +
-             ':' + vault['password'] +
-             '@' + vault['server'] +
-             '/' + vault['schema'])
+engineString = 'mysql+mysqldb://{username}:{password}@{server}/{schema}'
+engineUrl = engineString.format(**vault)  # Learn about * and ** !!!
 
 # Establishing a specific database connection
 engine = create_engine(engineUrl, echo = True)
 # Now engine can be used to interact with the database
 ```
+This engine will be our connection to the database.
 
-In order to make the above work, you will need to add some appropriate entries to the keys.json file. Your values will be different of course:
+In order to make the above work, you will need to add some appropriate entries to the `keys.json` file. Your values will be different of course:
 ```
    "vault": {
       "username": "skiadas",
@@ -78,200 +87,262 @@ In order to make the above work, you will need to add some appropriate entries t
       "schema": "skiadas"
    }
 ```
+To make sure that the engine is set up properly, the following will create an actual connection to the database:
+```python
+conn = engine.connect()
+conn
+```
 
 #### Creating or specifying tables
 
-In order to do further work with the database, we need to describe the tables. Let us first discuss in SQL terms what we want. We will be looking at some Twitter data. So we might have the following tables:
+In order to do further work with the database, we need to describe the tables (If we were using an existing database, can also let the system "infer" the table structure from the database).
+
+Let us first discuss in SQL terms what we want. Let's consider the student enrollments tables we have been using. Here's how those were defined:
 ```sqlmysql
-CREATE TABLE tw_users (
-    id INT PRIMARY KEY,
-    screen_name VARCHAR(140),
-    name VARCHAR(140)
+CREATE TABLE students (
+    id    INT  UNIQUE   NOT NULL AUTO_INCREMENT,
+    login VARCHAR(20) UNIQUE NOT NULL,
+    first VARCHAR(20),
+    last  VARCHAR(20),
+    credits INT DEFAULT 0,
+    gpa     DOUBLE DEFAULT 0,
+    PRIMARY KEY (id)
 );
-CREATE TABLE tw_tweets (
-    id INT  PRIMARY KEY,
-    text VARCHAR(150) NOT NULL,
-    created TIMESTAMP NOT NULL,
-    user INT NOT NULL,
-    CONSTRAINT FK_user FOREIGN KEY (user) REFERENCES tw_users(id)
+
+CREATE TABLE courses (
+    id     INT  UNIQUE   NOT NULL AUTO_INCREMENT,
+    prefix CHAR(4) NOT NULL,
+    no     INT NOT NULL,
+    title  VARCHAR(55) NOT NULL,
+    credits INT NOT NULL DEFAULT 4,
+    UNIQUE KEY fullCode (prefix, no),
+    PRIMARY KEY (id)
 );
-CREATE TABLE tw_mentions (
-    tweet_id INT,
-    user_id INT,
-    PRIMARY KEY (tweet_id, user_id),
-    CONSTRAINT FK_mention_tweet FOREIGN KEY (tweet_id) REFERENCES tw_tweets(id),
-    CONSTRAINT FK_mention_user FOREIGN KEY (user_id) REFERENCES tw_users(id)
-);
-CREATE TABLE tw_hashtags (
-    tweet_id INT,
-    hashtag VARCHAR(140),
-    PRIMARY KEY (tweet_id, hashtag),
-    CONSTRAINT FK_hashtag_tweet FOREIGN KEY (tweet_id) REFERENCES tw_tweets(id),
+
+CREATE TABLE enrollments (
+    student_id INT NOT NULL,
+    course_id INT NOT NULL,
+    letter_grade  CHAR(2) DEFAULT NULL,
+    point_grade   DOUBLE DEFAULT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id)  REFERENCES courses(id) ON DELETE CASCADE,
+    PRIMARY KEY (student_id, course_id)
 );
 ```
 
-This is how we would create these tables in MySQL. Take a moment to study them and make sure they make sense. We will instead learn how to describe the same information in SQLAlchemy.
+This is how we would create these tables in MySQL. These should hopefully be familiar to you by now. We will instead learn how to describe the same information in SQLAlchemy.
 
-Such information is referred to as **metadata**. We start with creating a "Metadata object", then use the Table and Column methods to add specifications:
+One of the challenges we will encounter is the `AUTO_INCREMENT` part. SQLAlchemy tries to be "implementation agnostic". So you write your code once and it runs on all databases. But not all databases have the auto-increment feature. Some don't have anything like it, while others like Firebird use a `SEQUENCE` system.
+
+Such information is referred to as **metadata**. We start with creating a "Metadata object" with the `Metadata` constructor, then use the `Table` and `Column` methods to add specifications:
 ```python
-metadata = Metadata()
-dbusers = Table('tw_users', metadata,
+metadata = MetaData()
+metadata.bind(engine)
+
+tblStudents = Table('en_students', metadata,
    Column('id', Integer, primary_key = True),
-   Column('screen_name', String(140)),
-   Column('name', String(140))
+   Column('login', String(20), unique=True, nullable=False),
+   Column('first', String(20)),
+   Column('last', String(20)),
+   Column('credits', Integer, default=0),
+   Column('gpa', Float(precision=32), default=0)
 )
-dbtweets = Table('tw_tweets', metadata,
-   Column('id', Integer, primary_key = True),
-   Column('text', String(150), nullable = False),
-   Column('created', DateTime(timezone = True), nullable = False),
-   Column('user', Integer, ForeignKey('tw_users.id'), nullable = False)
+
+tblCourses = Table('en_courses', metadata,
+   Column('id', Integer, primary_key=True),
+   Column('prefix', String(4), nullable=False),
+   Column('no', String(20), nullable=False),
+   Column('title', String(55), nullable=False),
+   Column('credits', Integer, nullable=False, default=4),
+   UniqueConstraint('prefix', 'no', name="fullCode")
 )
-dbmentions = Table('tw_mentions', metadata,
-   Column('tweet_id', Integer, ForeignKey('tw_tweets.id'), primary_key = True),
-   Column('user_id', Integer, ForeignKey('tw_users.id'), primary_key = True)
+
+tblEnrollments = Table('en_enrollments', metadata,
+   Column('student_id', Integer,
+      ForeignKey("en_students.id", ondelete="CASCADE"),
+      nullable=False),
+   Column('course_id', Integer,
+      ForeignKey("en_courses.id", ondelete="CASCADE"),
+      nullable=False),
+   Column('letter_grade', String(2)),
+   Column('point_grade', Float(32)),
+   PrimaryKeyConstraint('student_id', 'course_id')
 )
-dbhashtags = Table('tw_hashtags', metadata,
-   Column('tweet_id', Integer, ForeignKey('tw_tweets.id'), primary_key = True),
-   Column('hashtag', String(140), primary_key = True)
-)
+
+# drop the tables if they existed already. Don't always need this.
+metadata.drop_all(engine)
+
 # Create these tables if they do not exist
 metadata.create_all(engine)
 ```
 
 #### Inserting data
 
-We will now show how we can use SQLAlchemy to add new entries into the database. We will read tweet data as we did in the second assignment. We will then create list comprehensions that extra tweet information, user information and hashtag/mentions from a list of tweets. Finally, we do mass inserts of the created lists into our tables:
+Now let's look into creating some students. Typically the steps for inserting new values would be:
+
+1. Make sure you have a **connection** object.
+2. Create a dictionary object containing the values of the tuple you want to insert, or create a table of such objects for inserting multiple values.
+3. Create an **insert object** for the table you want to insert in.
+4. Use the connection to **execute** an insert using the insert object and the values.
+
+So let's take a look at how this might look in our case:
 ```python
-conn = engine.connect()
-from datetime import datetime
-time_format = '%a %b %d %H:%M:%S +0000 %Y'
-
-# The following 4 methods obtain lists of values that we would
-# want to insert into the database, starting from a list of tweets.
-#
-# Returns a list of all users (possibly with duplicates)
-def getAllUsers(tweets):
-   allUsers = ([ tweet['user'] for tweet in tweets ] +
-               [  user
-                  for tweet in tweets
-                  for user in tweet['entities']['user_mentions']
-               ])
-   return [
-      {
-         'id': user['id'],
-         'screen_name': user['screen_name'],
-         'name': user['name']
-      }
-      for user in allUsers
-   ]
-
-# Returns a list of mentions ready to go in database
-def getAllMentions(tweets):
-   return [
-      { 'tweet_id': tweet['id'], 'user_id': user['id'] }
-      for tweet in tweets
-      for user in tweet['entities']['user_mentions']
-   ]
-
-# Returns tweet-hashtag pairs
-def getAllHashtags(tweets):
-   return [
-      { 'tweet_id': tweet['id'], 'hashtag': tag['text'] }
-      for tweet in tweets
-      for tag in tweet['entities']['hashtags']
-   ]
-
-# Returns simplified tweet entries
-def getSimpleTweets(tweets):
-   return [
-      {
-         'id': tweet['id'],
-         'created': datetime.strptime(tweet['created_at'], time_format),
-         'text': tweet['text'],
-         'user': tweet['user']['id']
-      }
-      for tweet in tweets
-   ]
-
-## Processes the tweets
-def processTweets(tweets):
-   conn.execute(dbusers.insert().prefix_with('IGNORE'), getAllUsers(tweets))
-   conn.execute(dbtweets.insert().prefix_with('IGNORE'), getSimpleTweets(tweets))
-   conn.execute(dbmentions.insert().prefix_with('IGNORE'), getAllMentions(tweets))
-   conn.execute(dbhashtags.insert().prefix_with('IGNORE'), getAllHashtags(tweets))
-
-processTweets(hillary)
-processTweets(donald)
+conn = engine.connect()   # Only if it doesn't already exist
+users = [
+    { "login": "somebodyj1", "first": "Joe", "last": "Somebody" },
+    { "login": "somebodyj2", "first": "Joel", "last": "Somebody" },
+    { "login": "otherp1", "first": "Peter", "last": "Other" },
+    { "login": "otherm1", "first": "Mary", "last": "Other" },
+    { "login": "doem1", "first": "Mary", "last": "Doe" },
+    { "login": "doep1", "first": "Peter", "last": "Doe" },
+    { "login": "doed1", "first": "David", "last": "Doe" }
+]
+ins = tblStudents.insert()  # Create an "insert object"
+result = conn.execute(ins, users)    # Execute the insert on a connection
+dir(result)         # examine what properties the result object has
+result.rowcount     #  7
 ```
 
-The relevant SQLALchemy methods are in the `processTweets` function, where `insert` is used to create an INSERT query, then `execute` executes that query in a connection, passing it the lists of values to add.
+Let's do the same for the courses:
+```python
+courses = [
+    { "prefix": "MAT", "no": 121, "title": "Calculus 1" },
+    { "prefix": "CS", "no": 220, "title": "Intro to CS" },
+    { "prefix": "MAT", "no": 122, "title": "Calculus 2" },
+    { "prefix": "MAT", "no": 221, "title": "Calculus 3" },
+    { "prefix": "CS", "no": 223, "title": "Data Structures" }
+]
+ins = tblCourses.insert()
+result = conn.execute(ins, courses)
+```
 
-At the end of this you should have a rich database of tweets to work with.
+We will discuss the INSERT-SELECT variant later. Let us now turn to querying the data.
 
 #### Querying the data
 
-Now that we have a rich dataset, let us try to do some queries. We'll write them in SQL first as practice. Here they are:
-
-1. We want to look at the hashtags list, and see how many times each tag occurs, then order by those counts, starting from the highest.
-2. We want to look at how many hashtags each candidate has used. So the resulting table would have only two rows, and two columns for candidate names and tag counts.
-3. We want to look at hashtag counts further broken by candidate. So for each candidate and each tag it would list the number of times the candidate used that tag.
-4. This is similar to 3, but with a twist: For each hashtag it should show: the hashtag, the number of times Clinton used it, and the number of times Trump used it. For extra challenge, order the hashtags according to the total count amongst both candidates.
-
-Do not read further down until you have worked the above queries in SQL Workbench.
-
-Here is how we would do the first query in SQL:
+Now let us discuss how we can query the database for information from within SQLAlchemy. We start with some basic queries. For example, let's see how we would do a basic "select all" query:
 ```sqlmysql
-SELECT hashtag, COUNT(*) as no_tweets
-FROM tw_hashtags
-GROUP BY hashtag
-ORDER BY no_tweets DESC;
+SELECT * FROM students;
 ```
 
-Now we want to do the same query with SQLAlchemy. Here is how it would look like:
+In SQLAlchemy, you would break this into steps:
+
+1. Prepare a **select** object for one or more tables.
+2. Add any extra **conditions** to that object.
+3. **Execute** the object on an active **connection** object.
+4. **Process** the results as you would process a list.
+
+Let's take a look:
 ```python
-tag_counts = select([ dbhashtags.c.hashtag,
-                      func.count(dbhashtags.c.tweet_id).label('no_tweets')
-                    ]).group_by('hashtag').order_by(desc('no_tweets'))
-results = conn.execute(tag_counts).fetchall()
+s = select([tblStudents])
+result = conn.execute(s)
+result.fetchall()   # A list of tuples
+# The result object is enumerable
+result = conn.execute(s)
+for student in result:
+    print(student)
+
+result.close()   # Done using it
+```
+One important thing to notice is that the result object acts as what is called a **[DBAPI cursor](https://www.python.org/dev/peps/pep-0249/#cursor-objects)**: It offers you an iterative pattern over the results set, but once you process the set it then closes and is not available again. You need to execute a new query to process the list a second time, unless you stored the result of the iteration in some way (for example stored the result of `result.fetchall`).
+
+Another really important thing is that while the results are tuples, they are actually named tuples:
+```
+result = conn.execute(s)
+student = result.fetchone()  # Just grabbing one match
+student.keys()     # all the keys
+student['login']   # value for key "login"
+student.login      # also works
 ```
 
-For the second query, we would have:
+Let's now do a specific query for some fields/columns only:
 ```sqlmysql
-select u.name, count(*) AS hashtags
-FROM tw_hashtags h
-JOIN tw_tweets t ON t.id = h.tweet_id
-JOIN tw_users u ON u.id = t.user
-GROUP BY u.name;
+SELECT last, first FROM students;
 ```
-And here is the same query in Python:
+In SQLAlchemy that might look like so:
 ```python
-tag_candidates = select([ dbusers.c.name,
-                      func.count(dbtweets.c.id).label('no_tweets')
-                    ]).select_from(dbhashtags.join(dbtweets).join(dbusers)
-                    ).group_by('name').order_by(desc('no_tweets'))
-results = conn.execute(tag_candidates).fetchall()
+s = select([tblStudents.c.last, tblStudents.c.first])
+result = conn.execute(s)
+result.fetchall()
+result = conn.execute(s)
+for last, first in result:
+    print(last + ", " + first)
 ```
 
-And here is the third query:
+### Modifying the select object
+
+We can modify the select object to add other components. This is usually done by so-called "method chaining": We add on method calls one after the other, and each one modifies and returns the object. For example we can add a condition for avoiding duplicates (DISTINCT):
+```python
+s = select([tblStudents.c.last]).distinct()
+```
+
+Or let's suppose we want to get all students whose last name is `"Somebody"`. We did this in MySQL via:
 ```sqlmysql
-SELECT name, hashtag, COUNT(DISTINCT tweet_id) as no_tweets
-FROM tw_hashtags h, tw_tweets t, tw_users u
-WHERE h.tweet_id = t.id
-AND u.id = t.user
-GROUP BY hashtag, u.name
-ORDER BY no_tweets DESC;
+SELECT first
+FROM students
+WHERE last = "Somebody";
 ```
-And in Python:
+In SQLAlchemy, we would use the `where` method that can be tacked on to a `select` object:
 ```python
-tag_and_candidates = select([
-    dbusers.c.name, dbhashtags.c.hashtag,
-    func.count(dbtweets.c.id).label('no_tweets')
-]).where(
-    dbusers.c.id == dbtweets.c.user
-).where(
-    dbtweets.c.id == dbhashtags.c.tweet_id
-).group_by('name').group_by('hashtag').order_by(desc('no_tweets'))
-results = conn.execute(tag_and_candidates).fetchall()
+s = select([tblStudents]).\
+     where(tblStudents.c.last=="Somebody")
 ```
 
-Look at the [SQLAlchemy expression tutorial](http://docs.sqlalchemy.org/en/rel_0_9/core/tutorial.html) to learn more about what else is available.
+Let's scale things up! We want to add two conditions:
+```sqlmysql
+SELECT *
+FROM students
+WHERE first = "Joe"
+AND last = "Somebody";
+```
+In Python:
+```python
+s = select([tblStudents]).\
+     where(tblStudents.c.first=="Joe").\
+     where(tblStudents.c.last=="Somebody");
+```
+
+Or we can add a `GROUP BY` clause:
+```sqlmysql
+SELECT *
+FROM students
+ORDER BY last, first;
+```
+In Python:
+```python
+s = select([tblStudents]).\
+     order_by(tblStudents.c.last, tblStudents.c.first);
+```
+
+### Insert with Select
+
+Let's see how we can do an `INSERT` querty that uses a `SELECT` query to determine the values. For example we had the following:
+```sqlmysql
+INSERT INTO enrollments (student_id, course_id)
+SELECT id, 1
+FROM students;
+```
+
+In Python, this would become:
+```python
+ins = tblEnrollments.insert().\
+        from_select([tblEnrollments.c.student_id, tblEnrollments.c.course_id],
+                    select([tblStudents.c.id, literal(1)]));
+```
+
+### Performing joins
+
+We can perform joins in SQLAlchemy in two different ways, just as in MySQL. In MySQL, a join can be made implicitly by combining tables via appropriate `where` clauses:
+```sqlmysql
+SELECT s.last, s.first, c.prefix, c.no
+FROM students s, enrollments e, courses c
+WHERE e.student_id = s.id
+AND   e.course_id  = c.id;
+```
+In Python:
+```python
+s = select([tblStudents.c.last, tblStudents.c.first,
+            tblCourses.c.prefix, tblCourses.c.no]).\
+        where(tblEnrollments.c.student_id == tblStudents.c.id).\
+        where(tblEnrollments.c.course_id == tblCourses.c.id);
+```
