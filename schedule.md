@@ -50,8 +50,8 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
 - Day 2
     - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
+    - [Assignment 4: Practice with SQL queries and SQLAlchemy](assignments/4.md)
 - Day 3
-    - [Assignment 4: Tweets via SQL queries and SQLAlchemy](assignments/4.md)
     - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
 
 ## Week  6 (10/10-10/14)
