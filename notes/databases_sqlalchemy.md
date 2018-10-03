@@ -346,3 +346,35 @@ s = select([tblStudents.c.last, tblStudents.c.first,
         where(tblEnrollments.c.student_id == tblStudents.c.id).\
         where(tblEnrollments.c.course_id == tblCourses.c.id);
 ```
+There is also an alternative way to do multiple `where` steps, using `and_`:
+```python
+s = select([tblStudents.c.last, tblStudents.c.first,
+            tblCourses.c.prefix, tblCourses.c.no]).\
+        where(and_(
+            tblEnrollments.c.student_id == tblStudents.c.id,
+            tblEnrollments.c.course_id == tblCourses.c.id
+        ));
+```
+
+We also had another way of performing joins, with the `JOIN ... ON` construct. Let's look at the same example in that setup:
+```sqlmysql
+SELECT s.last, s.first, c.prefix, c.no
+FROM enrollments e
+JOIN students s ON e.student_id = s.id
+JOIN courses c ON e.course_id  = c.id;
+```
+One of the nice things about SQLAlchemy is that it will automatically figure out which fields to compare in the `ON` portion, by examining the `FOREIGN KEY` restrictions. So we can omit that. We do however need an extra step to get our join started, via the `select_from` construct:
+```python
+s = select([tblStudents.c.last, tblStudents.c.first,
+            tblCourses.c.prefix, tblCourses.c.no]).\
+        select_from(tblStudents.\
+                    join(tblEnrollments).\
+                    join(tblCourses));
+```
+We can certainly also do these steps in parts, a value of using Python instead of MySQL directly, and taking advantage of the fact that Python has objects representing the various SQL elements. So for example we can give a name to the triple join and the selected columns:
+```python
+allData = tblStudents.join(tblEnrollments).join(tblCourses);
+columns = [tblStudents.c.last, tblStudents.c.first,
+            tblCourses.c.prefix, tblCourses.c.no];
+s = select(columns).select_from(allData);
+```
