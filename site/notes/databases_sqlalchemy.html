@@ -312,5 +312,28 @@ result <span class="op">=</span> conn.execute(s)
             tblCourses.c.prefix, tblCourses.c.no]).<span class="op">\</span>
         where(tblEnrollments.c.student_id <span class="op">==</span> tblStudents.c.<span class="bu">id</span>).<span class="op">\</span>
         where(tblEnrollments.c.course_id <span class="op">==</span> tblCourses.c.<span class="bu">id</span>)<span class="op">;</span></code></pre></div>
+<p>There is also an alternative way to do multiple <code>where</code> steps, using <code>and_</code>:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">s <span class="op">=</span> select([tblStudents.c.last, tblStudents.c.first,
+            tblCourses.c.prefix, tblCourses.c.no]).<span class="op">\</span>
+        where(and_(
+            tblEnrollments.c.student_id <span class="op">==</span> tblStudents.c.<span class="bu">id</span>,
+            tblEnrollments.c.course_id <span class="op">==</span> tblCourses.c.<span class="bu">id</span>
+        ))<span class="op">;</span></code></pre></div>
+<p>We also had another way of performing joins, with the <code>JOIN ... ON</code> construct. Let's look at the same example in that setup:</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">SELECT</span> s<span class="ch">.</span>last, s<span class="ch">.</span>first, c<span class="ch">.</span>prefix, c<span class="ch">.</span>no
+<span class="kw">FROM</span> enrollments e
+<span class="kw">JOIN</span> students s <span class="kw">ON</span> e<span class="ch">.</span>student_id = s<span class="ch">.</span>id
+<span class="kw">JOIN</span> courses c <span class="kw">ON</span> e<span class="ch">.</span>course_id  = c<span class="ch">.</span>id;</code></pre></div>
+<p>One of the nice things about SQLAlchemy is that it will automatically figure out which fields to compare in the <code>ON</code> portion, by examining the <code>FOREIGN KEY</code> restrictions. So we can omit that. We do however need an extra step to get our join started, via the <code>select_from</code> construct:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">s <span class="op">=</span> select([tblStudents.c.last, tblStudents.c.first,
+            tblCourses.c.prefix, tblCourses.c.no]).<span class="op">\</span>
+        select_from(tblStudents.<span class="op">\</span>
+                    join(tblEnrollments).<span class="op">\</span>
+                    join(tblCourses))<span class="op">;</span></code></pre></div>
+<p>We can certainly also do these steps in parts, a value of using Python instead of MySQL directly, and taking advantage of the fact that Python has objects representing the various SQL elements. So for example we can give a name to the triple join and the selected columns:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">allData <span class="op">=</span> tblStudents.join(tblEnrollments).join(tblCourses)<span class="op">;</span>
+columns <span class="op">=</span> [tblStudents.c.last, tblStudents.c.first,
+            tblCourses.c.prefix, tblCourses.c.no]<span class="op">;</span>
+s <span class="op">=</span> select(columns).select_from(allData)<span class="op">;</span></code></pre></div>
 </body>
 </html>

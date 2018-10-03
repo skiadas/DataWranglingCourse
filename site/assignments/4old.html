@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="lab-assignment-4-sqlalchemy-core">Lab Assignment 4: SQLAlchemy Core</h1>
+<p>In this assignment we will carry out work similar to that of assignment 2, but working with SQLAlchemy instead, and writing what amounts to SQL queries. You should download <a href="https://github.com/skiadas/DataWranglingCourse/blob/gh-pages/assignments/assignment4.py">this Python script from GitHub</a> and store it in the same location where your <code>keys.json</code> file is. You will need to add a key called <code>vault</code> with value an object with keys <code>username</code>, <code>password</code>, <code>server</code> and <code>schema</code>. It would look something like this:</p>
+<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
+   <span class="dt">&quot;twitter&quot;</span><span class="fu">:</span> <span class="fu">{</span>
+      <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="st">&quot;....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;secret&quot;</span><span class="fu">:</span> <span class="st">&quot;....&quot;</span>
+   <span class="fu">},</span>
+   <span class="dt">&quot;vault&quot;</span><span class="fu">:</span> <span class="fu">{</span>
+      <span class="dt">&quot;username&quot;</span><span class="fu">:</span> <span class="st">&quot;skiadas&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;password&quot;</span><span class="fu">:</span> <span class="st">&quot;....&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;server&quot;</span><span class="fu">:</span> <span class="st">&quot;vault.hanover.edu&quot;</span><span class="fu">,</span>
+      <span class="dt">&quot;schema&quot;</span><span class="fu">:</span> <span class="st">&quot;skiadas&quot;</span>
+   <span class="fu">}</span>
+<span class="fu">}</span></code></pre></div>
+<p>You should use your own login for username and schema name, and type in your own password. Keep the server value at <code>vault.hanover.edu</code> as above.</p>
+<p>You will be submitting two files. The one is an SQL script you should start. The other is the Python script you just downloaded, with your additions at the end. You should provide two solutions for each question:</p>
+<ul>
+<li>You should first work out the problem in the SQL script, working with MySQLWorkbench. All problems will be appropriate SELECT queries. You can use JOINs when appropriate, or you can do everything exclusively with WHERE.</li>
+<li>Once you have that working, you should transport that script into SQLAlchemy terms.</li>
+<li>Throughout, you should only need to work with the SQL tables. When working on the SQL side, they are called <code>tw_users</code>, <code>tw_tweets</code>, <code>tw_hashtags</code> and <code>tw_mentions</code>. When working on the Python side, they are called <code>dbusers</code>, <code>dbtweets</code> and so on.</li>
+</ul>
+<p>Here are the questions.</p>
+<ol style="list-style-type: decimal">
+<li>Create a table with three columns: The first is the tweet id, the second is the tweet's user's name and the third is a count of the number of hashtags in that tweet (called <code>no_hashtags</code>).</li>
+<li>Create a table that has two columns: The first is the user name (Clinton or Trump) and the other is the average number of hashtags per tweet.</li>
+<li>Create a table that has three columns: The first is a day of the week (Monday, Tuesday etc), the second is a candidate name, and the third is the number of tweets the candidates sent on that weekday. There should be a total of at most 14 rows, one for each combination of a day of the week and a candidate. It is OK if some rows are missing if there were no tweets sent on that day. The function <a href="http://dev.mysql.com/doc/refman/5.7/en/date-and-time-functions.html#function_dayname"><code>DAYNAME()</code></a> will come in handy. Also use the function <code>DAYOFWEEK()</code> from the same documentation page to order the resulting data by day of the week.</li>
+<li>Produce a table with two columns: The first has a user's name, and the second has the number of times that user was mentioned. Order the results by descending order on this number of times.</li>
+<li>Produce a similar table as in the previous problem, but now with an extra column for the candidates. Each row would then contain a user's name, a candidate's name, and the number of tweets that the candidate did that mentioned that user. Order the results alphabetically by user name and then candidate name. You will need to have two copies of the user's table, along with other tables, in your joins. One copy for the user mentioned, and the other for the writer of the tweet. Make sure to give the columns of the result table distinct names.</li>
+</ol>
+<p>You should submit your completed SQL and Python scripts as an email attachment to me. The name of the files should include your first and last name, in addition to the assignment's number. It should contain no whitespaces.</p>
+</body>
+</html>
