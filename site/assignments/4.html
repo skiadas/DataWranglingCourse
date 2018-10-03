@@ -79,18 +79,15 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul>
 <p>Here are the questions. Remember that these questions must all be done BOTH in MySQL and in SQL Alchemy, unless the question says otherwise.</p>
 <ol style="list-style-type: decimal">
-<li>The first step would be to write code that creates these three tables. First create the table <code>ev_users</code>. It should have the following columns/fields:</li>
-</ol>
+<li>The first step would be to write code that creates these three tables. First create the table <code>ev_users</code>. It should have the following columns/fields:
 <ul>
 <li><code>username</code> which is a variable length character string of length at most 20, it cannot be null and it is the primary key.</li>
 <li><code>first</code> which is a variable length character string of length at most 40.</li>
 <li><code>last</code> which is a variable length character string of length at most 40.</li>
 <li><code>affiliation</code> which is a variable length character string of length at most 40, and should default to the string &quot;None&quot;.</li>
 <li>In SQLAlchemy, store this table in a variable called <code>tblUsers</code>.</li>
-</ul>
-<ol start="2" style="list-style-type: decimal">
-<li>Next, create a table <code>ev_events</code> (with corresponding SQLAlchemy name <code>tblEvents</code>. It should have the following columns/fields:</li>
-</ol>
+</ul></li>
+<li>Next, create a table <code>ev_events</code> (with corresponding SQLAlchemy name <code>tblEvents</code>. It should have the following columns/fields:
 <ul>
 <li><code>id</code> which should be an auto-incrementing integer, not null and primary key.</li>
 <li><code>title</code> which is a variable length character string of length at most 40, must be not null, and defaults to the empty string.</li>
@@ -99,16 +96,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><code>owner</code> which is a variable length character string of length at most 20, it cannot be null, and it is a foreign key pointing to the <code>username</code> field of the <code>ev_users</code> table.</li>
 <li><code>start</code> is a <code>TIMESTAMP</code> field in MySQL and a <code>DateTime</code> type is SQLAlchemy and must default to the value <code>CURRENT_TIMESTAMP</code> (which uses the current datetime when the entry is created) in MySQL and the value <code>datetime.now()</code> in SQLAlchemy.</li>
 <li><code>end</code> is a <code>TIMESTAMP</code> field in MySQL and a <code>DateTime</code> type is SQLAlchemy and must default to null. You will have to enter <code>NULL DEFAULT NULL</code> after the <code>TIMESTAMP</code> part for MySQL to accept null as a valid timestamp value.</li>
-</ul>
-<ol start="3" style="list-style-type: decimal">
-<li>Next, create a table <code>ev_invites</code> (with corresponding SQLAlchemy name <code>tblInvites</code>). It should have the following columns/fields:</li>
-</ol>
+</ul></li>
+<li>Next, create a table <code>ev_invites</code> (with corresponding SQLAlchemy name <code>tblInvites</code>). It should have the following columns/fields:
 <ul>
 <li><code>event_id</code> which is an integer, not null, and a foreign key pointing to the <code>id</code> entry in the <code>ev_events</code> table, with its &quot;on delete&quot; set to cascade.</li>
 <li><code>username</code> which is a variable length character string of length at most 20, it cannot be null, and it is a foreign key pointing to the <code>username</code> entry of the <code>ev_users</code> table, with its &quot;on delete&quot; set to cascade.</li>
 <li><code>status</code> should be an <code>ENUM</code> type, with possible values <code>&quot;Accepted&quot;</code>, <code>&quot;Declined&quot;</code> and <code>&quot;Maybe&quot;</code>. It should be allowed to be null. Read the <a href="https://dev.mysql.com/doc/refman/8.0/en/enum.html">MySQL documentation on enum types</a> and the <a href="https://docs.sqlalchemy.org/en/latest/core/type_basics.html">SQLAlchemy documentation on the enum type</a> to find out how to do this. Make sure to understand how Python expects you to enter an enum value (it is not by simply providing a string, you have to create a class that represents the enumeration; The <code>Status</code> class has been created for you for this purpose).</li>
-</ul>
-<ol start="4" style="list-style-type: decimal">
+</ul></li>
 <li>Write code that creates and adds a user named after yourself, with affiliation <code>&quot;Hanover College, Student&quot;</code>, as well as another student user of your choice with the same affiliation, as well as a user named after a professor, with affiliation <code>&quot;Hanover College, Faculty, Staff&quot;</code>.</li>
 <li>Write code that creates a new event titled &quot;Homecoming get-together&quot;, scheduled with a start timestamp of October 6th at 8am, with you as the owner, and with longtitude and latitude pinpointing to the Horner Center. A google search for Horner Center coordinates should return those values. By convention north and east values are positive, while south and west values are negative.</li>
 <li>Write code that looks at any event where the owner of the event does not have an invite entry for the event itself, and inserts such an entry into the <code>ev_events</code> table with a status of <code>&quot;Accepted&quot;</code>.</li>
