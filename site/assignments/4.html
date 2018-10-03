@@ -70,14 +70,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>You should first work out the problem in the SQL script, working with MySQLWorkbench and your <code>assignment4.sql</code> file.</li>
 <li>Once you have that working, you should transport that solution into a SQLAlchemy solution back in the <code>assignment4.py</code> script.</li>
 </ul>
-<p>Both scripts start by dropping previous tables, to make sure you have a clean start every time you run them.</p>
+<p>NOTE: Both the Python script an the MySQL script start by dropping the previous tables, to make sure you have a clean start every time you run them.</p>
 <p>The database will contain three tables:</p>
 <ul>
 <li><code>ev_users</code> contains personal user information, such as a user's username, first and last name, and their affiliation or role.</li>
 <li><code>ev_events</code> contains events. An event has an id, a title, some location information, start and end times/days, and an owner's username.</li>
-<li><code>ev_participants</code> pairs events with &quot;participants&quot;. Each row contains an event id, a participant's username, and also an entry that represents</li>
+<li><code>ev_invites</code> manages invites of users to events. Each row contains an event id, a user's username, and also an entry that represents the status of the &quot;invitation&quot;.</li>
 </ul>
-<p>Here are the questions.</p>
+<p>Here are the questions. Remember that these questions must all be done BOTH in MySQL and in SQL Alchemy, unless the question says otherwise.</p>
 <ol style="list-style-type: decimal">
 <li>The first step would be to write code that creates these three tables. First create the table <code>ev_users</code>. It should have the following columns/fields:</li>
 </ol>
@@ -101,13 +101,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><code>end</code> is a <code>TIMESTAMP</code> field in MySQL and a <code>DateTime</code> type is SQLAlchemy and must default to null. You will have to enter <code>NULL DEFAULT NULL</code> after the <code>TIMESTAMP</code> part for MySQL to accept null as a valid timestamp value.</li>
 </ul>
 <ol start="3" style="list-style-type: decimal">
-<li>Next, create a table <code>ev_participants</code> (with corresponding SQLAlchemy name <code>tblParticipants</code>). It should have the following columns/fields:</li>
+<li>Next, create a table <code>ev_invites</code> (with corresponding SQLAlchemy name <code>tblInvites</code>). It should have the following columns/fields:</li>
 </ol>
 <ul>
 <li><code>event_id</code> which is an integer, not null, and a foreign key pointing to the <code>id</code> entry in the <code>ev_events</code> table, with its &quot;on delete&quot; set to cascade.</li>
 <li><code>username</code> which is a variable length character string of length at most 20, it cannot be null, and it is a foreign key pointing to the <code>username</code> entry of the <code>ev_users</code> table, with its &quot;on delete&quot; set to cascade.</li>
 <li><code>status</code> should be an <code>ENUM</code> type, with possible values <code>&quot;Accepted&quot;</code>, <code>&quot;Declined&quot;</code> and <code>&quot;Maybe&quot;</code>. It should be allowed to be null. Read the <a href="https://dev.mysql.com/doc/refman/8.0/en/enum.html">MySQL documentation on enum types</a> and the <a href="https://docs.sqlalchemy.org/en/latest/core/type_basics.html">SQLAlchemy documentation on the enum type</a> to find out how to do this. Make sure to understand how Python expects you to enter an enum value (it is not by simply providing a string, you have to create a class that represents the enumeration; The <code>Status</code> class has been created for you for this purpose).</li>
 </ul>
-<p>a value &quot;one hour from now&quot; (so one hour after the default value for <code>start</code>). In order to find out how to do this, you will need to look up the details of the <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-add"><code>DATE_ADD</code></a> function in MySQL, and also the <a href="https://docs.python.org/3/library/datetime.html#datetime.timedelta"><code>timedelta</code></a> object in the datetime module in Python (Python allows you to add a <code>timedelta</code> object to a <code>datetime</code> object).</p>
+<ol start="4" style="list-style-type: decimal">
+<li>Write code that creates and adds a user named after yourself, with affiliation <code>&quot;Hanover College, Student&quot;</code>, as well as another student user of your choice with the same affiliation, as well as a user named after a professor, with affiliation <code>&quot;Hanover College, Faculty, Staff&quot;</code>.</li>
+<li>Write code that creates a new event titled &quot;Homecoming get-together&quot;, scheduled with a start timestamp of October 6th at 8am, with you as the owner, and with longtitude and latitude pinpointing to the Horner Center. A google search for Horner Center coordinates should return those values. By convention north and east values are positive, while south and west values are negative.</li>
+<li>Write code that looks at any event where the owner of the event does not have an invite entry for the event itself, and inserts such an entry into the <code>ev_events</code> table with a status of <code>&quot;Accepted&quot;</code>.</li>
+<li>Write code that looks at any event whose title contains the word &quot;Homecoming&quot; and any user whose affiliation contains the phrase &quot;Hanover College&quot;, and inserts invites to those users for those events (without a specified status). You will need to learn about SQL's <a href="https://dev.mysql.com/doc/refman/8.0/en/string-comparison-functions.html"><code>LIKE</code> string function</a> and the use of the <code>%</code> wildcard there.</li>
+<li>Write code that looks at any event that has an <code>end</code> value of <code>NULL</code> or an <code>end</code> value earlier than the <code>start</code> value, and updates it so that it has an <code>end</code> value two hours after its start value. In order to do &quot;time arithmetic&quot;, you will need to look up the details of the <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-add"><code>DATE_ADD</code></a> function in MySQL, and also the <a href="https://docs.python.org/3/library/datetime.html#datetime.timedelta"><code>timedelta</code></a> object in the datetime module in Python (Python allows you to add a <code>timedelta</code> object to a <code>datetime</code> object).</li>
+<li>(Tricky) Write code that looks at any event that has less than 5 people who have accepted their invite to it, and then reschedules it by moving the start date by one full day. You should start by creating a query that would return the ids of events that have less than 5 people accepted. You can do most of this using a <code>GROUP BY</code> together with the <code>HAVING</code> clause that you will need to <a href="https://dev.mysql.com/doc/refman/8.0/en/select.html">read up on</a>.</li>
+</ol>
 </body>
 </html>
