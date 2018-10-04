@@ -52,14 +52,14 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Accessing SQL from other languages](notes/databases_sqlalchemy.md)
     - [Assignment 4: Practice with SQL queries and SQLAlchemy](assignments/4.md)
 - Day 3
-    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
+    - [SQL Practice](notes/sql_practice.md)
+    - [Object-Relational Mapping](notes/databases_orm.md)
 
 ## Week  6 (10/10-10/14)
 
 - Day 1
-    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
+    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
     - [Assignment 5: Implementing a simple messaging web service](assignments/5.md)
-    - [SQL Practice](notes/sql_practice.md)
 - Day 2
     - Midterm ([study guide](notes/midterm1_study_guide.md))
 - Day 3

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="object-relational-mapping">Object-Relational Mapping</h1>
+<h2 id="reading-references">Reading / References</h2>
+<ul>
+<li><a href="https://docs.sqlalchemy.org/en/latest/orm/tutorial.html">SQLAlchemy ORM Tutorial</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<h3 id="orm-philosophy">ORM Philosophy</h3>
+<p>In most applications we want to work and think with objects and the relationships between them. So for instance we might have <em>student objects</em> and <em>course objects</em> and also <em>enrollment objects</em> which contain in them a student object and a course object and maybe some more information about them. We may want to change the information of an enrollment for a student, for example when they withdraw from a class. We might want to check that each student is enrolled in a specific number of courses, and never exceed 4.5 credits, etc.</p>
+<p>This is all what we might call the <strong>business logic</strong> of our application. This is the level at which we want to think about our application, and we want to write code that talks in these terms, so that it is easy for someone to read that code and understand the key business decisions. We often also refer to this understanding of our main objects as the <strong>domain model</strong>.</p>
+<p>By contrast, at some point we need to <em>Persist</em> our data to a database. Databases typically don't talk in terms of &quot;objects&quot; and &quot;relationships&quot;. They have tables, columns, primary keys, tuples, foreign keys and a host of other limitations. If possible, we would rather not have to program in those terms.</p>
+<p>This is where Object-Relational Mapping enters. After some initial setup, ORM takes care of the nitty gritty details of converting between &quot;business logic&quot; and &quot;database queries&quot;. For example it converts the statement &quot;add this student to the system&quot; to an appropriate INSERT query that would actually carry out the creation.</p>
+<p>This comes at a price: There are often complicated situations that are somewhat slow in an ORM setting but would be faster if we were to write the SQL query directly. The good news is that most ORM systems live in harmony with more &quot;core&quot; systems, so you can write the majority of your application in ORM form, only occasionally resorting to more direct queries.</p>
+<p>In an ORM setting you typically <em>declare</em> a <strong>mapping</strong> between a certain class in your application and a certain table. You then leave many of the details up to the system to handle. ### ORM In SQL Alchemy</p>
+</body>
+</html>
