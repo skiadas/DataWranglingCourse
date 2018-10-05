@@ -205,10 +205,20 @@ class Course(Base):
     __table_args__ = (
         UniqueConstraint('prefix', 'no', name="fullCode")
     )
+    favoritedBy = relationship("Student", order_by=Student.id,
+                               back_populates="favoriteCourse")
 
 # Back in student class:
     # Here are the "favorites" relationship bits
     favorite_id = Column(Integer, ForeignKey("en_courses.id"))
     # And we talk about the relationship:
-    favoriteCourse =
+    favoriteCourse = relationship("Course", back_populates="favoritedBy")
+```
+We can then access a student's favorite course by doing for example:
+```python
+alan.favoriteCourse
+```
+And conversely if we have a course `c` in mind, we can find all the students favoriting it by doing:
+```python
+c.favoritedBy     # A list of students
 ```

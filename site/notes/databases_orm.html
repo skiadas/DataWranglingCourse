@@ -200,11 +200,17 @@ session.dirty     <span class="co"># Empty now</span></code></pre></div>
     __table_args__ <span class="op">=</span> (
         UniqueConstraint(<span class="st">&#39;prefix&#39;</span>, <span class="st">&#39;no&#39;</span>, name<span class="op">=</span><span class="st">&quot;fullCode&quot;</span>)
     )
+    favoritedBy <span class="op">=</span> relationship(<span class="st">&quot;Student&quot;</span>, order_by<span class="op">=</span>Student.<span class="bu">id</span>,
+                               back_populates<span class="op">=</span><span class="st">&quot;favoriteCourse&quot;</span>)
 
 <span class="co"># Back in student class:</span>
     <span class="co"># Here are the &quot;favorites&quot; relationship bits</span>
     favorite_id <span class="op">=</span> Column(Integer, ForeignKey(<span class="st">&quot;en_courses.id&quot;</span>))
     <span class="co"># And we talk about the relationship:</span>
-    favoriteCourse <span class="op">=</span></code></pre></div>
+    favoriteCourse <span class="op">=</span> relationship(<span class="st">&quot;Course&quot;</span>, back_populates<span class="op">=</span><span class="st">&quot;favoritedBy&quot;</span>)</code></pre></div>
+<p>We can then access a student's favorite course by doing for example:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">alan.favoriteCourse</code></pre></div>
+<p>And conversely if we have a course <code>c</code> in mind, we can find all the students favoriting it by doing:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">c.favoritedBy     <span class="co"># A list of students</span></code></pre></div>
 </body>
 </html>
