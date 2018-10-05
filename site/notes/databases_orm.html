@@ -7,6 +7,43 @@
   <meta name="generator" content="pandoc" />
   <title></title>
   <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
 <link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
 <script type="text/javascript"
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
@@ -17,14 +54,157 @@
 <h2 id="reading-references">Reading / References</h2>
 <ul>
 <li><a href="https://docs.sqlalchemy.org/en/latest/orm/tutorial.html">SQLAlchemy ORM Tutorial</a></li>
+<li><a href="https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#session-object-states">ORM Object states</a></li>
 </ul>
 <h2 id="notes">Notes</h2>
 <h3 id="orm-philosophy">ORM Philosophy</h3>
-<p>In most applications we want to work and think with objects and the relationships between them. So for instance we might have <em>student objects</em> and <em>course objects</em> and also <em>enrollment objects</em> which contain in them a student object and a course object and maybe some more information about them. We may want to change the information of an enrollment for a student, for example when they withdraw from a class. We might want to check that each student is enrolled in a specific number of courses, and never exceed 4.5 credits, etc.</p>
+<p>In most applications we want to work and think with <strong>objects</strong> and the <strong>relationships</strong> between them. So for instance we might have <em>student objects</em> and <em>course objects</em> and also <em>enrollment objects</em> which contain in them a student object and a course object and maybe some more information about them. We may want to change the information of an enrollment for a student, for example when they withdraw from a class. We might want to check that each student is enrolled in a specific number of courses, and never exceed 4.5 credits, etc.</p>
 <p>This is all what we might call the <strong>business logic</strong> of our application. This is the level at which we want to think about our application, and we want to write code that talks in these terms, so that it is easy for someone to read that code and understand the key business decisions. We often also refer to this understanding of our main objects as the <strong>domain model</strong>.</p>
-<p>By contrast, at some point we need to <em>Persist</em> our data to a database. Databases typically don't talk in terms of &quot;objects&quot; and &quot;relationships&quot;. They have tables, columns, primary keys, tuples, foreign keys and a host of other limitations. If possible, we would rather not have to program in those terms.</p>
+<p>By contrast, at some point we need to <em>persist</em> our data to a database. Databases typically don't talk in terms of &quot;objects&quot; and &quot;relationships&quot;. They have tables, columns, primary keys, tuples, foreign keys and a host of other limitations. If possible, we would rather not have to program in those terms.</p>
 <p>This is where Object-Relational Mapping enters. After some initial setup, ORM takes care of the nitty gritty details of converting between &quot;business logic&quot; and &quot;database queries&quot;. For example it converts the statement &quot;add this student to the system&quot; to an appropriate INSERT query that would actually carry out the creation.</p>
 <p>This comes at a price: There are often complicated situations that are somewhat slow in an ORM setting but would be faster if we were to write the SQL query directly. The good news is that most ORM systems live in harmony with more &quot;core&quot; systems, so you can write the majority of your application in ORM form, only occasionally resorting to more direct queries.</p>
-<p>In an ORM setting you typically <em>declare</em> a <strong>mapping</strong> between a certain class in your application and a certain table. You then leave many of the details up to the system to handle. ### ORM In SQL Alchemy</p>
+<p>This also comes with tremendous benefits. For example, if you suddenly want to completely change your storage, and move from one kind of database to a completely different kind that maybe doesn't use SQL queries the same way, then most of your business logic does not need to change at all.</p>
+<p>In an ORM setting you typically <em>declare</em> a <strong>mapping</strong> between a certain class in your application and a certain table. You then leave many of the details up to the system to handle.</p>
+<h3 id="orm-elements">ORM Elements</h3>
+<h4 id="sessions">Sessions</h4>
+<p>In ORM our <strong>domain model</strong> consists of a set of <strong>classes</strong> that implement the required behavior. Each class is typically <strong>mapped</strong> to a database table by means of a <strong>mapper</strong>. Our classes typicaly inherit from a base class that is responsible for handling that mapping behavior and other similar setup functionalities.</p>
+<p>Work in ORM is maintained via a <strong>session</strong>. A session represents a group of operations that need to happen. It contains information about new objects that are to be created, updates to existing objects, as well as objects that are to be deleted. This is often implemented by the so called <strong>unit of work</strong> pattern.</p>
+<p>Changes that exist in a session are not written to the database yet, they are just scheduled to be written. When a <strong>commit</strong> (typically called a <strong>flush</strong>) occurs, every change in the session will be converted to appropriate SQL queries and will be executed. We can also &quot;back out&quot; of the changes in the session by doing a <strong>rollback</strong>.</p>
+<h4 id="object-states">Object States</h4>
+<p>Objects in an ORM application can be in one of five <strong>states</strong> at any given time (see <a href="https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#session-object-states">here</a>):</p>
+<dl>
+<dt>transient</dt>
+<dd>Transient objects are not in any session, nor saved in the database. This is the state that objects are in when we first create them.
+</dd>
+<dt>pending</dt>
+<dd>Pending objects have been added to a session (or have changes to them in the session), but the session has not been <em>flushed</em> yet. So these changes exist in your program and your session, but they have not been stored to the database yet. If our application was to terminate abruptly, these objects would be lost.
+</dd>
+<dt>persistent</dt>
+<dd>Persistent objects are in the session and have been flushed to the database at some point. So they have a certain state in the database. They may still have some local changes that have not been flushed yet, and therefore differ from the corresponding database entries. The objects are typically called <strong>dirty</strong> at this point.
+</dd>
+<dt>deleted</dt>
+<dd>Deleted objects are scheduled for deletion in the session, but a flush hasn't occured yet. These objects may go back to being persistent if a <em>rollback</em> happens.
+</dd>
+<dt>detached</dt>
+<dd>Detached objects may correspond to entries in the database, but are currently not in any session. As such, their relation to database information is unknown. Deleted objects pass to the detached state after a flush occurs.
+</dd>
+</dl>
+<p>The terminology may differ slightly from system to system.</p>
+<h4 id="relationships">Relationships</h4>
+<p>Another essential component of an ORM system is the relationships between classes. There are roughly three kinds of relationships, which differ in the number of elements that can map from each side to the other.</p>
+<ul>
+<li><strong>one-to-one</strong> relationships occur when one object/entity from the one class can correspond to <em>at most one</em> object/entity from the other class. They are not very common. But imagine for example that every department at the college typically has a <em>department head</em> which is an instructor. And the same instructor cannot be the head of more than one department. But on occasion a department may be &quot;head-less&quot;. So a one-to-one relationship should maybe more correctly be called &quot;one-to-zero-or-one&quot;.</li>
+<li><strong>one-to-many</strong> and <strong>many-to-one</strong> relationships are one of the two most common types of relationships. In these relationships one entity from one class can relate to many entities from the other class, but not the other way around. For example each academic term (e.g. Fall 2018) has a number of course sections related to it. But the converse is not true: Each course section is offered at a specific academic term.</li>
+<li><strong>many-to-many</strong> relationships are the other most common type of relationship, and they are considerably harder to implement. They occur in instances where each entity from the one class may relate to many entities of the other class, and vice versa. As an example, Imagine the relationship between students and course sections. Each student enrolls in multiple sections, and also each section has multiple students enrolled in it.</li>
+</ul>
+<p>While this section in general avoids discussing concepts at the level of the database, it is worth mentioning how these three kinds of relationships would typically be represented in the database.</p>
+<dl>
+<dt>one-to-one</dt>
+<dd><p>Foreign key constraint along with a unique constraint</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">CREATE</span> <span class="kw">TABLE</span> departments (
+    <span class="ch">...</span>
+    head  <span class="dt">VARCHAR</span>(<span class="dv">40</span>)  <span class="kw">UNIQUE</span>  <span class="kw">FOREIGN</span> <span class="kw">KEY</span> <span class="kw">REFERENCES</span> instructors(login),
+    <span class="ch">...</span>
+)</code></pre></div>
+</dd>
+<dt>many-to-one</dt>
+<dd><p>Foreign key without a unique constraint</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">CREATE</span> <span class="kw">TABLE</span> sections (
+    <span class="ch">...</span>
+    term <span class="dt">INT</span>     <span class="kw">FOREIGN</span> <span class="kw">KEY</span> <span class="kw">REFERENCES</span>  terms(id),
+    <span class="ch">...</span>
+)</code></pre></div>
+</dd>
+<dt>many-to-many</dt>
+<dd><p>Using a third &quot;associations&quot; table that links through foreign keys to both tables</p>
+<div class="sourceCode"><pre class="sourceCode sqlmysql"><code class="sourceCode sqlmysql"><span class="kw">CREATE</span> <span class="kw">TABLE</span> enrollments (
+    <span class="ch">...</span>
+    section <span class="dt">INT</span>   <span class="kw">FOREIGN</span> <span class="kw">KEY</span> <span class="kw">REFERENCES</span>  sections(id),
+    student <span class="dt">INT</span>   <span class="kw">FOREIGN</span> <span class="kw">KEY</span> <span class="kw">REFERENCES</span>  students(id),
+    <span class="ch">...</span>
+)</code></pre></div>
+</dd>
+</dl>
+<p>When working with relationships in an ORM setting, you typically can access the relationship from one end or the other. So for example in the many-to-many example above, a <code>student</code> object may actually contain a list of the <code>section</code> objects that the student is enrolled in, and conversely a <code>section</code> object may contain a list of the students enrolled in it.</p>
+<p>When you set up relationships, you have an option to make then <strong>one-directional</strong> or <strong>bi-directional</strong>. Our example above is bi-directional: We can access the relationship from either end. But for example we could easily imagine a setup where <code>section</code> objects do not themselves contain a list of all the <code>student</code> objects enrolled in them; we can only access the enrollments by looking at the student side.</p>
+<h3 id="orm-in-sqlalchemy">ORM In SQLAlchemy</h3>
+<p>Now we will discuss how ORM is implemented in SQLAlchemy. We need to start with the usual setup of an engine:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> sqlalchemy <span class="im">import</span> <span class="op">*</span>
+<span class="co">## Set up however you need to</span>
+engine <span class="op">=</span> create_engine(<span class="st">&#39;sqlite:///:memory:&#39;</span>, echo<span class="op">=</span><span class="va">True</span>)</code></pre></div>
+<p>The next essential component is to create a &quot;base class&quot; that knows how to set up ORM. SQLAlchemy provides a system called <code>declarative_base</code> that has all the needed functionality:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> sqlalchemy.ext.declarative <span class="im">import</span> declarative_base
+Base <span class="op">=</span> declarative_base()</code></pre></div>
+<p>Now we will build classes for our entities, and will make them <code>extend</code> the functionality provided by <code>Base</code>.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Student(Base):
+    __tablename__ <span class="op">=</span> <span class="st">&#39;en_students&#39;</span>
+
+    <span class="bu">id</span>      <span class="op">=</span> Column(Integer, primary_key <span class="op">=</span> <span class="va">True</span>)
+    login   <span class="op">=</span> Column(String(<span class="dv">20</span>), unique<span class="op">=</span><span class="va">True</span>, nullable<span class="op">=</span><span class="va">False</span>)
+    first   <span class="op">=</span> Column(String(<span class="dv">20</span>))
+    last    <span class="op">=</span> Column(String(<span class="dv">20</span>))
+    credits <span class="op">=</span> Column(Integer, default<span class="op">=</span><span class="dv">0</span>)
+    gpa     <span class="op">=</span> Column(Float(precision<span class="op">=</span><span class="dv">32</span>), default<span class="op">=</span><span class="dv">0</span>)
+
+    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):
+        <span class="cf">return</span> <span class="st">&quot;Student&lt;</span><span class="sc">%s</span><span class="st"> </span><span class="sc">%s</span><span class="st">&gt;&quot;</span> <span class="op">%</span> (<span class="va">self</span>.first, <span class="va">self</span>.last)
+
+Student.__table__                <span class="co"># Shows us the corresponding Table construction</span>
+Base.metadata.create_all(engine)  <span class="co"># Creates the tables in the database</span></code></pre></div>
+<p>Now let's create a student object. We would do it in a standard way. The <code>Base</code> class that we inherit from provides a simple constructor, that expects key-value pairs and creates corresponding entries from them:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">student <span class="op">=</span> Student(last<span class="op">=</span><span class="st">&quot;Turing&quot;</span>, first<span class="op">=</span><span class="st">&quot;Alan&quot;</span>, login<span class="op">=</span><span class="st">&quot;turinga37&quot;</span>)
+student     <span class="co"># See the printout we defined above via __repr__</span>
+student.last
+student.<span class="bu">id</span> <span class="op">==</span> <span class="va">None</span>     <span class="co"># Student has no id yet.</span>
+insp <span class="op">=</span>  inspect(student)     <span class="co"># An inspection object for student</span>
+insp.transient     <span class="co"># true</span>
+insp.persistent    <span class="co"># false</span></code></pre></div>
+<p>In order to work with the system, we need to create a section. First we must create a &quot;session maker&quot; class:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> sqlalchemy.orm <span class="im">import</span> sessionmaker
+Session <span class="op">=</span> sessionmaker(bind<span class="op">=</span>engine)</code></pre></div>
+<p>Then we can use this to create a session when we need one:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">session <span class="op">=</span> Session()</code></pre></div>
+<p>This session can be used to manage the interaction with the database. Let us start by adding our student object to the session:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">session.add(student)
+insp.transient     <span class="co"># false</span>
+insp.pending       <span class="co"># true</span>
+student.<span class="bu">id</span> <span class="op">==</span> <span class="va">None</span> <span class="co"># Still no id</span></code></pre></div>
+<p>If we try to now perform a query, for example, the session will automatically issue a flush and save this student to the database. For example, let's ask for a student whose last name is &quot;Turing&quot;:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">alan <span class="op">=</span> session.query(Student).filter_by(last<span class="op">=</span><span class="st">&quot;Turing&quot;</span>).first()</code></pre></div>
+<p>There is of course a whole lot more to querying, look at the <a href="https://docs.sqlalchemy.org/en/latest/orm/tutorial.html#querying">notes</a>.</p>
+<p>One important property of ORM systems is known as <strong>identity</strong>: Once an object is known to the system by a specific primary key, any query will return <em>that exact same object</em>, and not a different copy of that object. In our instance, the two objects <code>student</code>, which we created directly, and <code>alan</code>, which we obtained from the query, are literally the same object:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">alan <span class="kw">is</span> student
+alan.first <span class="op">=</span> <span class="st">&quot;Alamo&quot;</span>
+student.first     <span class="co"># Also is Alamo now</span>
+insp.persistent   <span class="co"># True</span>
+session.dirty     <span class="co"># The name change is not yet saved to the database.</span>
+session.flush()
+session.dirty     <span class="co"># Empty now</span></code></pre></div>
+<p><strong>NOTE</strong>: flush vs commit: In SQLAlchemy a session manages &quot;transactions&quot; with the database. A transaction is a set of changes that the database knows about and remembers and maintains, but it has also given you the option to possibly undo all these changes. A <strong>flush</strong> moves any changes to objects in SQLAlchemy into the current <em>transaction buffer</em>, in other words it makes the database aware of them. This makes future queries know about them and have access to them. However, the transaction is not yet completed. You can complete the transaction by issuing a <strong>commit</strong> (<code>session.commit()</code>). This closes the current transaction and permanently writes the changes to the database. Alternatively, you can use <code>session.rollback()</code> to <strong>roll back</strong> the entire transaction.</p>
+<h4 id="setting-up-relationships">Setting up relationships</h4>
+<p>Let's look at the <a href="https://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#relationship-patterns">basic relationship patterns</a> we have in SQLAlchemy and how to set them up.</p>
+<p>We have already defined a Student class. We will also consider a Course class that represents course sections being offered. We will develop two kinds of relationships between students and courses:</p>
+<ul>
+<li>Students can have one &quot;favorite&quot; course, but the same course can be favorited by many students. This is a many-to-one relationship.</li>
+<li>Students can enroll in courses, and each course can have many students enrolled in it. This is a many-to-many relationship.</li>
+</ul>
+<p>We start with the <code>favorite</code> relationship. Here's how it might look:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Course(Base):
+    __tablename__ <span class="op">=</span> <span class="st">&quot;en_courses&quot;</span>
+
+    <span class="bu">id</span>      <span class="op">=</span> Column(Integer, primary_key<span class="op">=</span><span class="va">True</span>),
+    prefix  <span class="op">=</span> Column(String(<span class="dv">4</span>), nullable<span class="op">=</span><span class="va">False</span>),
+    no      <span class="op">=</span> Column(String(<span class="dv">20</span>), nullable<span class="op">=</span><span class="va">False</span>),
+    title   <span class="op">=</span> Column(String(<span class="dv">55</span>), nullable<span class="op">=</span><span class="va">False</span>),
+    credits <span class="op">=</span> Column(Integer, nullable<span class="op">=</span><span class="va">False</span>, default<span class="op">=</span><span class="dv">4</span>),
+    __table_args__ <span class="op">=</span> (
+        UniqueConstraint(<span class="st">&#39;prefix&#39;</span>, <span class="st">&#39;no&#39;</span>, name<span class="op">=</span><span class="st">&quot;fullCode&quot;</span>)
+    )
+
+<span class="co"># Back in student class:</span>
+    <span class="co"># Here are the &quot;favorites&quot; relationship bits</span>
+    favorite_id <span class="op">=</span> Column(Integer, ForeignKey(<span class="st">&quot;en_courses.id&quot;</span>))
+    <span class="co"># And we talk about the relationship:</span>
+    favoriteCourse <span class="op">=</span></code></pre></div>
 </body>
 </html>
