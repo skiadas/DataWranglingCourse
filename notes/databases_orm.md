@@ -4,6 +4,7 @@
 
 - [SQLAlchemy ORM Tutorial](https://docs.sqlalchemy.org/en/latest/orm/tutorial.html)
 - [ORM Object states](https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#session-object-states)
+- [Relationship loading strategies](https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html)
 
 ## Notes
 
@@ -197,16 +198,22 @@ We start with the `favorite` relationship. Here's how it might look:
 class Course(Base):
     __tablename__ = "en_courses"
 
-    id      = Column(Integer, primary_key=True),
-    prefix  = Column(String(4), nullable=False),
-    no      = Column(String(20), nullable=False),
-    title   = Column(String(55), nullable=False),
-    credits = Column(Integer, nullable=False, default=4),
+    id      = Column(Integer, primary_key=True)
+    prefix  = Column(String(4), nullable=False)
+    no      = Column(String(20), nullable=False)
+    title   = Column(String(55), nullable=False)
+    credits = Column(Integer, nullable=False, default=4)
     __table_args__ = (
         UniqueConstraint('prefix', 'no', name="fullCode")
     )
     favoritedBy = relationship("Student", order_by=Student.id,
                                back_populates="favoriteCourse")
+    #
+    def __repr__(self):
+        return "Course<%s%s %s>" % (self.prefix, self.no, self.title)
+    #
+    def isFullCredit(self):
+        return self.credits == 4
 
 # Back in student class:
     # Here are the "favorites" relationship bits
@@ -214,6 +221,11 @@ class Course(Base):
     # And we talk about the relationship:
     favoriteCourse = relationship("Course", back_populates="favoritedBy")
 ```
+So there are two parts to the definition:
+
+- Making sure you have the appropriate foreign keys set up.
+- Using the `relationship` method to create the actual relationship variables. If you want the relationship to be bidirectional, then you need to define the variables on both sides, like we did above with the `favoritedBy` and `favoriteCourse` variables.
+
 We can then access a student's favorite course by doing for example:
 ```python
 alan.favoriteCourse
@@ -222,3 +234,75 @@ And conversely if we have a course `c` in mind, we can find all the students fav
 ```python
 c.favoritedBy     # A list of students
 ```
+
+#### Setting up many-to-many relationships
+
+In order to establish a many-to-many relationship, we have to take some extra steps:
+
+- First we create a extra table that holds pairs of related entities, via their primary keys. It will contain foreign keys pointing to the other two entities' tables.
+- Then we set up relationships from each of the two entities to that table. We use the `secondary=...` parameter to the `relationship` call to point to the table to be used for the linkage.
+
+For example, let's suppose that we wanted the `favorites` relationship above between students courses and courses to be many-to-many: Each student can favorite more than one course, and each course can be favorited by more than one student. Here's how that might be set up:
+```python
+# We first create a table:
+favoritesTbl = Table('en_favorites', Base.metadata,
+    Column('student_id', ForeignKey('en_students.id'), primary_key=True),
+    Column('course_id', ForeignKey('en_courses.id'), primary_key=True))
+
+# Inside the Student class definition:
+    favoriteCourses = relationship("Course",
+                                    secondary=favoritesTbl,
+                                    back_populates="favoritedBy")
+
+# Inside the Course class definition:
+    favoritedBy = relationship("Student",
+                                secondary=favoritesTbl,
+                                back_populates="favoriteCourses")
+```
+
+As an example, of using this, suppose we want to find out all the course that the student `bob` has favorited. we could do:
+```python
+bob.favoriteCourses
+```
+And if we want to find out all students who favorite the same course as bob, we could do a list comprehension:
+```python
+[ student
+    for course in bob.favoriteCourses
+    for student in course.favoritedBy
+    if student != bob ]
+```
+
+#### Loading strategies
+
+When we're dealing with many relationships, one important consideration is the loading of objects from the database.
+
+For example consider the above setting of students, courses, and students choosing courses as favorites:
+
+- Bob has put down CS220 as a favorite. Zoe has done the same, and so have 100 other students.
+- We are interested in retrieving the `Bob` object. Along with it comes the list of courses that Bob has favorited, via the `favoriteCourses` relationship. So this brings along the `CS220` object.
+- But the CS220 object includes the `favoritedBy` relationship, so for it to be fully loaded would require that we include all those students with it, like Zoe and many more.
+- These students also have favorite courses, so to fully load them we'll need to load even more course objects, and their related student objects and so on and so forth.
+
+Clearly this is unsustainable. We need a way to load just the `Bob` object, along with perhaps an inkling of the fact that there is a list of courses that Bob has favorited, but without fully loading those course objects unless our desired query somehow needs them. There are various **loading strategies** we can employ in such a situation, documented in [this page](https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html). The broader classification is between **lazy loading**, **eager loading** and **no loading**.
+
+These loading strategies can be set up when the relationship is defined, or they can be activated at specific queries.
+
+lazy loading
+  ~ In lazy loading, there will be no SELECT components created for objects that are not the primary queried object, unless the corresponding object is being accessed by the Python code.
+
+    Lazy loading is the default behavior.
+
+joined (eager) loading
+  ~ In joined eager loading, a JOIN statement will be included to the query of the source object, and therefore the targetted collection will be pre-populated.
+
+subquery (eager) loading
+  ~ In subquery eager loading, a subsequent query is generated for the relationships, restricted using the initial SELECT query in the FROM clause as a subquery. This keeps the initial query simple, as it does not involve any joins, but makes the subsequent queries more complicated.
+
+select IN loading
+  ~ In select IN loading, a subsequent query is generated for the relationships, restricted using an IN clause to target the primary keys of the elements in the initial query.
+
+raise loading
+  ~ Raise loading behaves similar to lazy loading, except that it simply raises an exception when the extra query is about to happen, to guard against too many unwanted lazy loads.
+
+no loading
+  ~ The no loading setting simply sets the attributed to empty, never loading the corresponding relationship's values.

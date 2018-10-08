@@ -55,6 +55,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul>
 <li><a href="https://docs.sqlalchemy.org/en/latest/orm/tutorial.html">SQLAlchemy ORM Tutorial</a></li>
 <li><a href="https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#session-object-states">ORM Object states</a></li>
+<li><a href="https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html">Relationship loading strategies</a></li>
 </ul>
 <h2 id="notes">Notes</h2>
 <h3 id="orm-philosophy">ORM Philosophy</h3>
@@ -192,25 +193,96 @@ session.dirty     <span class="co"># Empty now</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Course(Base):
     __tablename__ <span class="op">=</span> <span class="st">&quot;en_courses&quot;</span>
 
-    <span class="bu">id</span>      <span class="op">=</span> Column(Integer, primary_key<span class="op">=</span><span class="va">True</span>),
-    prefix  <span class="op">=</span> Column(String(<span class="dv">4</span>), nullable<span class="op">=</span><span class="va">False</span>),
-    no      <span class="op">=</span> Column(String(<span class="dv">20</span>), nullable<span class="op">=</span><span class="va">False</span>),
-    title   <span class="op">=</span> Column(String(<span class="dv">55</span>), nullable<span class="op">=</span><span class="va">False</span>),
-    credits <span class="op">=</span> Column(Integer, nullable<span class="op">=</span><span class="va">False</span>, default<span class="op">=</span><span class="dv">4</span>),
+    <span class="bu">id</span>      <span class="op">=</span> Column(Integer, primary_key<span class="op">=</span><span class="va">True</span>)
+    prefix  <span class="op">=</span> Column(String(<span class="dv">4</span>), nullable<span class="op">=</span><span class="va">False</span>)
+    no      <span class="op">=</span> Column(String(<span class="dv">20</span>), nullable<span class="op">=</span><span class="va">False</span>)
+    title   <span class="op">=</span> Column(String(<span class="dv">55</span>), nullable<span class="op">=</span><span class="va">False</span>)
+    credits <span class="op">=</span> Column(Integer, nullable<span class="op">=</span><span class="va">False</span>, default<span class="op">=</span><span class="dv">4</span>)
     __table_args__ <span class="op">=</span> (
         UniqueConstraint(<span class="st">&#39;prefix&#39;</span>, <span class="st">&#39;no&#39;</span>, name<span class="op">=</span><span class="st">&quot;fullCode&quot;</span>)
     )
     favoritedBy <span class="op">=</span> relationship(<span class="st">&quot;Student&quot;</span>, order_by<span class="op">=</span>Student.<span class="bu">id</span>,
                                back_populates<span class="op">=</span><span class="st">&quot;favoriteCourse&quot;</span>)
+    <span class="co">#</span>
+    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):
+        <span class="cf">return</span> <span class="st">&quot;Course&lt;</span><span class="sc">%s%s</span><span class="st"> </span><span class="sc">%s</span><span class="st">&gt;&quot;</span> <span class="op">%</span> (<span class="va">self</span>.prefix, <span class="va">self</span>.no, <span class="va">self</span>.title)
+    <span class="co">#</span>
+    <span class="kw">def</span> isFullCredit(<span class="va">self</span>):
+        <span class="cf">return</span> <span class="va">self</span>.credits <span class="op">==</span> <span class="dv">4</span>
 
 <span class="co"># Back in student class:</span>
     <span class="co"># Here are the &quot;favorites&quot; relationship bits</span>
     favorite_id <span class="op">=</span> Column(Integer, ForeignKey(<span class="st">&quot;en_courses.id&quot;</span>))
     <span class="co"># And we talk about the relationship:</span>
     favoriteCourse <span class="op">=</span> relationship(<span class="st">&quot;Course&quot;</span>, back_populates<span class="op">=</span><span class="st">&quot;favoritedBy&quot;</span>)</code></pre></div>
+<p>So there are two parts to the definition:</p>
+<ul>
+<li>Making sure you have the appropriate foreign keys set up.</li>
+<li>Using the <code>relationship</code> method to create the actual relationship variables. If you want the relationship to be bidirectional, then you need to define the variables on both sides, like we did above with the <code>favoritedBy</code> and <code>favoriteCourse</code> variables.</li>
+</ul>
 <p>We can then access a student's favorite course by doing for example:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">alan.favoriteCourse</code></pre></div>
 <p>And conversely if we have a course <code>c</code> in mind, we can find all the students favoriting it by doing:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">c.favoritedBy     <span class="co"># A list of students</span></code></pre></div>
+<h4 id="setting-up-many-to-many-relationships">Setting up many-to-many relationships</h4>
+<p>In order to establish a many-to-many relationship, we have to take some extra steps:</p>
+<ul>
+<li>First we create a extra table that holds pairs of related entities, via their primary keys. It will contain foreign keys pointing to the other two entities' tables.</li>
+<li>Then we set up relationships from each of the two entities to that table. We use the <code>secondary=...</code> parameter to the <code>relationship</code> call to point to the table to be used for the linkage.</li>
+</ul>
+<p>For example, let's suppose that we wanted the <code>favorites</code> relationship above between students courses and courses to be many-to-many: Each student can favorite more than one course, and each course can be favorited by more than one student. Here's how that might be set up:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># We first create a table:</span>
+favoritesTbl <span class="op">=</span> Table(<span class="st">&#39;en_favorites&#39;</span>, Base.metadata,
+    Column(<span class="st">&#39;student_id&#39;</span>, ForeignKey(<span class="st">&#39;en_students.id&#39;</span>), primary_key<span class="op">=</span><span class="va">True</span>),
+    Column(<span class="st">&#39;course_id&#39;</span>, ForeignKey(<span class="st">&#39;en_courses.id&#39;</span>), primary_key<span class="op">=</span><span class="va">True</span>))
+
+<span class="co"># Inside the Student class definition:</span>
+    favoriteCourses <span class="op">=</span> relationship(<span class="st">&quot;Course&quot;</span>,
+                                    secondary<span class="op">=</span>favoritesTbl,
+                                    back_populates<span class="op">=</span><span class="st">&quot;favoritedBy&quot;</span>)
+
+<span class="co"># Inside the Course class definition:</span>
+    favoritedBy <span class="op">=</span> relationship(<span class="st">&quot;Student&quot;</span>,
+                                secondary<span class="op">=</span>favoritesTbl,
+                                back_populates<span class="op">=</span><span class="st">&quot;favoriteCourses&quot;</span>)</code></pre></div>
+<p>As an example, of using this, suppose we want to find out all the course that the student <code>bob</code> has favorited. we could do:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bob.favoriteCourses</code></pre></div>
+<p>And if we want to find out all students who favorite the same course as bob, we could do a list comprehension:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[ student
+    <span class="cf">for</span> course <span class="kw">in</span> bob.favoriteCourses
+    <span class="cf">for</span> student <span class="kw">in</span> course.favoritedBy
+    <span class="cf">if</span> student <span class="op">!=</span> bob ]</code></pre></div>
+<h4 id="loading-strategies">Loading strategies</h4>
+<p>When we're dealing with many relationships, one important consideration is the loading of objects from the database.</p>
+<p>For example consider the above setting of students, courses, and students choosing courses as favorites:</p>
+<ul>
+<li>Bob has put down CS220 as a favorite. Zoe has done the same, and so have 100 other students.</li>
+<li>We are interested in retrieving the <code>Bob</code> object. Along with it comes the list of courses that Bob has favorited, via the <code>favoriteCourses</code> relationship. So this brings along the <code>CS220</code> object.</li>
+<li>But the CS220 object includes the <code>favoritedBy</code> relationship, so for it to be fully loaded would require that we include all those students with it, like Zoe and many more.</li>
+<li>These students also have favorite courses, so to fully load them we'll need to load even more course objects, and their related student objects and so on and so forth.</li>
+</ul>
+<p>Clearly this is unsustainable. We need a way to load just the <code>Bob</code> object, along with perhaps an inkling of the fact that there is a list of courses that Bob has favorited, but without fully loading those course objects unless our desired query somehow needs them. There are various <strong>loading strategies</strong> we can employ in such a situation, documented in <a href="https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html">this page</a>. The broader classification is between <strong>lazy loading</strong>, <strong>eager loading</strong> and <strong>no loading</strong>.</p>
+<p>These loading strategies can be set up when the relationship is defined, or they can be activated at specific queries.</p>
+<dl>
+<dt>lazy loading</dt>
+<dd><p>In lazy loading, there will be no SELECT components created for objects that are not the primary queried object, unless the corresponding object is being accessed by the Python code.</p>
+<p>Lazy loading is the default behavior.</p>
+</dd>
+<dt>joined (eager) loading</dt>
+<dd>In joined eager loading, a JOIN statement will be included to the query of the source object, and therefore the targetted collection will be pre-populated.
+</dd>
+<dt>subquery (eager) loading</dt>
+<dd>In subquery eager loading, a subsequent query is generated for the relationships, restricted using the initial SELECT query in the FROM clause as a subquery. This keeps the initial query simple, as it does not involve any joins, but makes the subsequent queries more complicated.
+</dd>
+<dt>select IN loading</dt>
+<dd>In select IN loading, a subsequent query is generated for the relationships, restricted using an IN clause to target the primary keys of the elements in the initial query.
+</dd>
+<dt>raise loading</dt>
+<dd>Raise loading behaves similar to lazy loading, except that it simply raises an exception when the extra query is about to happen, to guard against too many unwanted lazy loads.
+</dd>
+<dt>no loading</dt>
+<dd>The no loading setting simply sets the attributed to empty, never loading the corresponding relationship's values.
+</dd>
+</dl>
 </body>
 </html>

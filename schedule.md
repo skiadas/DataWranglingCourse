@@ -58,19 +58,19 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 ## Week  6 (10/10-10/14)
 
 - Day 1
-    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
-    - [Assignment 5: Implementing a simple messaging web service](assignments/5.md)
+    - [Object-Relational Mapping](notes/databases_orm.md)
 - Day 2
-    - Midterm ([study guide](notes/midterm1_study_guide.md))
+    - [Indexes, Views, ORM](notes/sql_odds_ends.md)
 - Day 3
-    - Work on assignment 5
+    - Midterm ([study guide](notes/midterm1_study_guide.md))
 
 ## Week  7 (10/17-10/21)
 
 - Day 1
     - Fall Break
 - Day 2
-    - [Indexes, Views, ORM](notes/sql_odds_ends.md)
+    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
+    - [Assignment 5: Implementing a simple messaging web service](assignments/5.md)
 - Day 3
     - Work on Assignment 5
 
