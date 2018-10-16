@@ -69,10 +69,10 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 - Day 1
     - Fall Break
 - Day 2
-    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
-    - [Assignment 5: Implementing a simple messaging web service](assignments/5.md)
+    - [Assignment 5: Working with the SQLAlchemy ORM](assignments/5.md)
+    - [Web Scraping](notes/web_scraping.md)
 - Day 3
-    - Work on Assignment 5
+    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
 
 ## Week  8 (10/24-10/28)
 
@@ -108,7 +108,6 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 - Day 1
     - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
 - Day 2
-    - [Web Scraping](notes/web_scraping.md)
 - Day 3
     - Guest Lecture
 
