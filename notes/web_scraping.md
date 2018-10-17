@@ -73,7 +73,7 @@ You will see a nested structure in terms of "tags", like `<html>`, `<body>` etc,
 - You can navigate from a tag to its children.
 - You can target all tags with specific properties (e.g. all "link tags", the tag with a specific id, etc).
 
-For instance we can reach the `title` tag` from the top object by navigating its parent chain:
+For instance we can reach the `title` tag from the top object by navigating its parent chain:
 ```python
 bsObj.html.head.title
 ```

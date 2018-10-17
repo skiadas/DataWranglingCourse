@@ -113,11 +113,11 @@ bsObj <span class="op">=</span> BeautifulSoup(http_response.content, <span class
 <li>You can navigate from a tag to its children.</li>
 <li>You can target all tags with specific properties (e.g. all &quot;link tags&quot;, the tag with a specific id, etc).</li>
 </ul>
-For instance we can reach the <code>title</code> tag<code>from the top object by navigating its parent chain: ```python bsObj.html.head.title ``` In this case, given there is only one title tag around, we could also do: ```python bsObj.title ``` The main document contents is all within the</code>
-<body>
-<code>tag within the</code>
-<html>
-<p>` tag.</p>
+<p>For instance we can reach the <code>title</code> tag from the top object by navigating its parent chain:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bsObj.html.head.title</code></pre></div>
+<p>In this case, given there is only one title tag around, we could also do:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">bsObj.title</code></pre></div>
+<p>The main document contents is all within the <code>&lt;body&gt;</code> tag within the <code>&lt;html&gt;</code> tag.</p>
 <p>Notice that what you get back is not just the text, but a <strong>tag object</strong>:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">type</span>(bsObj.title)</code></pre></div>
 <p>Tag objects in BeautifulSoup provide many functionalities. They all have a &quot;name&quot; property that speaks to the kind of tag we have:</p>
