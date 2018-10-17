@@ -55,18 +55,25 @@ page_content = BeautifulSoup(http_response.content)
 # Print or save results
 ```
 
-As a start example, we will show you how we downloaded the game of thrones books. This would tell us what kind of web address to use.
+As a start example, we will extract information about the world's mountains from the wikipedia page linking all mountains.
 ```python
 import requests
 from bs4 import BeautifulSoup
 
-base_site = "http://www.readbooksvampire.com"
-author = "/George_R.R._Martin/"
-http_response = requests.get(base_site + author)
+base_site = "http://en.wikipedia.org"
+mountains_list_age = "/wiki/List_of_mountains_by_elevation"
+http_response = requests.get(base_site + mountains_list_age)
 bsObj = BeautifulSoup(http_response.content, "html.parser")
 print(bsObj.prettify())
 ```
-This `bsObj` represents the entire HTML document, and what you see from the last command is a prinout of that HTML document. You will see a nested structure in terms of "tags", like `<html>`, `<body>` etc, which match with closing tags `</html>`. This creates a nested structure, that we can try to dig in. For instance we can get to the title tag via:
+This `bsObj` represents the entire HTML document, and what you see from the last command is a printout of that HTML document. You can also use your browser's developer tools to see a page.
+
+You will see a nested structure in terms of "tags", like `<html>`, `<body>` etc, which match with closing tags `</html>`. This creates a tree-like nested structure, that we can try to dig into. The *BeautifulSoup* library offers access to this structure in two ways:
+
+- You can navigate from a tag to its children.
+- You can target all tags with specific properties (e.g. all "link tags", the tag with a specific id, etc).
+
+For instance we can reach the `title` tag` from the top object by navigating its parent chain:
 ```python
 bsObj.html.head.title
 ```
@@ -76,7 +83,12 @@ bsObj.title
 ```
 The main document contents is all within the `<body>` tag within the `<html>` tag.
 
-**Tag objects** in BeautifulSoup provide many functionalities. They all have a "name" property that speaks to the kind of tag we have:
+Notice that what you get back is not just the text, but a **tag object**:
+```python
+type(bsObj.title)
+```
+
+Tag objects in BeautifulSoup provide many functionalities. They all have a "name" property that speaks to the kind of tag we have:
 ```python
 bsObj.title.name
 ```
@@ -89,185 +101,251 @@ bsObj.body.div.get('class')     ## Safer, returns None if attribute is not there
 ```
 We can also access its chidren, i.e. the contained tags. This is an enumerable structure, and we can iterate over it.
 ```python
-for tag in bsObj.body.div.children:
-  print(tag)
+for tag in bsObj.body.children:
+  print(tag.name)
+  if tag.name is not None:
+    print(tag.attrs)
 ```
 Or we can use a list comprehension and turn it into an actual list or do something else:
 ```python
-[
-  tag for tag in bsObj.body.div.children
+elems = [
+  tag for tag in bsObj.body.children
 ]
 ```
 Note all the extra "newline" tags. They also count as children. We should try to take them out. These represent the text entries within the document, and they can be detected by the fact that they don't have a name:
 ```python
-[
+elems = [
   tag
-  for tag in bsObj.body.div.children
+  for tag in bsObj.body.children
   if tag.name is not None
 ]
 ```
 Based on these tools we can now do more complex operations. For instance notice the "a" tag inside the div tags above. It has an "href" field. We can use it to read the "links". That's what `<a>` tags are, links to other pages.
 ```python
 [
-  tag.a['href']
-  for tag in bsObj.body.div.children
+  tag.a.get("href")
+  for tag in bsObj.body.children
   if tag.name is not None
+  if tag.a is not None
 ]
 ```
-We can also try to directly grab all "a" links, via the `findAll` method:
+We can also try to directly grab all "a" links, via the `findAll` method. This might actually give us more links, as the above method clearly gave us very few links (it only looked at immediate children, not deeper descendants).
 ```python
 [
-  tag['href']
+  tag.get('href')
   for tag in bsObj.find_all('a')
 ]
 ```
-If we scroll through the initial list of items, we will see that the links we want, to the various books we want to include, are all inside table tags. We can therefore do the following:
+We now need to narrow that list down to the elements we want. Typically this requires:
+
+- Looking throught the tree structure on the browser, and identifying the elements we want to access.
+- Identifying some unique property that all those elements share.
+- Writing code to pick out the elements with that property.
+
+For example, we can see that all the entries we are after are inside tables. We could start by targeting those tables, and more specifically the `tbody` elements that hold the non-header rows of those tables.
 ```python
-[
-  tag['href']
-  for table in bsObj.find_all('table')
-  for tag in table.find_all('a')
+rows = [
+  row
+  for tbody in bsObj.find_all('tbody')
+  for row in tbody.find_all('tr')
 ]
+len(rows)
 ```
-Let's also grab a bit more information from each link:
+Woah that's a lot of rows! Let us examine one of these rows:
 ```python
-books = [
+row0 = rows[0]
+```
+Hm that is interesting. Remember that we show a `thead` element in the browser, and that element contained that heading? It appears that in the processed page, the headings are actually in the `tbody`: Some times Javascript that runs on the page will change the document structure.
+```python
+bsObj.find_all('thead')    # There aren't any!
+```
+So what this means is that we must somehow skip the header rows. The only way to really detect them is by checking one of the values. Notice that they have the `th` tag in them, while normal table cells have the `td` tag in them. So we can try to detect that:
+```python
+rows = [
+  row
+  for tbody in bsObj.find_all('tbody')
+  for row in tbody.find_all('tr')
+  if row.th is None
+]
+len(rows)
+```
+This is interesting. We had exactly 9 fewer entries, which matches with the 9 divisions of mountains based on height.
+
+Now let us consider each row:
+```python
+row0 = rows[0]
+print(row0)
+```
+Let's say we want to record the following information for each mountain: Its name, the link to its webpage, its elevation in meters, and which mountain range it is a part of. We'll create a little dictionary from each entry. Our method would be as follows:
+
+- Figure out how to create the dictionary based on one row.
+- Turn it into a function and apply it to the entire list via a list comprehension.
+
+Let's get started! Here is the various information, which we discovered one at a time with some trial and error:
+```python
+{
+  "name": row0.a.text,
+  "link": row0.a.get("href"),
+  "height": row0.find_all("td")[1].text,
+  "range": row0.find_all("td")[3].text
+}
+```
+Hm notice the weird `\xa0` symbols. These are invisible whitespace characters. We can take them away via a regular expression match:
+```python
+import re
+whitespace = re.compile("\xa0+")
+whitespace.sub("", row0.find_all("td")[3].text)
+
+{
+  "name": row0.a.text,
+  "link": row0.a.get("href"),
+  "height": row0.find_all("td")[1].text,
+  "range": whitespace.sub("", row0.find_all("td")[3].text)
+}
+```
+Now that we have something working, we'll try it out on the full list:
+```python
+mountains = [
   {
-    'link': tag['href'],
-    'title': tag['title']
+    "name": row.a.text,
+    "link": row.a.get("href"),
+    "height": row.find_all("td")[1].text,
+    "range": whitespace.sub("", row.find_all("td")[3].text)
   }
-  for table in bsObj.find_all('table')
-  for tag in table.find_all('a')
+  for row in rows
 ]
 ```
-Before we move on, we note that the first item in that list is not actually an individual book, but the name of the whole collection. So we'll leave it out.
+Oops, we hit an error! To help diagnose this, we can start by doing a for loop instead, and print information:
 ```python
-books.pop(0)
+for row in rows:
+  print({
+    "name": row.a.text,
+    "link": row.a.get("href"),
+    "height": row.find_all("td")[1].text,
+    "range": whitespace.sub("", row.find_all("td")[3].text)
+  })
+```
+Looks like the error happened right after the "Santa Fe Baldy" mountain entry. If we search for it we find a "Mount Baldwin" entry following it, but without a link to it. Therefore our `row.a.text` part failed. We'll need to either use a more complicated function, or read through the beautifulSoup documentation for other methods of getting the text that might work for None objects as well. Or we can also ask our row object for its available methods:
+```python
+dir(row0.a)
+```
+You should see a `get_text` method there. Let's find out more about it:
+```python
+help(row0.a.get_text)
+```
+You can also search for the method's documentation on the BeautifulSoup page.
+
+Now, let's use that instead and see if it works.
+```python
+for row in rows:
+  print({
+    "name": row.a.get_text(),
+    "link": row.a.get("href"),
+    "height": row.find_all("td")[1].text,
+    "range": whitespace.sub("", row.find_all("td")[3].text)
+  })
+```
+Nope, it didn't work, as `row.a` is in fact the `None` value and doesn't implement the `get_text` method. We could use `row.td.get_text()` instead, but this would not fix the `link` entry for us.
+
+At this point, we would consider making a function that takes a row as input and returns this dictionary:
+```python
+def row_to_dict(row):
+  anchor = row.a
+  tds = row.find_all("td")
+  return {
+    "name": row.td.get_text(),
+    "link": None if row.a is None else row.a.get("href"),
+    "height": tds[1].text,
+    "range": whitespace.sub("", tds[3].text)
+  }
+
+mountains = [
+  row_to_dict(row)
+  for row in rows
+]
 ```
 
-Before we move on, let's discuss the overall plan:
-
-- We collect the link of all books, as above
-- For each book, we visit its page and collect links to all chapters
-- For each chapter, we visit its page and collect the text
+Well done! You've completed your first web scraping. We could now continue to do more with each mountain. For example we could follow the links to each mountain's page, and search for an image of the mountain there, and include that link.
 
 ### Following links
 
-Following links simply requires making a new request. For instance let's grab the first book, and use its link to download a new resource.
+Following links simply requires making a new request. For instance let's take a look at the first mountain, use its link to download its full page, then look at all the image tags on that page:
 ```python
-book1 = books[0]
-http_response1 = requests.get(base_site + book1['link'])
-bookObj1 = BeautifulSoup(http_response1.content, "html.parser")
-print(bookObj1.prettify())
+m1 = mountains[0]
+http_response1 = requests.get(base_site + m1['link'])
+mObj1 = BeautifulSoup(http_response1.content, "html.parser")
+images = mObj1.find_all('img')
+pprint(images)
 ```
-We now need to grab the chapter links. It is not easy to see a way to get hold of them, but we can use regular expressions.
-```python
-import re
-bookObj1.find_all('a', { 'href': re.compile("\d+\.html") })
-```
-The regular expression `\d+\.html` basically tells BeautifulSoup to look for links whose href contains "at least one (+) digit (\d) followed by a dot (\.) followed by the word html".
+Woah there are 104 images on that page. We need to somehow only pick one. We would like this to be the one on the section on the top right.
 
-Let's write it slightly differently:
+It looks like the right side always contains a `table` element with classes `infobox` and `vcard`. There are many of these, but the first one is probably the one we want. We could try to target that table element, then grab the first image tag within it:
 ```python
-chapters1 = [
-  {
-    "title": book1["title"],
-    "link": tag["href"],
-    "chapter": ....
-  }
-  for tag in bookObj1.find_all('a', { 'href': re.compile("\d+\.html") })
-]
+sidebar = mObj1.find('table', class_="infobox")
+sidebar.find('img')
 ```
-We just need to figure out what to put in the "chapter". We need to grab the number part of the url. Here's how we can do that:
+Now we'll write a little function that does this: for a dictionary entry for a mountain, it follows the link to the mountain's main page, if there is one, grabs this image tag, then extracts the `src` link from it.
 ```python
-chapters1 = [
-  {
-    "title": book1["title"],
-    "link": tag["href"],
-    "chapter": re.search("\d+", tag["href"]).group()
-  }
-  for tag in bookObj1.find_all('a', { 'href': re.compile("\d+\.html") })
-]
+def update_image_link(mountain):
+  if mountain["link"] is None:
+    mountain["image_link"] = None
+  else:
+    http_response = requests.get(base_site + mountain["link"])
+    mObj = BeautifulSoup(http_response.content, "html.parser")
+    sidebar = mObj.find('table', class_="infobox")
+    img = sidebar.find('img')
+    mountain["image_link"] = img.get("src")
+
+for mountain in mountains:
+  print(mountain["name"])
+  update_image_link(mountain)
 ```
-Regular expressions are quite powerful at extracting parts of strings!
+We added the printout to see the process as it goes. This script will take a while to run as it has to access over 1400 different webpages.
 
-We should automate this into a function "getChapters":
+And we see it got stuck on `Batura IV`. Looking at this name in the initial webpage shows a "red link". This points to a non-existing page, so of course we won't find any images there. We have two ways to try to fix this:
+
+- Detect which links point to those pages, and exclude them.
+- Be more robust in our search for the image link on that page, namely check that the sidebar exists before trying to find its image, and checking that the image exists before trying to get its source link.
+
+In this case we can follow either approach. We will try them both. Notice how the link for `Batura IV` has `index.php` as a part of it. Surely the valid links won't contain that. So we can use a regular expression to look for that:
 ```python
-def getChapters(book):
-  http_response = requests.get(base_site + book['link'])
-  bookObj = BeautifulSoup(http_response.content, "html.parser")
-  return [
-    {
-      "title": book["title"],
-      "link": tag["href"],
-      "chapter": re.search("\d+", tag["href"]).group()
-    }
-    for tag in bookObj.find_all('a', { 'href': re.compile("\d+\.html") })
-  ]
+indexRegEx = re.compile("index.php")
+def update_image_link(mountain):
+  if mountain["link"] is None or \
+        indexRegEx.search(mountain["link"]) is not None:
+    mountain["image_link"] = None
+    return
+  http_response = requests.get(base_site + mountain["link"])
+  mObj = BeautifulSoup(http_response.content, "html.parser")
+  sidebar = mObj.find('table', class_="infobox")
+  img = sidebar.find('img')
+  mountain["image_link"] = img.get("src")
 
-allChapters = [
-  chapter
-  for book in books
-  for chapter in getChapters(book)
-]
+for mountain in mountains:
+  print(mountain["name"])
+  update_image_link(mountain)
 ```
 
-### Getting the text out
+Good, that helped us make progress! But now we are stuck on `Lungser Kangri`. Following its link we see that there is no sidebar in the resulting page. So let's add some safeguards there. As we seem to be setting the `mountain["link"]` to None in many places, let's do it only once instead, at the beginning:
+```python
+indexRegEx = re.compile("index.php")
+def update_image_link(mountain):
+  mountain["image_link"] = None
+  if mountain["link"] is None:
+    return
+  if indexRegEx.search(mountain["link"]) is not None:
+    return
+  http_response = requests.get(base_site + mountain["link"])
+  mObj = BeautifulSoup(http_response.content, "html.parser")
+  sidebar = mObj.find('table', class_="infobox")
+  if sidebar is None:
+    return
+  img = sidebar.find('img')
+  if img is None:
+    return
+  mountain["image_link"] = img.get("src")
 
-Now we will try to visit a chapter, and look at its format.
-```python
-chapter1 = allChapters[0]
-chapter1
+for mountain in mountains:
+  print(mountain["name"])
+  update_image_link(mountain)
 ```
-We will now grab the link:
-```python
-http_response1 = requests.get(base_site + chapter1['link'])
-bookObj = BeautifulSoup(http_response1.content, "html.parser")
-print(bookObj.prettify())
-```
-Scrolling through this, we find that the paragraphs are inside `<div>` elements, all inside a main `<td>` element of class "concss". We'll try to get hold of that:
-```python
-bookObj.find('td', { "class": "concss" }).find_all('div')
-```
-If you look through the list, you will see some empty divs. We probably don't want those. But we also don't really want the "div" parts, only their contents:
-```python
-[
-  tag.get_text()
-  for tag in bookObj.find('td', { "class": "concss" }).find_all('div')
-]
-```
-You will see entries that contain: `'\xa0'`. These are the whitespaces that we want to remove. We'll therefore filter them out:
-```python
-[
-  tag.get_text()
-  for tag in bookObj.find('td', { "class": "concss" }).find_all('div')
-  if tag.get_text() != '\xa0'
-]
-```
-We now have our list of paragraphs! Now let's turn this into a function:
-```python
-def getParagraphs(chapter):
-  http_response = requests.get(base_site + chapter['link'])
-  chapterObj = BeautifulSoup(http_response.content, "html.parser")
-  return [
-    {
-      "paragraph": ind,
-      "text": tag.get_text(),
-      "title": chapter["title"],
-      "chapter": chapter["chapter"]
-    }
-    for ind, tag in enumerate(bookObj.find('td', { "class": "concss" }).find_all('div'))
-    if tag.get_text() != '\xa0'
-  ]
-```
-Finally, we'll put it all together:
-```python
-allParagraphs = [
-  paragraph
-  for book in books
-  for chapter in getChapters(book)
-  for paragraph in getParagraphs(chapter)
-]
-```
-
-We could then proceed to, for instance, write the `allParagraphs` list to a json file.
