@@ -7,6 +7,7 @@ In this section we will learn about Web Scraping and how to use it to collect in
 - [Web Scraping with Python](http://acmsel.safaribooksonline.com/9781491910290) chapters 1 through 3
 - [Python's `requests` library](http://docs.python-requests.org/en/master/)
 - [Python's `BeautifulSoup` library](https://www.crummy.com/software/BeautifulSoup/)
+- [Python regular expressions](https://docs.python.org/3.4/library/re.html)
 
 ## Notes
 
