@@ -72,15 +72,15 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Assignment 5: Working with the SQLAlchemy ORM](assignments/5.md)
     - [Web Scraping](notes/web_scraping.md)
 - Day 3
-    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
+    - [Web Scraping (cont)](notes/web_scraping.md)
 
 ## Week  8 (10/24-10/28)
 
 - Day 1
+    - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
+- Day 2
     - [Emergence of NoSQL databases](notes/nosql_start.md)
     - [NoSQL Data Models](notes/nosql_data_models.md)
-- Day 2
-    - Lab work
 - Day 3
     - [Distributed Database Models](notes/nosql_distributed.md)
     - [Consistency](notes/nosql_consistency.md)
