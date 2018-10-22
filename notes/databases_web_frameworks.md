@@ -75,12 +75,9 @@ from flask import Flask, make_response, json, url_for
 from db import Db   # See db.py
 
 app = Flask(__name__)
-# The keys.json file should contain the 4 properties:
-# DATABASE, PASSWORD, SERVER, SCHEMA
-app.config.from_json('keys.json')
 
 ## Setting up database
-db = Db(app.config)
+db = Db()
 
 ## Lots of route stuff here
 ## Will look at it in a moment
@@ -99,9 +96,9 @@ if __name__ == '__main__':
 
 The object `app` represents the main application, and offers some key functionalities. It is an instance of the Flask class, the main class of the Flask framework.
 
-We use its "config" object to add some configurations read from a file. In this case this would be a JSON document containing the four fields that the database needs. Make sure to name them using all caps.
+In other situations, we may use the `app.config` object to add some configurations to the application. We won't immediately need this here.
 
-We then instantiate a database instance. This is a custom class that we have created, and stored in `app/db.py`, to keep the main file somewhat clean. All the database queries should appear in that other file. Take a look at that file now and you should see the `Db` class with two methods, `set_metadata` and `connect`. We will later add more database-access methods there.
+We then instantiate a database instance. This is a custom class that we have created, and stored in `app/db.py`, to keep the main file somewhat clean. All the database queries should appear in that other file. Take a look at that file now and you should see the `Db` class with a host of useful stuff. We will later add more database-access methods there.
 
 In any web service one of the most important components is that of determining the route map. In Flask we have multiple ways of doing so, and the simplest one looks like this:
 ```python
@@ -113,26 +110,44 @@ def user_create(username):
    pass
 ```
 
-We use the `@app.route` decorator that takes as input the route, the accepted methods and is then followed by the function to use, which it decorates. This function must return a [Response](http://flask.pocoo.org/docs/0.11/api/#response-objects) object, and it also has access to a [Request](http://flask.pocoo.org/docs/0.11/api/#incoming-request-data) object at the variable `request`.
+We use the `@app.route` decorator that takes as input the route, and the accepted methods, and is then followed by the function to use, which it "decorates". This function must return a [Response](http://flask.pocoo.org/docs/0.11/api/#response-objects) object, and it also has access to a [Request](http://flask.pocoo.org/docs/0.11/api/#incoming-request-data) object via the global variable `request`.
 
-In bigger applications we would opt for a different way of writing the routes, that keeps all the routes closer to each other and delegates all the functions to other modules.
+In large applications we would opt for a different way of writing the routes, that keeps all the routes closer to each other and delegates all the functions to other modules.
 
 #### Implementations
 
-We will start by taking a closer look at some of the functions and what they would do. we start with `user_create`, which is in response to a PUT request for creating a new user. Later on we will be checking for passwords and so on, for now we just need to ensure that the chosen username is not too long. We currently don't directly store users in their own tables, so there is nothing to save. We must either send back a 201 Created, with a link to the corresponding GET page in the `Location` header, or a suitable error for a bad (too long) username, via a 400 response. Review appendings C of [RESTful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari) on what the different response codes indicate.
+We will start by taking a closer look at some of the functions and what they would do. we start with `user_create`, which is in response to a PUT request for creating a new user. We'll need to check that a password is provided, and that the username and password are both alphanumeric. We must either send back a 201 Created, with a link to the corresponding GET page in the `Location` header, or a suitable error for a bad username, via a 400 response. Also, if hte username already exists, we must return 403, Forbidden. Review appendix C of [RESTful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari) on what the different response codes indicate.
 
 So let's take a look at how this would look:
 ```python
-@app.route('/users/<username>', methods = ['PUT'])
+## Creates a new user. Request body contains the password to be used
+## If user exists, must ensure it is same or else throw error
+@app.route('/user/<username>', methods = ['PUT'])
 def user_create(username):
-   if len(username) > 20:
-      return make_json_response({ 'error': 'long username' }, 400)
-   return make_json_response({}, 201, {
-      'Location': url_for('user_page', username=username)
-   })
+   contents = request.get_json()
+   if "password" not in contents:
+      return make_json_response({ 'error': 'must provide a password field' }, 400)
+   password = contents[password]
+   if not username.isalnum() or not password.isalnum():
+      return make_json_response({ 'error': 'username and password must be alphanumeric' }, 400)
+   user = db.getUser()
+   if user is not None:
+      return make_json_response({ 'error': 'username already exists' }, 403)
+   try:
+      db.addUser(username, password)
+      db.commit()
+      headers = { "Location": url_for('user_profile', username=username) }
+      return make_json_response({ 'ok': 'user created' }, 201, headers)
+   except:
+      return make_json_response({ 'error': 'unexpected server error' }, 500)
 ```
 
-We simply need to provide the json content of the reply, the error code, and optionally headers. Our `make_json_response` method will always set the content type appropriately to json. We check the length of the username, and if it is too long then we return a 400 error, otherwise we return a 201. When we do password authentication, this will all become more complex.
+We simply need to provide the json content of the reply, the error code, and optionally headers. Our `make_json_response` method will always set the content type appropriately to json. We check to see if the password is provided and if the username and password are alphanumeric, and return appropriate status codes if they are not. Phew that's a lot of work!
+
+
+TODO
+
+
 
 Now let us take a look at the corresponding GET request. This returns the user's main page. It should consist mostly of links. For instance it would have a link to a page showing the user's "sent" message, and another to the user's "received" messages. It could also have a link to "create a new message". Here's how that might look like:
 ```python
