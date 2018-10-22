@@ -37,9 +37,9 @@ We will build a very simple banking system using Flask.
 
 We start by discussing the example service we are envisioning implementing. This is a three-step process:
 
-- Describe some overall requirements. You can find this information at the [GitHub project](https://github.com/skiadas/banking-flask/blob/master/specs/overview.md).
-- The next step is to think through the URI resources and methods that we will support. Here is the [description](https://github.com/skiadas/banking-flask/blob/master/specs/resources.md) for that.
-- Lastly we should discuss the different database tables that we will need. Those can be found [here](https://github.com/skiadas/banking-flask/blob/master/specs/tables.md)
+- Describe some overall requirements. You can find this information at the [overview.md file](https://github.com/skiadas/banking-flask/blob/master/specs/).
+- The next step is to think through the URI resources and methods that we will support. Here is the [resources.md file](https://github.com/skiadas/banking-flask/blob/master/specs/) for that.
+- Lastly we should discuss the different database tables that we will need. Those can be found in the [tables.md file](https://github.com/skiadas/banking-flask/blob/master/specs/)
 
 You can check out the entire project on your computers by "cloning" the repository:
 ```bash
