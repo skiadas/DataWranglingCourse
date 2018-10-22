@@ -76,36 +76,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>Most web frameworks offer these and more. Some do it themselves, some allow for extensions. Some are very opinionated about exactly how you should structure your application, some give you more control over it. But whatever your project is, you would benefit from using some web framework, instead of reinventing the wheel.</p>
 <h3 id="flask">Flask</h3>
 <p>Flask is a Python Web Framework that in general takes a very minimalist approach. It offers some basic functionality, and leaves a lot of choices up to the programmer.</p>
-<p>We will build a very simple banking system using Flask.</p>
-<h4 id="our-example-service">Our example service</h4>
-<p>We start by discussing the example service we are envisioning implementing. This is a three-step process:</p>
-<ul>
-<li>Describe some overall requirements. You can find this information at the <a href="https://github.com/skiadas/banking-flask/blob/master/specs/overview.html">GitHub project</a>.</li>
-<li>The next step is to think through the URI resources and methods that we will support. Here is the <a href="https://github.com/skiadas/banking-flask/blob/master/specs/resources.html">description</a> for that.</li>
-<li>Lastly we should discuss the different database tables that we will need. Those can be found <a href="https://github.com/skiadas/banking-flask/blob/master/specs/tables.html">here</a></li>
-</ul>
-<p>You can check out the entire project on your computers by &quot;cloning&quot; the repository:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">git</span> clone https://github.com/skiadas/banking-flask.git
-<span class="bu">cd</span> banking-flask
+<p>We will build a very simple messaging web service using Flask. We start by discussing the service we are envisioning. You can find this information at the <a href="https://github.com/skiadas/messaging-flask/blob/master/specs/initial_specs.html">GitHub project</a>. Read that file, then design a RESTful service and resource specification around that. You should end up with something similar to <a href="https://github.com/skiadas/messaging-flask/blob/master/specs/resources.html">this description</a>.</p>
+<p>Before you move on, you should check out the whole project on your desktop, via git:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">git</span> clone https://github.com/skiadas/messaging-flask.git
+<span class="bu">cd</span> messaging-flask
 <span class="ex">subl</span> .</code></pre></div>
-<p>We will split our application into a couple of different files:</p>
-<ul>
-<li>A dedicated <code>db.py</code> file will manage interaction with the database. It will hold classes for the users and transactions and will use ORM to express some of the basic system requirements.</li>
-<li>A <code>main.py</code> file will contain the basic Flask application, and direct the action for the various HTTP requests.</li>
-<li>A <code>utils.py</code> file will provide any helper functions we need, to keep the code in the main file clean.</li>
-</ul>
-<h4 id="setting-up-the-database">Setting up the database</h4>
-<p>Let us take a look at the database setup first. The details are in <a href="https://github.com/skiadas/banking-flask/blob/master/app/db.py">this file</a>:</p>
-<ul>
-<li>We create the declarative Base class, then make two ORM classes that inherit from it.</li>
-<li>The Transaction class contains some functions to help us with our task. In particular it contains the key <code>isPossible</code> function that incorporates our essential business logic.</li>
-<li>The Db class represents our connection to the database. It maintains a session object for us, and provides us with functions to use to interact with the database, such as adding a transaction, adding or deleting a user, etc.</li>
-<li>Notice in particular the <code>getTransactions</code> function and its helper <code>enrichQuery</code>, which conditionally builds a query based on the provided parameters.</li>
-</ul>
-<p>Our database code handles some bad inputs, but it also expects other bad input behaviors to be handled by the code that handles the requests. We will get to that shortly.</p>
-<h3 id="todo">TODO</h3>
+<p>The third line would open the project in Sublime Text.</p>
 <h4 id="skeleton">Skeleton</h4>
-<p>Let's take a look at the main file, <code>app/main.py</code>:</p>
+<p>Let's take a look at the main file, <code>app/messaging.py</code>:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> flask <span class="im">import</span> Flask, make_response, json, url_for
 <span class="im">from</span> db <span class="im">import</span> Db   <span class="co"># See db.py</span>
 
@@ -117,7 +95,7 @@ app.config.from_json(<span class="st">&#39;keys.json&#39;</span>)
 <span class="co">## Setting up database</span>
 db <span class="op">=</span> Db(app.config)
 
-<span class="co">## Lots of route stuff here</span>
+<span class="co">## Lost of route stuff here</span>
 <span class="co">## Will look at it in a moment</span>
 <span class="co">## .......</span>
 

@@ -31,45 +31,20 @@ Most web frameworks offer these and more. Some do it themselves, some allow for 
 
 Flask is a Python Web Framework that in general takes a very minimalist approach. It offers some basic functionality, and leaves a lot of choices up to the programmer.
 
-We will build a very simple banking system using Flask.
+We will build a very simple messaging web service using Flask. We start by discussing the service we are envisioning. You can find this information at the [GitHub project](https://github.com/skiadas/messaging-flask/blob/master/specs/initial_specs.md). Read that file, then design a RESTful service and resource specification around that. You should end up with something similar to [this description](https://github.com/skiadas/messaging-flask/blob/master/specs/resources.md).
 
-#### Our example service
-
-We start by discussing the example service we are envisioning implementing. This is a three-step process:
-
-- Describe some overall requirements. You can find this information at the [GitHub project](https://github.com/skiadas/banking-flask/blob/master/specs/overview.md).
-- The next step is to think through the URI resources and methods that we will support. Here is the [description](https://github.com/skiadas/banking-flask/blob/master/specs/resources.md) for that.
-- Lastly we should discuss the different database tables that we will need. Those can be found [here](https://github.com/skiadas/banking-flask/blob/master/specs/tables.md)
-
-You can check out the entire project on your computers by "cloning" the repository:
+Before you move on, you should check out the whole project on your desktop, via git:
 ```bash
-git clone https://github.com/skiadas/banking-flask.git
-cd banking-flask
+git clone https://github.com/skiadas/messaging-flask.git
+cd messaging-flask
 subl .
 ```
 
-We will split our application into a couple of different files:
-
-- A dedicated `db.py` file will manage interaction with the database. It will hold classes for the users and transactions and will use ORM to express some of the basic system requirements.
-- A `main.py` file will contain the basic Flask application, and direct the action for the various HTTP requests.
-- A `utils.py` file will provide any helper functions we need, to keep the code in the main file clean.
-
-#### Setting up the database
-
-Let us take a look at the database setup first. The details are in [this file](https://github.com/skiadas/banking-flask/blob/master/app/db.py):
-
-- We create the declarative Base class, then make two ORM classes that inherit from it.
-- The Transaction class contains some functions to help us with our task. In particular it contains the key `isPossible` function that incorporates our essential business logic.
-- The Db class represents our connection to the database. It maintains a session object for us, and provides us with functions to use to interact with the database, such as adding a transaction, adding or deleting a user, etc.
-- Notice in particular the `getTransactions` function and its helper `enrichQuery`, which conditionally builds a query based on the provided parameters.
-
-Our database code handles some bad inputs, but it also expects other bad input behaviors to be handled by the code that handles the requests. We will get to that shortly.
-
-### TODO
+The third line would open the project in Sublime Text.
 
 #### Skeleton
 
-Let's take a look at the main file, `app/main.py`:
+Let's take a look at the main file, `app/messaging.py`:
 ```python
 from flask import Flask, make_response, json, url_for
 from db import Db   # See db.py
@@ -82,7 +57,7 @@ app.config.from_json('keys.json')
 ## Setting up database
 db = Db(app.config)
 
-## Lots of route stuff here
+## Lost of route stuff here
 ## Will look at it in a moment
 ## .......
 
