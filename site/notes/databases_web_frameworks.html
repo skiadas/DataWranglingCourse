@@ -147,23 +147,23 @@ db <span class="op">=</span> Db()
 <span class="kw">def</span> user_create(username):
    <span class="cf">pass</span>
 
-<span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;POST&#39;</span>]):
+<span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;POST&#39;</span>])
 <span class="kw">def</span> user_update(username):
    <span class="cf">pass</span>
 
-<span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;DELETE&#39;</span>]):
+<span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;DELETE&#39;</span>])
 <span class="kw">def</span> user_delete(username):
    <span class="cf">pass</span>
 
-<span class="at">@app.route</span>(<span class="st">&#39;/transaction&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>]):
+<span class="at">@app.route</span>(<span class="st">&#39;/transaction&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
 <span class="kw">def</span> transaction_list():
    <span class="cf">pass</span>
 
-<span class="at">@app.route</span>(<span class="st">&#39;/transaction&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;POST&#39;</span>]):
+<span class="at">@app.route</span>(<span class="st">&#39;/transaction&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;POST&#39;</span>])
 <span class="kw">def</span> transaction_create():
    <span class="cf">pass</span>
 
-<span class="at">@app.route</span>(<span class="st">&#39;/transaction/&lt;transactionId&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>]):
+<span class="at">@app.route</span>(<span class="st">&#39;/transaction/&lt;transactionId&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
 <span class="kw">def</span> transaction_info(transactionId):
    <span class="cf">pass</span></code></pre></div>
 <p>We use the <code>@app.route</code> decorator that takes as input the route, and the accepted methods, and is then followed by the function to use, which it &quot;decorates&quot;. This function must return a <a href="http://flask.pocoo.org/docs/0.11/api/#response-objects">Response</a> object, and it also has access to a <a href="http://flask.pocoo.org/docs/0.11/api/#incoming-request-data">Request</a> object via the global variable <code>request</code>.</p>
@@ -173,7 +173,10 @@ db <span class="op">=</span> Db()
 <p>We will start by taking a closer look at some of the functions and what they would do. We will start with the <code>index</code> method, that is supposed to direct new users to the service. It will tell the system about available routes and maybe suggest methods:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
 <span class="kw">def</span> index():
-   <span class="cf">pass</span></code></pre></div>
+   <span class="cf">return</span> make_json_response({
+
+
+   })</code></pre></div>
 <p>Now we move on to <code>user_create</code>, which is in response to a PUT request for creating a new user. We'll need to check that a password is provided, and that the username and password are both alphanumeric. We must either send back a 201 Created, with a link to the corresponding GET page in the <code>Location</code> header, or a suitable error for a bad username, via a 400 response. Also, if hte username already exists, we must return 403, Forbidden. Review appendix C of <a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">RESTful Web Services</a> on what the different response codes indicate.</p>
 <p>So let's take a look at how this would look:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">## Creates a new user. Request body contains the password to be used</span>

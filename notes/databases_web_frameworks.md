@@ -118,23 +118,23 @@ def user_profile(username):
 def user_create(username):
    pass
 
-@app.route('/user/<username>', methods = ['POST']):
+@app.route('/user/<username>', methods = ['POST'])
 def user_update(username):
    pass
 
-@app.route('/user/<username>', methods = ['DELETE']):
+@app.route('/user/<username>', methods = ['DELETE'])
 def user_delete(username):
    pass
 
-@app.route('/transaction', methods = ['GET']):
+@app.route('/transaction', methods = ['GET'])
 def transaction_list():
    pass
 
-@app.route('/transaction', methods = ['POST']):
+@app.route('/transaction', methods = ['POST'])
 def transaction_create():
    pass
 
-@app.route('/transaction/<transactionId>', methods = ['GET']):
+@app.route('/transaction/<transactionId>', methods = ['GET'])
 def transaction_info(transactionId):
    pass
 ```
@@ -151,7 +151,10 @@ We will start by taking a closer look at some of the functions and what they wou
 ```python
 @app.route('/', methods = ['GET'])
 def index():
-   pass
+   return make_json_response({
+
+
+   })
 ```
 
 
