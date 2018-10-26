@@ -102,21 +102,60 @@ We then instantiate a database instance. This is a custom class that we have cre
 
 In any web service one of the most important components is that of determining the route map. In Flask we have multiple ways of doing so, and the simplest one looks like this:
 ```python
-## Creates a new user. Request body contains the password to be used
-## If user/password exists, must ensure it is same or else throw error
-## In first iteration of the app, no passwords.
+@app.route('/', methods = ['GET'])
+def index():
+   pass
+
+@app.route('/user', methods = ['GET'])
+def user_list():
+   pass
+
+@app.route('/user/<username>', methods = ['GET'])
+def user_profile(username):
+   pass
+
 @app.route('/user/<username>', methods = ['PUT'])
 def user_create(username):
+   pass
+
+@app.route('/user/<username>', methods = ['POST']):
+def user_update(username):
+   pass
+
+@app.route('/user/<username>', methods = ['DELETE']):
+def user_delete(username):
+   pass
+
+@app.route('/transaction', methods = ['GET']):
+def transaction_list():
+   pass
+
+@app.route('/transaction', methods = ['POST']):
+def transaction_create():
+   pass
+
+@app.route('/transaction/<transactionId>', methods = ['GET']):
+def transaction_info(transactionId):
    pass
 ```
 
 We use the `@app.route` decorator that takes as input the route, and the accepted methods, and is then followed by the function to use, which it "decorates". This function must return a [Response](http://flask.pocoo.org/docs/0.11/api/#response-objects) object, and it also has access to a [Request](http://flask.pocoo.org/docs/0.11/api/#incoming-request-data) object via the global variable `request`.
 
+So we have here specified what all the available routes are, what their URI schemes look like, and which functions should be called in response to one of the routes. Currently these function do nothing, they are *stumps*. We will need to provide implementations for them.
+
 In large applications we would opt for a different way of writing the routes, that keeps all the routes closer to each other and delegates all the functions to other modules.
 
 #### Implementations
 
-We will start by taking a closer look at some of the functions and what they would do. we start with `user_create`, which is in response to a PUT request for creating a new user. We'll need to check that a password is provided, and that the username and password are both alphanumeric. We must either send back a 201 Created, with a link to the corresponding GET page in the `Location` header, or a suitable error for a bad username, via a 400 response. Also, if hte username already exists, we must return 403, Forbidden. Review appendix C of [RESTful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari) on what the different response codes indicate.
+We will start by taking a closer look at some of the functions and what they would do. We will start with the `index` method, that is supposed to direct new users to the service. It will tell the system about available routes and maybe suggest methods:
+```python
+@app.route('/', methods = ['GET'])
+def index():
+   pass
+```
+
+
+Now we move on to `user_create`, which is in response to a PUT request for creating a new user. We'll need to check that a password is provided, and that the username and password are both alphanumeric. We must either send back a 201 Created, with a link to the corresponding GET page in the `Location` header, or a suitable error for a bad username, via a 400 response. Also, if hte username already exists, we must return 403, Forbidden. Review appendix C of [RESTful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari) on what the different response codes indicate.
 
 So let's take a look at how this would look:
 ```python
@@ -127,10 +166,10 @@ def user_create(username):
    contents = request.get_json()
    if "password" not in contents:
       return make_json_response({ 'error': 'must provide a password field' }, 400)
-   password = contents[password]
+   password = contents["password"]
    if not username.isalnum() or not password.isalnum():
       return make_json_response({ 'error': 'username and password must be alphanumeric' }, 400)
-   user = db.getUser()
+   user = db.getUser(username)
    if user is not None:
       return make_json_response({ 'error': 'username already exists' }, 403)
    try:
@@ -144,83 +183,47 @@ def user_create(username):
 
 We simply need to provide the json content of the reply, the error code, and optionally headers. Our `make_json_response` method will always set the content type appropriately to json. We check to see if the password is provided and if the username and password are alphanumeric, and return appropriate status codes if they are not. Phew that's a lot of work!
 
+Some key things to note:
+
+- All paths out of the function should be returning a `Response` object. Typically this will happen by calling our `make_json_response` function.
+- Information about the request that came to us is provided via the `request` global object. For instance we used this above to get that the message's contents. In a similar way we could access the request's headers.
+- Any "parameters" that were part of the URI scheme are provided as parameters to the function (`username` in our example above).
+- `url_for` can be used to create links to other routes. It needs to be provided with the name of a function that implements a route, and it returns the url for that route.
+
+
+Now let us look at a GET request, which needs to return some more information.
+```python
+@app.route('/user/<username>', methods = ['GET'])
+def user_profile(username):
+   query = request.args
+   if "password" not in query:
+      return make_json_response({ 'error': 'must provide a password parameter' }, 400)
+   password = query["password"]
+   try:
+      user = db.getUser(username)
+      if user is None:
+         return make_json_response({ 'error': 'unknown username' }, 404)
+      if user.password != password:
+         return make_json_response({ 'error': 'incorrect password' }, 400)
+      return make_json_response({
+         "username": user.username,
+         "balance": user.balance,
+         "transactions": {
+            "link": url_for('transaction_list', user=user.username)
+         }
+      })
+   except:
+      return make_json_response({ 'error': 'unexpected server error' }, 500)
+```
+
+
+
+
 
 TODO
 
 
 
-Now let us take a look at the corresponding GET request. This returns the user's main page. It should consist mostly of links. For instance it would have a link to a page showing the user's "sent" message, and another to the user's "received" messages. It could also have a link to "create a new message". Here's how that might look like:
-```python
-## Get user information. Should provide links to various tasks like
-## looking at sent messages or received messages or creating a new message
-@app.route('/users/<username>', methods = ['GET'])
-def user_page(username):
-   return make_json_response({
-      'user': username,
-      'sent': url_for('user_messages', username=username, include='sent'),
-      'received': url_for('user_messages', username=username, include='received'),
-      'create': {
-         'url': url_for('user_new_message', username=username),
-         'content': { 'to': '', 'subject': '', 'body': '' }
-      }
-   }, 200)
-```
-
-We will next look at the request that handles the creation of a new message. This is the first request that will actually interact with the database. It is a POST request. It would need to do the following things:
-
-- Check that the username has length no more than 20.
-- Check that content object contains a recipient of length no more than 20.
-- Check that content object contains a subject of length no more than 140.
-- Check that content object contains a body of length no more than 5000.
-- If any of the above fails it would return a 400 "bad request" error.
-- Otherwise it attempts to write to the database. It this fails it would return a 500 "internal server error". We looked through the 5xx range of errors, which represent "server-side errors" and this seemed the most suitable.
-- If the database write is successful, then we return a 201 response for the newly created resource, and put a link to it in the Location header.
-
-Here's the skeleton of this method, that uses two custom methods we will write, one for validation and one for writing to the database:
-```python
-@app.route('/users/<username>/messages', methods = ['POST'])
-def user_new_message(username):
-   contents = request.get_json()
-   contents['from'] = username
-   error = message.validate_new_message(contents)
-   if error is not None:
-      return make_json_response({ 'error': error }, 400)
-   record_id = db.write_message(contents)
-   if record_id is None:
-      return make_json_response({ 'error': 'Internal Server Error' }, 500)
-   return make_json_response({}, 201, {
-      'Location': url_for('message_get', id=record_id)
-   })
-```
-Here is how the `validate` function may look like:
-```python
-def validate_new_message(m):
-   for field in ['to', 'subject', 'body']:
-      if field not in m:
-         return 'Required fields: to, subject, body'
-   if len(m.keys()) > 4:
-      return 'Only fields allowed: to, subject, body'
-   for field, length in [('from', 20), ('to', 20),
-                         ('subject', 140), ('body', 5000)]:
-      if len(m[field]) > length:
-         return 'Field "%s" must not exceed length %d' % (field, length)
-   return None
-```
-And here is the query function in the db module:
-```python
-   def write_message(self, m):
-      try:
-         conn = self.connect()
-         m['created'] = datetime.today()
-         if 'read' not in m:
-            m['read'] = False
-         result = conn.execute(self.messages.insert(), m)
-         return result.inserted_primary_key[0]
-      except:
-         return None
-```
-
-Well this is awesome, we can now send messages to our service! But we should talk about how to test all this before we do more stuff.
 
 #### Interacting with the service
 

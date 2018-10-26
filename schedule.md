@@ -77,7 +77,16 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 ## Week  8 (10/24-10/28)
 
 - Day 1
+    - [Web Scraping (cont)](notes/web_scraping.md)
+- Day 2
+    - Review/Catchup
+- Day 3
     - [Web Frameworks, and Flask](notes/databases_web_frameworks.md)
+
+## Week  9 (10/31-11/04)
+
+- Day 1
+    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
 - Day 2
     - [Emergence of NoSQL databases](notes/nosql_start.md)
     - [NoSQL Data Models](notes/nosql_data_models.md)
@@ -85,36 +94,28 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
     - [Distributed Database Models](notes/nosql_distributed.md)
     - [Consistency](notes/nosql_consistency.md)
 
-## Week  9 (10/31-11/04)
+## Week 10 (11/07-11/11)
 
 - Day 1
     - [Introduction to MongoDb](notes/mongodb.md)
 - Day 2
     - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
 - Day 3
-    - More practice with aggregation
-
-## Week 10 (11/07-11/11)
-
-- Day 1
     - [Assignment 6: More MongoDb practice](assignments/6.md)
-- Day 2
-    - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
-- Day 3
-    - Work on project
 
 ## Week 11 (11/14-11/18)
 
 - Day 1
-    - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
+    - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
 - Day 2
+    - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
 - Day 3
-    - Guest Lecture
+    - TBD
 
 ## Week 12 (11/21-11/25)
 
 - Day 1
-    - [Assignment 7: Web Scraping practice](assignments/7.md)
+    - TBD
 
 - Day 2
     - Thanksgiving
