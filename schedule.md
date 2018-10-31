@@ -86,11 +86,12 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 ## Week  9 (10/31-11/04)
 
 - Day 1
-    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
+    - Sick Day
 - Day 2
+    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
+- Day 3
     - [Emergence of NoSQL databases](notes/nosql_start.md)
     - [NoSQL Data Models](notes/nosql_data_models.md)
-- Day 3
     - [Distributed Database Models](notes/nosql_distributed.md)
     - [Consistency](notes/nosql_consistency.md)
 

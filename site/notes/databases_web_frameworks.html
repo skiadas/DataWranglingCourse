@@ -57,6 +57,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="http://flask.pocoo.org/">Flask documentation</a></li>
 <li><a href="http://flask.pocoo.org/docs/1.0/tutorial/">A Flask tutorial</a></li>
 <li><a href="http://flask.pocoo.org/docs/1.0/api/">Full Flask API</a></li>
+<li><a href="http://werkzeug.pocoo.org/docs/0.14/">Werkzeug documentation</a> heavily used by Flask.</li>
 </ul>
 <h2 id="notes">Notes</h2>
 <h3 id="web-frameworks">Web Frameworks</h3>
@@ -103,13 +104,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>Notice in particular the <code>getTransactions</code> function and its helper <code>enrichQuery</code>, which conditionally builds a query based on the provided parameters.</li>
 </ul>
 <p>Our database code handles some bad inputs, but it also expects other bad input behaviors to be handled by the code that handles the requests. We will get to that shortly.</p>
-<h3 id="todo">TODO</h3>
 <h4 id="skeleton">Skeleton</h4>
 <p>Let's take a look at the main file, <code>app/main.py</code>:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> flask <span class="im">import</span> Flask, make_response, json, url_for
 <span class="im">from</span> db <span class="im">import</span> Db   <span class="co"># See db.py</span>
 
 app <span class="op">=</span> Flask(<span class="va">__name__</span>)
+app.debug <span class="op">=</span> <span class="va">True</span> <span class="co"># Comment out when not testing</span>
 
 <span class="co">## Setting up database</span>
 db <span class="op">=</span> Db()
@@ -170,12 +171,29 @@ db <span class="op">=</span> Db()
 <p>So we have here specified what all the available routes are, what their URI schemes look like, and which functions should be called in response to one of the routes. Currently these function do nothing, they are <em>stumps</em>. We will need to provide implementations for them.</p>
 <p>In large applications we would opt for a different way of writing the routes, that keeps all the routes closer to each other and delegates all the functions to other modules.</p>
 <h4 id="implementations">Implementations</h4>
-<p>We will start by taking a closer look at some of the functions and what they would do. We will start with the <code>index</code> method, that is supposed to direct new users to the service. It will tell the system about available routes and maybe suggest methods:</p>
+<p>We will start by taking a closer look at some of the functions and what they would do. One of the important parts is to create &quot;custom error handlers&quot;:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.errorhandler</span>(<span class="dv">500</span>)
+<span class="kw">def</span> server_error(e):
+   <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;unexpected server error&#39;</span> }, <span class="dv">500</span>)
+
+<span class="at">@app.errorhandler</span>(<span class="dv">404</span>)
+<span class="kw">def</span> not_found(e):
+   <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: e.description }, <span class="dv">404</span>)
+
+<span class="at">@app.errorhandler</span>(<span class="dv">403</span>)
+<span class="kw">def</span> forbidden(e):
+   <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: e.description }, <span class="dv">403</span>)
+
+<span class="at">@app.errorhandler</span>(<span class="dv">400</span>)
+<span class="kw">def</span> client_error(e):
+   <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: e.description }, <span class="dv">400</span>)</code></pre></div>
+<p>The 500 handler is called whenever an exception occurs in our code. The other handlers are triggered by us manually by using the <code>abort</code> construct.</p>
+<p>Now we will look at our normal response functions. We will start with the <code>index</code> method, that is supposed to direct new users to the service. It will tell the system about available routes and maybe suggest methods:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
 <span class="kw">def</span> index():
    <span class="cf">return</span> make_json_response({
-
-
+      <span class="st">&quot;users&quot;</span>: { <span class="st">&quot;link&quot;</span>: url_for(<span class="st">&quot;user_list&quot;</span>) },
+      <span class="st">&quot;transactions&quot;</span>: { <span class="st">&quot;link&quot;</span>: url_for(<span class="st">&quot;transaction_list&quot;</span>) }
    })</code></pre></div>
 <p>Now we move on to <code>user_create</code>, which is in response to a PUT request for creating a new user. We'll need to check that a password is provided, and that the username and password are both alphanumeric. We must either send back a 201 Created, with a link to the corresponding GET page in the <code>Location</code> header, or a suitable error for a bad username, via a 400 response. Also, if hte username already exists, we must return 403, Forbidden. Review appendix C of <a href="http://learning.acm.org/books/book_detail.cfm?id=1406352&amp;type=safari">RESTful Web Services</a> on what the different response codes indicate.</p>
 <p>So let's take a look at how this would look:</p>
@@ -183,22 +201,29 @@ db <span class="op">=</span> Db()
 <span class="co">## If user exists, must ensure it is same or else throw error</span>
 <span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;PUT&#39;</span>])
 <span class="kw">def</span> user_create(username):
+   password <span class="op">=</span> getPasswordFromContents()
+   checkAlphanum(username, password)
+   checkNameAvailable(username)
+   db.addUser(username, password)
+   db.commit()
+   headers <span class="op">=</span> { <span class="st">&quot;Location&quot;</span>: url_for(<span class="st">&#39;user_profile&#39;</span>, username<span class="op">=</span>username) }
+   <span class="cf">return</span> make_json_response({ <span class="st">&#39;ok&#39;</span>: <span class="st">&#39;user created&#39;</span> }, <span class="dv">201</span>, headers)
+
+<span class="kw">def</span> getPasswordFromContents():
    contents <span class="op">=</span> request.get_json()
    <span class="cf">if</span> <span class="st">&quot;password&quot;</span> <span class="kw">not</span> <span class="kw">in</span> contents:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;must provide a password field&#39;</span> }, <span class="dv">400</span>)
-   password <span class="op">=</span> contents[<span class="st">&quot;password&quot;</span>]
-   <span class="cf">if</span> <span class="kw">not</span> username.isalnum() <span class="kw">or</span> <span class="kw">not</span> password.isalnum():
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;username and password must be alphanumeric&#39;</span> }, <span class="dv">400</span>)
+      abort(<span class="dv">400</span>, <span class="st">&#39;must provide a password field&#39;</span>)
+   <span class="cf">return</span> contents[<span class="st">&quot;password&quot;</span>]
+
+<span class="kw">def</span> checkAlphanum(<span class="op">*</span>args):
+   <span class="cf">for</span> arg <span class="kw">in</span> args:
+      <span class="cf">if</span> <span class="kw">not</span> arg.isalnum():
+         abort(<span class="dv">400</span>, <span class="st">&#39;username and password must be alphanumeric&#39;</span>)
+
+<span class="kw">def</span> checkNameAvailable(username):
    user <span class="op">=</span> db.getUser(username)
    <span class="cf">if</span> user <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;username already exists&#39;</span> }, <span class="dv">403</span>)
-   <span class="cf">try</span>:
-      db.addUser(username, password)
-      db.commit()
-      headers <span class="op">=</span> { <span class="st">&quot;Location&quot;</span>: url_for(<span class="st">&#39;user_profile&#39;</span>, username<span class="op">=</span>username) }
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;ok&#39;</span>: <span class="st">&#39;user created&#39;</span> }, <span class="dv">201</span>, headers)
-   <span class="cf">except</span>:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;unexpected server error&#39;</span> }, <span class="dv">500</span>)</code></pre></div>
+      abort(<span class="dv">403</span>, <span class="st">&#39;username already exists&#39;</span>)</code></pre></div>
 <p>We simply need to provide the json content of the reply, the error code, and optionally headers. Our <code>make_json_response</code> method will always set the content type appropriately to json. We check to see if the password is provided and if the username and password are alphanumeric, and return appropriate status codes if they are not. Phew that's a lot of work!</p>
 <p>Some key things to note:</p>
 <ul>
@@ -210,145 +235,35 @@ db <span class="op">=</span> Db()
 <p>Now let us look at a GET request, which needs to return some more information.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/user/&lt;username&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
 <span class="kw">def</span> user_profile(username):
-   query <span class="op">=</span> request.args
-   <span class="cf">if</span> <span class="st">&quot;password&quot;</span> <span class="kw">not</span> <span class="kw">in</span> query:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;must provide a password parameter&#39;</span> }, <span class="dv">400</span>)
-   password <span class="op">=</span> query[<span class="st">&quot;password&quot;</span>]
-   <span class="cf">try</span>:
-      user <span class="op">=</span> db.getUser(username)
-      <span class="cf">if</span> user <span class="kw">is</span> <span class="va">None</span>:
-         <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;unknown username&#39;</span> }, <span class="dv">404</span>)
-      <span class="cf">if</span> user.password <span class="op">!=</span> password:
-         <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;incorrect password&#39;</span> }, <span class="dv">400</span>)
-      <span class="cf">return</span> make_json_response({
-         <span class="st">&quot;username&quot;</span>: user.username,
-         <span class="st">&quot;balance&quot;</span>: user.balance,
-         <span class="st">&quot;transactions&quot;</span>: {
-            <span class="st">&quot;link&quot;</span>: url_for(<span class="st">&#39;transaction_list&#39;</span>, user<span class="op">=</span>user.username)
-         }
-      })
-   <span class="cf">except</span>:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;unexpected server error&#39;</span> }, <span class="dv">500</span>)</code></pre></div>
-<p>TODO</p>
-<h4 id="interacting-with-the-service">Interacting with the service</h4>
-<p>While we could, and should, create automated tests, it is equally important to have a way to directly interact with the service. In order to do that, we'll need the following steps:</p>
-<ol style="list-style-type: decimal">
-<li>You will be using two terminal windows: One will be running the &quot;server&quot;, the other will be the &quot;client&quot;.</li>
-<li>In one window you will start the service.
-<ul>
-<li>First, we will enable debugging. Find the line in <code>messaging.py</code> that sets the DEBUG configuration variable to False, and change that to True.</li>
-<li>Make sure you create a <code>keys.json</code> file with a JSON object with keys <code>DATABASE</code>, <code>PASSWORD</code>, <code>SERVER</code> and <code>SCHEMA</code> with values corresponding to your database.</li>
-<li><p>In one of your terminal windows, go to the application folder and start the server with:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">python3 app<span class="op">/</span>messaging.py</code></pre></div>
-From now on this window runs a web server, at a web address it provides to you, and you could change via configuration options. It is also in debug mode: When you change the files it will automatically restart itself.</li>
-<li>If you want to manually stop the server, simply interrupt it via <code>Ctrl-C</code>. You can then run the command again to restart it. It may also shut down by itself if one of your file updates brings it to a non-operable condition.</li>
-</ul></li>
-<li>In the other window you will start a &quot;client&quot;.
-<ul>
-<li>This is a normal python console, so start it with <code>python3</code>.</li>
-<li>You will need to load the requests package, so do <code>import requests</code>. This makes it easier for us to make requests.</li>
-<li><p>You should be able to already interact with the server. If the server's address is <code>http://127.0.0.1:5000</code>, then you could do a request like:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">r<span class="op">=</span>requests.get(<span class="st">&#39;http://127.0.0.1:5000/users/haris&#39;</span>)</code></pre></div>
-<p>The object <code>r</code> is now a response object of the <code>requests</code> package, and you can look at its <a href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">documentation</a> for what you can do. For instance here are some things you can try:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">r.status_code
-r.content  <span class="co"># Content as string</span>
-r.json()   <span class="co"># Content as JSON</span>
-r.headers
-r.headers[<span class="st">&#39;Content-Type&#39;</span>]</code></pre></div></li>
-</ul></li>
-</ol>
-<p>For now we will interact with the service in this fashion. Later on we may revisit the question of writing tests.</p>
-<h4 id="more-methods">More Methods</h4>
-<p>We will now look at performing some queries. The main method that performs a complex query is <code>GET users/{user}/messages</code>, which returns a list of messages based on a possibly complex set of query parameters. This will be a good test of sqlalchemy, as the queries we are after will depend on user-specified parameters.</p>
-<p>Let's take a closer look at what parameters that query may have:</p>
-<ul>
-<li>There is a parameter called <code>include</code> which can be set to &quot;sent&quot;, &quot;received&quot; or &quot;all&quot;.</li>
-<li>There is a parameter called <code>show</code> which can be set to &quot;read&quot;, &quot;unread&quot; or &quot;all&quot;.</li>
-<li>We can specify a <code>order</code> column to choose a field to use for ordering the results, and which can be set to one of &quot;created&quot;, &quot;read&quot;, &quot;subject&quot;, &quot;to&quot; or &quot;from&quot;.</li>
-<li>We can specify a <code>direction</code> column to determine the ordering direction, with possible values &quot;asc&quot; or &quot;desc&quot;.</li>
-<li>We could specify a <code>to</code> value or a <code>from</code> value.</li>
-<li>We could in theory add more complicated queries, but that is a harder subject.</li>
-</ul>
-<p>In this section we will only incorporate the <code>include</code> and <code>show</code> options. The others would be part of your assignment.</p>
-<p>Here's how the route method may look like:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="at">@app.route</span>(<span class="st">&#39;/users/&lt;username&gt;/messages&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;GET&#39;</span>])
-<span class="kw">def</span> user_messages(username):
-   args <span class="op">=</span> request.args.to_dict()
-   error <span class="op">=</span> message.validate_message_query(args, username)
-   <span class="cf">if</span> error <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: error }, <span class="dv">400</span>)
-   results <span class="op">=</span> db.get_messages(args, username)
+   password <span class="op">=</span> getPasswordFromQuery()
+   user <span class="op">=</span> getUserAndCheckPassword(username, password)
    <span class="cf">return</span> make_json_response({
-      <span class="st">&#39;messages&#39;</span>: [
-         { <span class="st">&#39;url&#39;</span>: url_for(<span class="st">&#39;message_get&#39;</span>, <span class="bu">id</span><span class="op">=</span>m[<span class="st">&#39;id&#39;</span>]) }
-         <span class="cf">for</span> m <span class="kw">in</span> results
-      ]
-   }, <span class="dv">200</span>)</code></pre></div>
-<p>Notice how it delegates important work to other functions. We should perhaps have also delegated the work that happens in the return, where urls are being built out of the various messages.</p>
-<p>Here is the function querying the database. It sets up a query and based on the user choices it populates it with the necessary WHERE clauses. It then executes the query and returns the results. For your homework you will need to add to this query to account for the other kinds of choices.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">   <span class="kw">def</span> get_messages(<span class="va">self</span>, args, username):
-      conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
-      query <span class="op">=</span> select([<span class="va">self</span>.messages])
-      <span class="cf">for</span> field <span class="kw">in</span> [<span class="st">&#39;from&#39;</span>, <span class="st">&#39;to&#39;</span>]:
-         <span class="cf">if</span> field <span class="kw">in</span> args:
-            query <span class="op">=</span> query.where(column(field) <span class="op">==</span> args[field])
-      <span class="co">## Add &#39;include&#39;</span>
-      <span class="cf">if</span> args[<span class="st">&#39;include&#39;</span>] <span class="op">==</span> <span class="st">&#39;sent&#39;</span>:
-         query <span class="op">=</span> query.where(column(<span class="st">&#39;from&#39;</span>) <span class="op">==</span> username)
-      <span class="cf">elif</span> args[<span class="st">&#39;include&#39;</span>] <span class="op">==</span> <span class="st">&#39;received&#39;</span>:
-         query <span class="op">=</span> query.where(column(<span class="st">&#39;to&#39;</span>) <span class="op">==</span> username)
-      <span class="cf">else</span>:
-         query <span class="op">=</span> query.where(
-            or_( column(<span class="st">&#39;from&#39;</span>) <span class="op">==</span> username, column(<span class="st">&#39;to&#39;</span>) <span class="op">==</span> username )
-         )
-      <span class="co">## Add &#39;show&#39;</span>
-      <span class="cf">if</span> args[<span class="st">&#39;show&#39;</span>] <span class="op">==</span> <span class="st">&#39;read&#39;</span>:
-         query <span class="op">=</span> query.where(column(<span class="st">&#39;read&#39;</span>) <span class="op">==</span> <span class="va">True</span>)
-      <span class="cf">elif</span> args[<span class="st">&#39;show&#39;</span>] <span class="op">==</span> <span class="st">&#39;unread&#39;</span>:
-         query <span class="op">=</span> query.where(column(<span class="st">&#39;read&#39;</span>) <span class="op">==</span> <span class="va">False</span>)
-      <span class="co">## Perform query</span>
-      <span class="cf">return</span> conn.execute(query).fetchall()</code></pre></div>
-<h4 id="working-with-tags">Working with tags</h4>
-<p>Finally let's take a look at one of the methods related to tags. We'll need to create two database accesses, one to fetch a message and one to fetch its tags.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">## Adds a tag to a message, if it did not exist</span>
-<span class="at">@app.route</span>(<span class="st">&#39;/messages/&lt;id&gt;/tags/&lt;tag&gt;&#39;</span>, methods <span class="op">=</span> [<span class="st">&#39;PUT&#39;</span>])
-<span class="kw">def</span> tag_add(<span class="bu">id</span>, tag):
-   <span class="cf">if</span> <span class="bu">len</span>(tag) <span class="op">&gt;</span> <span class="dv">20</span>:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;tag too long&#39;</span> }, <span class="dv">400</span>)
-   message <span class="op">=</span> db.fetch_message(<span class="bu">id</span>)
-   <span class="cf">if</span> message <span class="kw">is</span> <span class="va">None</span>:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;message not found&#39;</span> }, <span class="dv">404</span>)
-   tags <span class="op">=</span> db.fetch_message_tags(<span class="bu">id</span>)
-   <span class="cf">if</span> tag <span class="kw">in</span> tags:
-      <span class="cf">return</span> make_json_response({}, <span class="dv">204</span>)
-   <span class="co"># Need to add the tag</span>
-   <span class="cf">if</span> db.add_tag(<span class="bu">id</span>, tag) <span class="kw">is</span> <span class="va">None</span>:
-      <span class="cf">return</span> make_json_response({ <span class="st">&#39;error&#39;</span>: <span class="st">&#39;server error&#39;</span> }, <span class="dv">500</span>)
-   <span class="cf">return</span> make_json_response({}, <span class="dv">201</span>)</code></pre></div>
-<p>And here are the corresponding functions in the <code>db</code> module:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">   <span class="co"># Fetches a single message based on id</span>
-   <span class="kw">def</span> fetch_message(<span class="va">self</span>, <span class="bu">id</span>):
-      conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
-      query <span class="op">=</span> select([<span class="va">self</span>.messages]).where(column(<span class="st">&#39;id&#39;</span>) <span class="op">==</span> <span class="bu">id</span>)
-      results <span class="op">=</span> conn.execute(query).fetchall()
-      <span class="cf">return</span> results[<span class="dv">0</span>] <span class="cf">if</span> <span class="bu">len</span>(results) <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="va">None</span>
+      <span class="st">&quot;username&quot;</span>: user.username,
+      <span class="st">&quot;balance&quot;</span>: user.balance,
+      <span class="st">&quot;transactions&quot;</span>: {
+         <span class="st">&quot;link&quot;</span>: url_for(<span class="st">&#39;transaction_list&#39;</span>, user<span class="op">=</span>user.username)
+      }
+   })</code></pre></div>
+<h4 id="interacting-with-the-service-automated-testing">Interacting with the service: Automated testing</h4>
+<p>There are fundamentally two ways to interact with and test your service: <em>Automated tests</em> and <em>Interactive sessions/messaging</em>.</p>
+<p>A start at automated testing can be found in the file <code>tests.py</code> in the project folder. It contains likes like the following:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> main <span class="im">import</span> app, db
 
-   <span class="co"># Fetches message tags if any</span>
-   <span class="kw">def</span> fetch_message_tags(<span class="va">self</span>, <span class="bu">id</span>):
-      conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
-      query <span class="op">=</span> select([<span class="va">self</span>.tags.c.tag]).where(column(<span class="st">&#39;msg_id&#39;</span>) <span class="op">==</span> <span class="bu">id</span>)
-      results <span class="op">=</span> conn.execute(query).fetchall()
-      <span class="cf">return</span> <span class="bu">map</span>((<span class="kw">lambda</span> tag: tag[<span class="dv">0</span>]), results)
+app.config[<span class="st">&#39;TESTING&#39;</span>] <span class="op">=</span> <span class="va">True</span>
+client <span class="op">=</span> app.test_client()
 
-   <span class="co"># Inserts a new message/tag pair</span>
-   <span class="co"># Should only be called once we have established that the pair does not</span>
-   <span class="co"># exist, and that id and tag are valid</span>
-   <span class="kw">def</span> add_tag(<span class="va">self</span>, <span class="bu">id</span>, tag):
-      <span class="cf">try</span>:
-         conn <span class="op">=</span> <span class="va">self</span>.<span class="ex">connect</span>()
-         result <span class="op">=</span> conn.execute(<span class="va">self</span>.tags.insert(), msg_id<span class="op">=</span><span class="bu">id</span>, tag<span class="op">=</span>tag)
-         <span class="cf">return</span> result.inserted_primary_key
-      <span class="cf">except</span>:
-         <span class="cf">return</span> <span class="va">None</span></code></pre></div>
+r <span class="op">=</span> client.get(<span class="st">&quot;/&quot;</span>)
+<span class="cf">assert</span>(r.status_code <span class="op">==</span> <span class="dv">200</span>)
+<span class="cf">assert</span>(<span class="st">&quot;users&quot;</span> <span class="kw">in</span> r.json <span class="kw">and</span> <span class="st">&quot;link&quot;</span> <span class="kw">in</span> r.json[<span class="st">&quot;users&quot;</span>])</code></pre></div>
+<p>The first three lines set everything up. <code>app</code> is a Flask object, and it provides a <code>test_client</code> object for our use. we can then use this client object to make requests of the server.</p>
+<p>This way the server never has to run on a live system, but the client does allow us to test the server's behavior as if it was live.</p>
+<h4 id="interacting-with-the-service-interactive-session">Interacting with the service: Interactive session</h4>
+<p>In order to set up an interactive session, we need in effect two things:</p>
+<ol style="list-style-type: decimal">
+<li>One terminal window to run a local &quot;server&quot; based off of the Flask application. Start this server by running the <code>main.py</code> file, and this will kick-start a server. You will need to use the server's address <code>http://127.0.0.1:5000</code> to talk to it.</li>
+<li>A second terminal window to run an interactive Python shell. Start a Python shell and import the requests library, then use it to send requests to the above address.</li>
+<li>You can look at the &quot;server&quot; window for any logging messages when things go wrong with the application.</li>
+<li>If you change your server code, you need to terminate its service with <code>Ctrl-C</code> and then restart it in order for it to take effect.</li>
+</ol>
 </body>
 </html>

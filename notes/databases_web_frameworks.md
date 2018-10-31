@@ -6,6 +6,7 @@
 - [Flask documentation](http://flask.pocoo.org/)
 - [A Flask tutorial](http://flask.pocoo.org/docs/1.0/tutorial/)
 - [Full Flask API](http://flask.pocoo.org/docs/1.0/api/)
+- [Werkzeug documentation](http://werkzeug.pocoo.org/docs/0.14/) heavily used by Flask.
 
 ## Notes
 
@@ -65,8 +66,6 @@ Let us take a look at the database setup first. The details are in [this file](h
 
 Our database code handles some bad inputs, but it also expects other bad input behaviors to be handled by the code that handles the requests. We will get to that shortly.
 
-### TODO
-
 #### Skeleton
 
 Let's take a look at the main file, `app/main.py`:
@@ -75,6 +74,7 @@ from flask import Flask, make_response, json, url_for
 from db import Db   # See db.py
 
 app = Flask(__name__)
+app.debug = True # Comment out when not testing
 
 ## Setting up database
 db = Db()
@@ -147,16 +147,36 @@ In large applications we would opt for a different way of writing the routes, th
 
 #### Implementations
 
-We will start by taking a closer look at some of the functions and what they would do. We will start with the `index` method, that is supposed to direct new users to the service. It will tell the system about available routes and maybe suggest methods:
+We will start by taking a closer look at some of the functions and what they would do. One of the important parts is to create "custom error handlers":
+```python
+@app.errorhandler(500)
+def server_error(e):
+   return make_json_response({ 'error': 'unexpected server error' }, 500)
+
+@app.errorhandler(404)
+def not_found(e):
+   return make_json_response({ 'error': e.description }, 404)
+
+@app.errorhandler(403)
+def forbidden(e):
+   return make_json_response({ 'error': e.description }, 403)
+
+@app.errorhandler(400)
+def client_error(e):
+   return make_json_response({ 'error': e.description }, 400)
+```
+The 500 handler is called whenever an exception occurs in our code. The other handlers are triggered by us manually by using the `abort` construct.
+
+
+Now we will look at our normal response functions. We will start with the `index` method, that is supposed to direct new users to the service. It will tell the system about available routes and maybe suggest methods:
 ```python
 @app.route('/', methods = ['GET'])
 def index():
    return make_json_response({
-
-
+      "users": { "link": url_for("user_list") },
+      "transactions": { "link": url_for("transaction_list") }
    })
 ```
-
 
 Now we move on to `user_create`, which is in response to a PUT request for creating a new user. We'll need to check that a password is provided, and that the username and password are both alphanumeric. We must either send back a 201 Created, with a link to the corresponding GET page in the `Location` header, or a suitable error for a bad username, via a 400 response. Also, if hte username already exists, we must return 403, Forbidden. Review appendix C of [RESTful Web Services](http://learning.acm.org/books/book_detail.cfm?id=1406352&type=safari) on what the different response codes indicate.
 
@@ -166,22 +186,29 @@ So let's take a look at how this would look:
 ## If user exists, must ensure it is same or else throw error
 @app.route('/user/<username>', methods = ['PUT'])
 def user_create(username):
+   password = getPasswordFromContents()
+   checkAlphanum(username, password)
+   checkNameAvailable(username)
+   db.addUser(username, password)
+   db.commit()
+   headers = { "Location": url_for('user_profile', username=username) }
+   return make_json_response({ 'ok': 'user created' }, 201, headers)
+
+def getPasswordFromContents():
    contents = request.get_json()
    if "password" not in contents:
-      return make_json_response({ 'error': 'must provide a password field' }, 400)
-   password = contents["password"]
-   if not username.isalnum() or not password.isalnum():
-      return make_json_response({ 'error': 'username and password must be alphanumeric' }, 400)
+      abort(400, 'must provide a password field')
+   return contents["password"]
+
+def checkAlphanum(*args):
+   for arg in args:
+      if not arg.isalnum():
+         abort(400, 'username and password must be alphanumeric')
+
+def checkNameAvailable(username):
    user = db.getUser(username)
    if user is not None:
-      return make_json_response({ 'error': 'username already exists' }, 403)
-   try:
-      db.addUser(username, password)
-      db.commit()
-      headers = { "Location": url_for('user_profile', username=username) }
-      return make_json_response({ 'ok': 'user created' }, 201, headers)
-   except:
-      return make_json_response({ 'error': 'unexpected server error' }, 500)
+      abort(403, 'username already exists')
 ```
 
 We simply need to provide the json content of the reply, the error code, and optionally headers. Our `make_json_response` method will always set the content type appropriately to json. We check to see if the password is provided and if the username and password are alphanumeric, and return appropriate status codes if they are not. Phew that's a lot of work!
@@ -198,174 +225,45 @@ Now let us look at a GET request, which needs to return some more information.
 ```python
 @app.route('/user/<username>', methods = ['GET'])
 def user_profile(username):
-   query = request.args
-   if "password" not in query:
-      return make_json_response({ 'error': 'must provide a password parameter' }, 400)
-   password = query["password"]
-   try:
-      user = db.getUser(username)
-      if user is None:
-         return make_json_response({ 'error': 'unknown username' }, 404)
-      if user.password != password:
-         return make_json_response({ 'error': 'incorrect password' }, 400)
-      return make_json_response({
-         "username": user.username,
-         "balance": user.balance,
-         "transactions": {
-            "link": url_for('transaction_list', user=user.username)
-         }
-      })
-   except:
-      return make_json_response({ 'error': 'unexpected server error' }, 500)
-```
-
-
-
-
-
-TODO
-
-
-
-
-#### Interacting with the service
-
-While we could, and should, create automated tests, it is equally important to have a way to directly interact with the service. In order to do that, we'll need the following steps:
-
-1. You will be using two terminal windows: One will be running the "server", the other will be the "client".
-2. In one window you will start the service.
-    - First, we will enable debugging. Find the line in `messaging.py` that sets the DEBUG configuration variable to False, and change that to True.
-    - Make sure you create a `keys.json` file with a JSON object with keys `DATABASE`, `PASSWORD`, `SERVER` and `SCHEMA` with values corresponding to your database.
-    - In one of your terminal windows, go to the application folder and start the server with:
-    ```python
-    python3 app/messaging.py
-    ```
-    From now on this window runs a web server, at a web address it provides to you, and you could change via configuration options. It is also in debug mode: When you change the files it will automatically restart itself.
-    - If you want to manually stop the server, simply interrupt it via `Ctrl-C`. You can then run the command again to restart it. It may also shut down by itself if one of your file updates brings it to a non-operable condition.
-3. In the other window you will start a "client".
-    - This is a normal python console, so start it with `python3`.
-    - You will need to load the requests package, so do `import requests`. This makes it easier for us to make requests.
-    - You should be able to already interact with the server. If the server's address is `http://127.0.0.1:5000`, then you could do a request like:
-    ```python
-    r=requests.get('http://127.0.0.1:5000/users/haris')
-    ```
-    The object `r` is now a response object of the `requests` package, and you can look at its [documentation](http://docs.python-requests.org/en/master/user/quickstart/#response-content) for what you can do. For instance here are some things you can try:
-    ```python
-    r.status_code
-    r.content  # Content as string
-    r.json()   # Content as JSON
-    r.headers
-    r.headers['Content-Type']
-    ```
-
-For now we will interact with the service in this fashion. Later on we may revisit the question of writing tests.
-
-#### More Methods
-
-We will now look at performing some queries. The main method that performs a complex query is `GET users/{user}/messages`, which returns a list of messages based on a possibly complex set of query parameters. This will be a good test of sqlalchemy, as the queries we are after will depend on user-specified parameters.
-
-Let's take a closer look at what parameters that query may have:
-
-- There is a parameter called `include` which can be set to "sent", "received" or "all".
-- There is a parameter called `show` which can be set to "read", "unread" or "all".
-- We can specify a `order` column to choose a field to use for ordering the results, and which can be set to one of "created", "read", "subject", "to" or "from".
-- We can specify a `direction` column to determine the ordering direction, with possible values "asc" or "desc".
-- We could specify a `to` value or a `from` value.
-- We could in theory add more complicated queries, but that is a harder subject.
-
-In this section we will only incorporate the `include` and `show` options. The others would be part of your assignment.
-
-Here's how the route method may look like:
-```python
-@app.route('/users/<username>/messages', methods = ['GET'])
-def user_messages(username):
-   args = request.args.to_dict()
-   error = message.validate_message_query(args, username)
-   if error is not None:
-      return make_json_response({ 'error': error }, 400)
-   results = db.get_messages(args, username)
+   password = getPasswordFromQuery()
+   user = getUserAndCheckPassword(username, password)
    return make_json_response({
-      'messages': [
-         { 'url': url_for('message_get', id=m['id']) }
-         for m in results
-      ]
-   }, 200)
+      "username": user.username,
+      "balance": user.balance,
+      "transactions": {
+         "link": url_for('transaction_list', user=user.username)
+      }
+   })
 ```
-Notice how it delegates important work to other functions. We should perhaps have also delegated the work that happens in the return, where urls are being built out of the various messages.
 
-Here is the function querying the database. It sets up a query and based on the user choices it populates it with the necessary WHERE clauses. It then executes the query and returns the results. For your homework you will need to add to this query to account for the other kinds of choices.
+#### Interacting with the service: Automated testing
+
+There are fundamentally two ways to interact with and test your service: *Automated tests* and *Interactive sessions/messaging*.
+
+A start at automated testing can be found in the file `tests.py` in the project folder. It contains likes like the following:
 ```python
-   def get_messages(self, args, username):
-      conn = self.connect()
-      query = select([self.messages])
-      for field in ['from', 'to']:
-         if field in args:
-            query = query.where(column(field) == args[field])
-      ## Add 'include'
-      if args['include'] == 'sent':
-         query = query.where(column('from') == username)
-      elif args['include'] == 'received':
-         query = query.where(column('to') == username)
-      else:
-         query = query.where(
-            or_( column('from') == username, column('to') == username )
-         )
-      ## Add 'show'
-      if args['show'] == 'read':
-         query = query.where(column('read') == True)
-      elif args['show'] == 'unread':
-         query = query.where(column('read') == False)
-      ## Perform query
-      return conn.execute(query).fetchall()
+from main import app, db
+
+app.config['TESTING'] = True
+client = app.test_client()
+
+r = client.get("/")
+assert(r.status_code == 200)
+assert("users" in r.json and "link" in r.json["users"])
 ```
+The first three lines set everything up. `app` is a Flask object, and it provides a `test_client` object for our use. we can then use this client object to make requests of the server.
 
-#### Working with tags
+This way the server never has to run on a live system, but the client does allow us to test the server's behavior as if it was live.
 
-Finally let's take a look at one of the methods related to tags. We'll need to create two database accesses, one to fetch a message and one to fetch its tags.
-```python
-## Adds a tag to a message, if it did not exist
-@app.route('/messages/<id>/tags/<tag>', methods = ['PUT'])
-def tag_add(id, tag):
-   if len(tag) > 20:
-      return make_json_response({ 'error': 'tag too long' }, 400)
-   message = db.fetch_message(id)
-   if message is None:
-      return make_json_response({ 'error': 'message not found' }, 404)
-   tags = db.fetch_message_tags(id)
-   if tag in tags:
-      return make_json_response({}, 204)
-   # Need to add the tag
-   if db.add_tag(id, tag) is None:
-      return make_json_response({ 'error': 'server error' }, 500)
-   return make_json_response({}, 201)
-```
+#### Interacting with the service: Interactive session
 
-And here are the corresponding functions in the `db` module:
-```python
-   # Fetches a single message based on id
-   def fetch_message(self, id):
-      conn = self.connect()
-      query = select([self.messages]).where(column('id') == id)
-      results = conn.execute(query).fetchall()
-      return results[0] if len(results) > 0 else None
+In order to set up an interactive session, we need in effect two things:
 
-   # Fetches message tags if any
-   def fetch_message_tags(self, id):
-      conn = self.connect()
-      query = select([self.tags.c.tag]).where(column('msg_id') == id)
-      results = conn.execute(query).fetchall()
-      return map((lambda tag: tag[0]), results)
+1. One terminal window to run a local "server" based off of the Flask application. Start this server by running the `main.py` file, and this will kick-start a server. You will need to use the server's address `http://127.0.0.1:5000` to talk to it.
+2. A second terminal window to run an interactive Python shell. Start a Python shell and import the requests library, then use it to send requests to the above address.
+3. You can look at the "server" window for any logging messages when things go wrong with the application.
+4. If you change your server code, you need to terminate its service with `Ctrl-C` and then restart it in order for it to take effect.
 
-   # Inserts a new message/tag pair
-   # Should only be called once we have established that the pair does not
-   # exist, and that id and tag are valid
-   def add_tag(self, id, tag):
-      try:
-         conn = self.connect()
-         result = conn.execute(self.tags.insert(), msg_id=id, tag=tag)
-         return result.inserted_primary_key
-      except:
-         return None
-```
+
 
 
