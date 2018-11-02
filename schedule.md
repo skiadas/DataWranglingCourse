@@ -90,16 +90,18 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 - Day 2
     - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
 - Day 3
-    - [Emergence of NoSQL databases](notes/nosql_start.md)
-    - [NoSQL Data Models](notes/nosql_data_models.md)
-    - [Distributed Database Models](notes/nosql_distributed.md)
-    - [Consistency](notes/nosql_consistency.md)
+    - [Web Frameworks, and Flask (cont)](notes/databases_web_frameworks.md)
+    - [Assignment 6 (CS229): Web-scraping from Wikipedia](assignments/6_229.md)
 
 ## Week 10 (11/07-11/11)
 
 - Day 1
-    - [Introduction to MongoDb](notes/mongodb.md)
+    - [Emergence of NoSQL databases](notes/nosql_start.md)
+    - [NoSQL Data Models](notes/nosql_data_models.md)
 - Day 2
+    - [Distributed Database Models](notes/nosql_distributed.md)
+    - [Consistency](notes/nosql_consistency.md)
+    - [Introduction to MongoDb](notes/mongodb.md)
     - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
 - Day 3
     - [Assignment 6: More MongoDb practice](assignments/6.md)
