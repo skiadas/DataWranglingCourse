@@ -96,6 +96,7 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 ## Week 10 (11/07-11/11)
 
 - Day 1
+    - [Assignment 6 (CS328): Link-shortening and bookmarking service](assignments/6_328.md)
     - [Emergence of NoSQL databases](notes/nosql_start.md)
     - [NoSQL Data Models](notes/nosql_data_models.md)
 - Day 2

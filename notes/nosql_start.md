@@ -2,7 +2,7 @@
 
 ## Reading
 
-- [NoSQL Distilled](http://learning.acm.org/books/book_detail.cfm?id=2381014&type=safari) chapter 1
+- [NoSQL Distilled](https://www.safaribooksonline.com/library/view/nosql-distilled-a/9780133036138/) chapter 1
 
 ### Reading questions
 
@@ -57,7 +57,7 @@ Application Databases
 
 As big companies like Amazon and Google came to the forefront, demands on database storage grew tremendously, from access logs to sensor data to massive amounts of user data. In order for a project to scale, you can either opt for *larger* machines, or for *more* machines. With the prohibitive costs of larger machines as well as their limits, most companies aimed for using more hardware, in the form of **clusters**.
 
-For instance there are numerous clusters of computers around the world that service Google search queries. When you do a Google search, one of these clusters will be contacted, mostly likely based on your geographical proximity to it and its current workload.
+For instance there are numerous clusters of computers around the world that service Google search queries. When you do a Google search, one of these clusters will be contacted, most likely based on your geographical proximity to it and its current workload.
 
 The problem that arises however, is that these clusters must still address the same underlying data storage, turning that portion of the query into a bottleneck. One approach to reduce the problems is to **shard** the database, whereupon each shard contains different entries. So different shards can be accessed simultaneously by different clusters, and thus speed up the processing. This does however cause considerable complications when it comes to managing the storage of information into multiple shards, and maintaining transactional integrity and querying capabilities.
 

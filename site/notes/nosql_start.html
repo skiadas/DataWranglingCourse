@@ -16,7 +16,7 @@
 <h1 id="emergence-of-nosql-databases">Emergence of NoSQL Databases</h1>
 <h2 id="reading">Reading</h2>
 <ul>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2381014&amp;type=safari">NoSQL Distilled</a> chapter 1</li>
+<li><a href="https://www.safaribooksonline.com/library/view/nosql-distilled-a/9780133036138/">NoSQL Distilled</a> chapter 1</li>
 </ul>
 <h3 id="reading-questions">Reading questions</h3>
 <ul>
@@ -68,7 +68,7 @@
 </dl>
 <h3 id="clusters-and-relational-databases">Clusters and Relational Databases</h3>
 <p>As big companies like Amazon and Google came to the forefront, demands on database storage grew tremendously, from access logs to sensor data to massive amounts of user data. In order for a project to scale, you can either opt for <em>larger</em> machines, or for <em>more</em> machines. With the prohibitive costs of larger machines as well as their limits, most companies aimed for using more hardware, in the form of <strong>clusters</strong>.</p>
-<p>For instance there are numerous clusters of computers around the world that service Google search queries. When you do a Google search, one of these clusters will be contacted, mostly likely based on your geographical proximity to it and its current workload.</p>
+<p>For instance there are numerous clusters of computers around the world that service Google search queries. When you do a Google search, one of these clusters will be contacted, most likely based on your geographical proximity to it and its current workload.</p>
 <p>The problem that arises however, is that these clusters must still address the same underlying data storage, turning that portion of the query into a bottleneck. One approach to reduce the problems is to <strong>shard</strong> the database, whereupon each shard contains different entries. So different shards can be accessed simultaneously by different clusters, and thus speed up the processing. This does however cause considerable complications when it comes to managing the storage of information into multiple shards, and maintaining transactional integrity and querying capabilities.</p>
 <h3 id="the-emergence-of-nosql-databases">The emergence of NoSQL Databases</h3>
 <p>In the presence of clustering and the problems when clusters work with relational databases, coupled with the impendance mismatch problem discussed earlier, a number of database approaches came forward. These are collectively called &quot;NoSQL&quot;, though this is hardly an apt term.</p>

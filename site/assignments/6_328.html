@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+<link rel="stylesheet" href="https://skiadas.github.io/css/course.css" type="text/css" />
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+<h1 id="lab-assignment-6-cs328-only-a-url-shortening-service">Lab Assignment 6 (CS328 only): A url-shortening service</h1>
+<p>In this assignment you will be creating a small url-shortening and bookmarking service. The idea of this service is as follows:</p>
+<ul>
+<li>Users can create &quot;buckets&quot;. Buckets are identified by either a custom-provided character string (if the user provides one when they create them) or a random 6-character string like <code>4A23GG</code>. Buckets can also have a description of what kinds of &quot;links&quot; they are meant to contain.</li>
+<li>A bucket is a container for links. Users can add links to a bucket, and either provide a shortcut for them or have a randomly generated shortcut. For example, if a user has a bucket with id <code>4A23GG</code>, then they can ask to add to this bucket the link <code>https://en.wikipedia.org/wiki/List_of_mountains_by_elevation</code> with &quot;name&quot; <code>wikiMountains</code>. Then someone accessing the site <code>&lt;ourService&gt;/4A23GG/wikiMountains</code> will be <em>redirected</em> to that wikipedia page.</li>
+</ul>
+<h2 id="submission-information">Submission information</h2>
+<p>You can get the start files for this project by &quot;cloning&quot; the repository at <code>https://github.com/skiadas/linky.git</code>. There are start files there for you to work with. You can clone this repository by going to an appropriate location in your terminal, and run the commands:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">git</span> clone https://github.com/skiadas/linky.git
+<span class="bu">cd</span> linky</code></pre></div>
+<p>Here are the files included in this folder, named <code>linky</code>:</p>
+<ul>
+<li>A file that handles your database calls: <code>db.py</code> or some similar name.</li>
+<li>A file that handles the web service stuff: <code>main.py</code> or some similar name.</li>
+<li>A file that contains test calls: <code>tests.py</code> or something similar.</li>
+</ul>
+<p>When you are ready to submit your assignment, you should create a zip file of the <code>linky</code> folder, and email it to me. To create a zip file you can go to the <em>parent</em> directory of the linky folder in the terminal, and run the command:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">zip</span> -r yourFavoriteName.zip linky</code></pre></div>
+<h2 id="database-requirements">Database requirements</h2>
+<p>Your database file should follow the structure of the sample <code>db.py</code>, and use ORM to introduce needed classes, followed by a <code>Db</code> class that represents a connection to the database. A start on these has been done for you. Here are the classes you should have:</p>
+<ul>
+<li><code>Shortcut</code> is a class representing a link's shortcut. It contains the following table fields:
+<ul>
+<li><code>linkHash</code> is of <code>String</code> type, and must not be null. It is a primary key, together with the <code>bucketId</code>.</li>
+<li><code>bucketId</code> is of <code>String</code> type, and must also not be null. It is a primary key, together with the <code>hash</code>. It is also a foreign key pointing to the bucket id field. When a bucket is deleted, all the corresponding shortcuts that were stored in it must also be deleted, so make sure to set the <code>ondelete</code> setting correctly.</li>
+<li><code>link</code> is of <code>String</code> type, and must be not null.</li>
+<li><code>description</code> is of <code>String</code> type, it is allowed to be nullable.</li>
+</ul>
+The <code>Shortcut</code> class also has a relationship <code>bucket</code> to the <code>Bucket</code> class, whose opposite via <code>back_populates</code> is <code>shortcuts</code>.</li>
+<li><code>Bucket</code> is a class representing a bucket of links. It contains the following table fields:
+<ul>
+<li><code>id</code> is of <code>String</code> type, must not be null, and is the primary key.</li>
+<li><code>description</code> is of <code>String</code> type, and it is allowed to be nullable.</li>
+<li><code>passwordHash</code> is of <code>String</code> type, and must be not null.</li>
+</ul>
+The<code>Bucket</code> class also has a relationship <code>shortcuts</code> with the <code>Shortcut</code> class, whose opposite via <code>back_populates</code> is <code>bucket</code>.</li>
+</ul>
+<p><strong>Tasks, part 1</strong>: Add the suitable lines to <code>db.py</code> to set up the above classes. <strong>Tasks, part 2</strong>: Your <code>Db</code> class should provide at least the following methods (there are tests provided for these methods in the <code>tests.py</code> file, make sure you can pass those tests, and you should add your own as well):</p>
+<ol style="list-style-type: decimal">
+<li>A method <code>getBuckets(self)</code> that returns a list of all buckets in the system. The result should be a (possibly empty) list of <code>Bucket</code> objects.</li>
+<li>A method <code>addBucket(self, id, passwordHash, description=None)</code> that can be used to create a new bucket in the database. The method should return the created bucket object. This method does NOT need to check if a bucket with that id already exists, that's the job of its caller.</li>
+<li>A method <code>getBucket(self, id)</code> that is given a bucket id and searches in the database for a bucket with that id. Returns either the <code>Bucket</code> object with that id, or <code>None</code>.</li>
+<li>A method <code>deleteBucket(self, bucket)</code> that can be used to delete an existing bucket. It expects to be given a <code>bucket</code> object, and deletes it from the database.</li>
+<li>A method <code>addShortcut(self, linkHash, bucket, link, description=None)</code> which creates a new shortcut entry in the database. It expects to take a <code>shortcut</code> string, a <code>Bucket</code> object, a <code>link</code> string and optionally a <code>description</code> string. It does NOT need to check if an entry with the same primary keys exists, that's the job of its caller.</li>
+<li>A method <code>getShortcut(self, linkHash, bucket)</code> that searches for a shortcut with a given hash string and belonging to a given bucket, and returns it if one exists (or returns <code>None</code> otherwise).</li>
+<li>A method <code>deleteShortcut(self, shortcut)</code> that is given a <code>Shortcut</code> object and deletes it.</li>
+</ol>
+<h2 id="web-service-requirements">Web Service requirements</h2>
+<p>You will implement the following web service routes (details on them follow):</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Route Scheme</th>
+<th align="left">Function Name</th>
+<th align="left">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>GET '/'</code></td>
+<td align="left">bucket_list</td>
+<td align="left">List of all buckets</td>
+</tr>
+<tr class="even">
+<td align="left"><code>GET '/&lt;bucketId&gt;'</code></td>
+<td align="left">bucket_contents</td>
+<td align="left">Contents of a bucket</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>POST '/'</code></td>
+<td align="left">bucket_create</td>
+<td align="left">Create a new bucket</td>
+</tr>
+<tr class="even">
+<td align="left"><code>PUT '/&lt;bucketId&gt;'</code></td>
+<td align="left">bucket_create_with_id</td>
+<td align="left">Create a new bucket</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DELETE '/&lt;bucketId&gt;'</code></td>
+<td align="left">bucket_delete</td>
+<td align="left">Delete a bucket</td>
+</tr>
+<tr class="even">
+<td align="left"><code>GET '/&lt;bucketId&gt;/&lt;hash&gt;'</code></td>
+<td align="left">shortcut_get_link</td>
+<td align="left">Get a shortcut link</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>POST '/&lt;bucketId&gt;/&lt;hash&gt;'</code></td>
+<td align="left">shortcut_create</td>
+<td align="left">Create a shortcut link</td>
+</tr>
+<tr class="even">
+<td align="left"><code>PUT '/&lt;bucketId&gt;/&lt;hash&gt;'</code></td>
+<td align="left">shortcut_create_with_hash</td>
+<td align="left">Create a shortcut link</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DELETE '/&lt;bucketId&gt;/&lt;hash&gt;'</code></td>
+<td align="left">shortcut_delete</td>
+<td align="left">Delete a shortcut link</td>
+</tr>
+</tbody>
+</table>
+<p>Add tests for these in the <code>tests.py</code> file. The file has some initial entries created for you</p>
+<p><strong>Tasks, part 3</strong>: You must implement the following services. You may create any helper functions you like, similar to what we did in the <code>banking-flask</code> project.</p>
+<ol style="list-style-type: decimal">
+<li><p><code>GET '/'</code> is meant to return a list of all the available buckets, and it is implemented in the function <code>bucket_list</code>. You should return a payload that looks as follows:</p>
+<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
+    <span class="dt">&quot;buckets&quot;</span><span class="fu">:</span> <span class="ot">[</span>
+        <span class="fu">{</span>
+            <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;/&lt;bucketID&gt;&quot;</span><span class="fu">,</span>
+            <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;the bucket description&quot;</span>
+        <span class="fu">}</span><span class="ot">,</span>
+        <span class="er">...</span>
+    <span class="ot">]</span>
+<span class="fu">}</span></code></pre></div>
+You can use a list comprehension over the result of the database query to create that list of bucket entries. Use <code>url_for</code> to create the links.</li>
+<li><p><code>GET '/&lt;bucketId&gt;'</code> returns information about a particular bucket. It is implemented in the function <code>bucket_contents</code>. Its behavior should be as follows:</p>
+<ul>
+<li>If the <code>bucketId</code> does not match a bucket in the database, return a 404 status code (use <code>abort</code> for this and other error behaviors, helper error handlers are provided at the top of the file).</li>
+<li>Get the request's arguments and check if one of the argument's is a <code>password</code> field. If there isn't one, return a <code>403</code> status with a message that a password is required.</li>
+<li>If there is a password field, use the <code>getHash</code> function from the utils library to convert this password value into a hash, and compare it to the stored <code>passwordHash</code> in the bucket. If they don't match, return a <code>403</code> status with a message about incorrect password.</li>
+<li><p>If the password does match, then you must return a normal response. Your payload should have the following structure:</p>
+<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
+    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;the bucket id&quot;</span><span class="fu">,</span>
+    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;the link back to this bucket, use `url_for`&quot;</span><span class="fu">,</span>
+    <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;the bucket&#39;s description&quot;</span><span class="fu">,</span>
+    <span class="dt">&quot;shortcuts&quot;</span><span class="fu">:</span> <span class="ot">[</span>
+        <span class="fu">{</span>
+            <span class="dt">&quot;linkHash&quot;</span><span class="fu">:</span> <span class="st">&quot;the linkHash of the shortcut&quot;</span><span class="fu">,</span>
+            <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;link to the shortcut, use `url_for`&quot;</span><span class="fu">,</span>
+            <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;the shortcut description&quot;</span>
+        <span class="fu">}</span><span class="ot">,</span>
+        <span class="er">...</span> <span class="er">more</span> <span class="er">shortcuts</span> <span class="er">here</span>
+    <span class="ot">]</span>
+<span class="fu">}</span></code></pre></div></li>
+</ul></li>
+<li><p><code>PUT '/&lt;bucketId&gt;'</code> is used to create a new bucket with a given id provided by the user. It is implemented in the <code>bucket_create_with_id</code> function. Its behavior should be as follows:</p>
+<ul>
+<li>If there is already a bucket with that bucketId, you should return a 403 status, stating that this bucket id already exists.</li>
+<li>You will need to read the contents of the payload submitted to you, in JSON form. If those contents do not contain a &quot;password&quot; field, you should return a 403 status, stating that a password for the bucket must be provided.</li>
+<li>If there is a password field, then you should use the <code>getHash</code> function from the utils library to convert it into a <code>linkHash</code> value. You should also look for a &quot;description&quot; field in the contents of the submitted payload. Then you should use the suitable <code>db</code> method to create a bucket with the provided id, linkHash, and description if one was provided, and ask for a commit from the <code>db</code> object. You should then return a 201 status, along with a <code>Location</code> header whose value should be the <code>url_for</code> link to this newly created bucket's GET method. Your body can be an empty JSON (<code>{}</code>) or one that has an <code>&quot;ok&quot;</code> entry.</li>
+</ul></li>
+<li><p><code>POST '/'</code> is used to create a new bucket with an automatically-generated id. It is implemented by the <code>bucket_create</code> function. It behaves similarly to the <code>PUT</code> version above, with a small variation:</p>
+<ul>
+<li>Use the <code>makeId</code> function from the <code>utils</code> module to generate a random bucket id.</li>
+<li>Check if a bucket with that id already exists, and if it does keep generating new id's until you find one that doesn't exist already.</li>
+<li>Return the result of calling the <code>bucket_create_with_id</code> function, passing to it the generated id. This will ensure that the rest of the method's behavior follows that of the <code>PUT</code> version of creating a bucket.</li>
+</ul></li>
+<li><p><code>DELETE '/&lt;bucketId&gt;'</code> is used to delete a bucket. It is implemented in the <code>bucket_delete</code> function. Its behavior should be as follows:</p>
+<ul>
+<li>Search for a bucket with that id. If there isn't one, return a 404 status.</li>
+<li>If there is such a bucket, you should look at the parameters/arguments passed along with the DELETE request. If there is no password argument provided, return a 403 error, with a message that a password is required.</li>
+<li>If a password was provided, use the <code>getHash</code> function from the <code>utils</code> module to convert the password into a passwordHash. Then check whether this passwordHash matches the one stored in the retrieved bucket. If they do not match, return a 403 error, with a message about an incorrect password.</li>
+<li>If the passwordHash matches the one from the bucket, then you should ask the database to delete the bucket, then commit. You should then return a 204.</li>
+</ul></li>
+<li><p><code>GET '/&lt;bucketId&gt;/&lt;hash&gt;'</code> is a method used to retrieve a shortcut. It is implemented in the function <code>shortcut_get_link</code>. Its behavior should be as follows:</p>
+<ul>
+<li>Search for a bucket with that id. If there isn't one, return a 404 status.</li>
+<li>If there is a bucket with that id, then use a suitable db method to search for a shortcut with that linkHash and belonging to that that bucket. If one is not found, then return a 404 status.</li>
+<li><p>If such a shortcut is found, then return a <code>307</code> response code, indicating a redirect. Set the <code>Location</code> header of your response to the <code>link</code> value from the shortcut. You must also include a payload with your response, containing:</p>
+<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
+    <span class="dt">&quot;hash&quot;</span><span class="fu">:</span> <span class="st">&quot;the linkHash&quot;</span><span class="fu">,</span>
+    <span class="dt">&quot;link&quot;</span><span class="fu">:</span> <span class="st">&quot;the shortcut target link&quot;</span><span class="fu">,</span>
+    <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;the shortcut description&quot;</span>
+<span class="fu">}</span></code></pre></div></li>
+</ul></li>
+<li><p><code>PUT '/&lt;bucketId&gt;/&lt;hash&gt;'</code> is used to create new shortcuts. It is implemented by the function <code>shortcut_create_with_hash</code>. Its behavior should be as follows:</p>
+<ul>
+<li>Search for a bucket with that id. If there isn't one, return a 404 status, with a message mentioning that the bucket id is unknown.</li>
+<li>Search for an existing shortcut with that link hash and that bucket. If one exists, return a 403, indicating that the hash is already used.</li>
+<li>If such a shortcut doesn't exist already, then look at the contents of the request. If they don't contain a &quot;password&quot; field, then return a 403 status, with a message about a password being required.</li>
+<li>If a password field exists, use <code>getHash</code> to convert it to a <code>passwordHash</code> and test it against the one stored with the bucket. If they don't match, return a 403 status, with a message about an incorrect password.</li>
+<li>If the <code>passwordHash</code> matches the one for the bucket, then create a new shortcut entry using the appropriate <code>db</code> method, issue a commit, and return a 201 status code along with a <code>Location</code> header pointing to the <code>url_for</code> entry for a GET for this shortcut.</li>
+</ul></li>
+<li><p><code>POST '/&lt;bucketId&gt;'</code> can also be used to create new shortcuts, where the client expects the linkHash to be generated by the server. It is implemented by the function <code>shortcut_create</code>. Its behavior should be as follows:</p>
+<ul>
+<li>Use <code>makeId</code> to generate a value for <code>linkHash</code>.</li>
+<li>If there is already a shortcut for the provided <code>bucketId</code> and the generated <code>linkHash</code>, then keep generating new <code>linkHash</code>s until that's no longer the case.</li>
+<li>Return a call to the <code>shortcut_create_with_hash</code> function, passing to it the provided <code>bucketId</code> and the generated <code>linkHash</code>.</li>
+</ul></li>
+<li><p><code>DELETE '/&lt;bucketId&gt;/&lt;linkHash&gt;'</code> is used to delete a shortcut. It is implemented by the <code>shortcut_delete</code> function. Its behavior should be as follows:</p>
+<ul>
+<li>Check if the bucket with that bucketId exists. Return a 404 if it does not exist.</li>
+<li>Check for an existing shortcut with that bucket and the provided <code>linkHash</code>. Return a 404 if it doesn't exist.</li>
+<li>If the shortcut doesn exist, then look at the request's arguments, for a <code>password</code> entry. Return a <code>403</code> with a message that a password is required.</li>
+<li>If a password entry is provided in the request's arguments, then use <code>makeHash</code> to convert it to a <code>passwordHash</code> and compare it to the bucket's <code>passwordHash</code>. If they don't match, return a <code>403</code> with a message that the password is incorrect.</li>
+<li>If the <code>passwordHash</code> matches the value in the bucket, then use a suitable <code>db</code> method to delete the shortcut, make a commit, and issue a 204 response.</li>
+</ul></li>
+</ol>
+</body>
+</html>
