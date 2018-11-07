@@ -2,7 +2,7 @@
 
 ## Reading
 
-- [NoSQL Distilled](http://learning.acm.org/books/book_detail.cfm?id=2381014&type=safari) chapters 2, 3
+- [NoSQL Distilled](https://www.safaribooksonline.com/library/view/nosql-distilled-a/9780133036138/) chapters 2, 3
 
 ### Reading questions
 
@@ -82,7 +82,7 @@ There are many different "aggregates" we could consider. Ultimately what determi
     }
     ```
 
-The idea is that aggregates tend to put together all the information that will tend to be processed together. This simplifies and speeds up those queries, that respect this **unit of interaction**.
+The idea is that aggregates tend to put together all the information that will tend to be processed together. This simplifies and speeds up those queries that respect this **unit of interaction**.
 
 On the other hand, it also makes other queries more complicated. Suppose for example that we wanted to get summary information about all student answers to a particular question. With our aggregate example above, we have essentially two approaches:
 

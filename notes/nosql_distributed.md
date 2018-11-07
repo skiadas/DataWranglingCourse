@@ -2,7 +2,7 @@
 
 ## Reading
 
-- [NoSQL Distilled](http://learning.acm.org/books/book_detail.cfm?id=2381014&type=safari) chapter 4
+- [NoSQL Distilled](https://www.safaribooksonline.com/library/view/nosql-distilled-a/9780133036138/) chapter 4
 
 ### Reading questions
 
@@ -31,7 +31,7 @@ Sharding
     Sharding works well with an aggregate-oriented approach, where different aggregates can be stored on different shards.
 
 Replication
-  ~ Replicated servers contain identical copies of the entire database. They are in that sense like "mirrors". Having multiple identical copies means that multiple queries can be served at the same time, but it also means that some amount synchronization needs to be in place to keep the different replicas in sync.
+  ~ Replicated servers contain identical copies of the entire database. They are in that sense like "mirrors". Having multiple identical copies means that multiple queries can be served at the same time, but it also means that some amount of synchronization needs to be in place to keep the different replicas in sync.
 
     Replication improves *resilience*, as the data is now stored on multiple nodes.
 
@@ -51,7 +51,7 @@ Peer-to-peer replication aims to address the fact that the master can be a sever
 
 The biggest advantage of this setup of course is its read and write resilience. One node's failure does not cause problems, as the remaining nodes can continue their work without losing a beat.
 
-The biggest problem that arises is that of consistency. For example we may have conflicting write requests that come on different nodes, and then those nodes attempt to communicate those requests to the rest of the nodes. This could lead to considerable inconsistencies.
+The biggest problem that arises is that of consistency. For example we may have conflicting write requests that come to different nodes, and then those nodes attempt to communicate those requests to the rest of the nodes. This could lead to considerable inconsistencies.
 
 There are various ways to resolve this, that we will discuss in more details later. The most standard approach would be to have the replicas communicate their writes first before they "accept" them. Once a majority of the replicas has confirmed a write, it can now be considered as having been successfully performed and a response sent to the client. This requires a certain amount of network traffic in coordinating these writes.
 

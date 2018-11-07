@@ -2,7 +2,7 @@
 
 ## Reading
 
-- [NoSQL Distilled](http://learning.acm.org/books/book_detail.cfm?id=2381014&type=safari) chapters 5, 6
+- [NoSQL Distilled](https://www.safaribooksonline.com/library/view/nosql-distilled-a/9780133036138/) chapters 5, 6
 
 ### Reading questions
 

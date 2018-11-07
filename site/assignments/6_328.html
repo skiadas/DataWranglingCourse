@@ -74,7 +74,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><code>Shortcut</code> is a class representing a link's shortcut. It contains the following table fields:
 <ul>
 <li><code>linkHash</code> is of <code>String</code> type, and must not be null. It is a primary key, together with the <code>bucketId</code>.</li>
-<li><code>bucketId</code> is of <code>String</code> type, and must also not be null. It is a primary key, together with the <code>hash</code>. It is also a foreign key pointing to the bucket id field. When a bucket is deleted, all the corresponding shortcuts that were stored in it must also be deleted, so make sure to set the <code>ondelete</code> setting correctly.</li>
+<li><code>bucketId</code> is of <code>String</code> type, and must also not be null. It is a primary key, together with the <code>linkHash</code>. It is also a foreign key pointing to the bucket id field. When a bucket is deleted, all the corresponding shortcuts that were stored in it must also be deleted, so make sure to set the <code>ondelete</code> setting correctly.</li>
 <li><code>link</code> is of <code>String</code> type, and must be not null.</li>
 <li><code>description</code> is of <code>String</code> type, it is allowed to be nullable.</li>
 </ul>

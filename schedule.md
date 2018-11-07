@@ -97,19 +97,19 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 
 - Day 1
     - [Assignment 6 (CS328): Link-shortening and bookmarking service](assignments/6_328.md)
+- Day 2
     - [Emergence of NoSQL databases](notes/nosql_start.md)
     - [NoSQL Data Models](notes/nosql_data_models.md)
-- Day 2
     - [Distributed Database Models](notes/nosql_distributed.md)
+- Day 3
     - [Consistency](notes/nosql_consistency.md)
     - [Introduction to MongoDb](notes/mongodb.md)
-    - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
-- Day 3
-    - [Assignment 6: More MongoDb practice](assignments/6.md)
 
 ## Week 11 (11/14-11/18)
 
 - Day 1
+    - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
+    - [Assignment 6: More MongoDb practice](assignments/6.md)
     - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
 - Day 2
     - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)

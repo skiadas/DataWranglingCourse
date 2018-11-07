@@ -16,7 +16,7 @@
 <h1 id="distributed-database-models">Distributed Database Models</h1>
 <h2 id="reading">Reading</h2>
 <ul>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2381014&amp;type=safari">NoSQL Distilled</a> chapter 4</li>
+<li><a href="https://www.safaribooksonline.com/library/view/nosql-distilled-a/9780133036138/">NoSQL Distilled</a> chapter 4</li>
 </ul>
 <h3 id="reading-questions">Reading questions</h3>
 <ul>
@@ -41,7 +41,7 @@
 <p>Sharding works well with an aggregate-oriented approach, where different aggregates can be stored on different shards.</p>
 </dd>
 <dt>Replication</dt>
-<dd><p>Replicated servers contain identical copies of the entire database. They are in that sense like &quot;mirrors&quot;. Having multiple identical copies means that multiple queries can be served at the same time, but it also means that some amount synchronization needs to be in place to keep the different replicas in sync.</p>
+<dd><p>Replicated servers contain identical copies of the entire database. They are in that sense like &quot;mirrors&quot;. Having multiple identical copies means that multiple queries can be served at the same time, but it also means that some amount of synchronization needs to be in place to keep the different replicas in sync.</p>
 <p>Replication improves <em>resilience</em>, as the data is now stored on multiple nodes.</p>
 </dd>
 </dl>
@@ -53,7 +53,7 @@
 <h3 id="peer-to-peer-replication">Peer-to-peer Replication</h3>
 <p>Peer-to-peer replication aims to address the fact that the master can be a severe bottleneck on master-slave replication setups. In a peer-to-peer replication setup the various nodes are all &quot;equals&quot;. Any node can accept reads as well as writes, and they communicate these writes to each other.</p>
 <p>The biggest advantage of this setup of course is its read and write resilience. One node's failure does not cause problems, as the remaining nodes can continue their work without losing a beat.</p>
-<p>The biggest problem that arises is that of consistency. For example we may have conflicting write requests that come on different nodes, and then those nodes attempt to communicate those requests to the rest of the nodes. This could lead to considerable inconsistencies.</p>
+<p>The biggest problem that arises is that of consistency. For example we may have conflicting write requests that come to different nodes, and then those nodes attempt to communicate those requests to the rest of the nodes. This could lead to considerable inconsistencies.</p>
 <p>There are various ways to resolve this, that we will discuss in more details later. The most standard approach would be to have the replicas communicate their writes first before they &quot;accept&quot; them. Once a majority of the replicas has confirmed a write, it can now be considered as having been successfully performed and a response sent to the client. This requires a certain amount of network traffic in coordinating these writes.</p>
 <p>This is a common tradeoff between consistency and availability, and we will return to it later.</p>
 </body>
