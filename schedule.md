@@ -107,18 +107,17 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 
 - Day 1
     - [Consistency](notes/nosql_consistency.md)
-    - [Introduction to MongoDb](notes/mongodb.md)
 - Day 2
-    - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
-    - [Assignment 6: More MongoDb practice](assignments/6.md)
+    - [Introduction to MongoDb](notes/mongodb.md)
 - Day 3
-    - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
-    - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
+    - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
 
 ## Week 12 (11/21-11/25)
 
 - Day 1
-    - TBD
+    - [Assignment 6: More MongoDb practice](assignments/6.md)
+    - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
+    - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
 
 - Day 2
     - Thanksgiving
