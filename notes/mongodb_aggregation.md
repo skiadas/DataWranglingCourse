@@ -23,6 +23,7 @@ A powerful part of Mongo is the aggregation framework. This allows us to set up 
 
 These first three are the most powerful tools. But there are some more:
 
+- `$addFields` can be used similar to `project`, but with the goal of simply adding new fields to the document.
 - `$limit` set a limit on the number of returned documents.
 - `$skip` skips through a number of documents.
 - `$sample` randomly selects some number of results.
@@ -64,7 +65,7 @@ Notice the phrase `gpa: true` here. It tells mongo to include the "gpa" field to
 In order to get some more examples going, we will download some sample zip code data from the mongodb website. You can do this with something like this:
 
 ```
-curl http://media.mongodb.org/zips.json | mongoimport -h ds011168.mlab.com:11168 -d wranging -c zips -u haris -p haris
+curl http://media.mongodb.org/zips.json | mongoimport -h ds011168.mlab.com:11168 -d wrangling -c zips -u haris -p
 ```
 
 You will need to change that line to provide your correct database information as well as username and password information. The `curl` command there will download the data and would normally print the output on the Terminal window. The "pipe" instruction `|` tells it to instead "pipe" that output into the next command, which is the `mongoimport` command, which then sends that data into the database. Unix piping commands are an important skill to master, but unfortunately there isn't enough time in the course for it.
