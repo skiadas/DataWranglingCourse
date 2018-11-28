@@ -72,7 +72,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <dd>Those documents with the same key are passed to a <code>reduce</code> function which takes the individual values from all the documents and produces a single value for all. This may be as simple as adding the individual values, or something more complicated. The result is one document per key, with a value that somehow accumulates all the values from the various key-value pairs with the same key.
 </dd>
 <dt>finalize</dt>
-<dd>A final processing the resulting key-value pairs can be performed.
+<dd>A final processing of the resulting key-value pairs can be performed.
 </dd>
 </dl>
 <p>One of the big advantages of this approach is that it can be distributed: If the database is sharded, then each shard can perform the filter/map/reduce steps for its own data, and the combined results can then be passed on to the main server, which now has less work to do.</p>
@@ -132,7 +132,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="op">}</span></code></pre></div>
 <p>Similar to the other functions, the <code>finalize</code> function should not have side-effects and should not try to directly access the database.</p>
 <h4 id="examples">Examples</h4>
-<p>We start with a simple example, from our gpa example. We will compute the average gpa for each category. First the code:</p>
+<p>We start with a simple example, from our gpa database. We will compute the average gpa for each category. First the code:</p>
 <div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="kw">var</span> gpaMap <span class="op">=</span> <span class="kw">function</span>() <span class="op">{</span>
   <span class="at">emit</span>(<span class="kw">this</span>.<span class="at">group</span><span class="op">,</span> <span class="op">{</span> <span class="dt">gpa</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">gpa</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">1</span> <span class="op">}</span>)<span class="op">;</span>
 <span class="op">};</span>

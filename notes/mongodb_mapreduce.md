@@ -24,7 +24,7 @@ reduce
   ~ Those documents with the same key are passed to a `reduce` function which takes the individual values from all the documents and produces a single value for all. This may be as simple as adding the individual values, or something more complicated. The result is one document per key, with a value that somehow accumulates all the values from the various key-value pairs with the same key.
 
 finalize
-  ~ A final processing the resulting key-value pairs can be performed.
+  ~ A final processing of the resulting key-value pairs can be performed.
 
 One of the big advantages of this approach is that it can be distributed: If the database is sharded, then each shard can perform the filter/map/reduce steps for its own data, and the combined results can then be passed on to the main server, which now has less work to do.
 
@@ -101,7 +101,7 @@ Similar to the other functions, the `finalize` function should not have side-eff
 
 #### Examples
 
-We start with a simple example, from our gpa example. We will compute the average gpa for each category. First the code:
+We start with a simple example, from our gpa database. We will compute the average gpa for each category. First the code:
 ```js
 var gpaMap = function() {
   emit(this.group, { gpa: this.gpa, count: 1 });

@@ -115,10 +115,7 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 ## Week 12 (11/21-11/25)
 
 - Day 1
-    - [Assignment 6: More MongoDb practice](assignments/6.md)
-    - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
-    - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
-
+    - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
 - Day 2
     - Thanksgiving
 - Day 3
@@ -129,13 +126,15 @@ IMPORTANT: This schedule is revised daily as we move through the material. Notes
 - Day 1
     - Work on project
 - Day 2
-    - Work on project
+    - [Aggregation Framework in MongoDb](notes/mongodb_aggregation.md)
 - Day 3
-    - Work on project
+    - [Map-Reduce in general and in MongoDb](notes/mongodb_mapreduce.md)
 
 ## Week 14 (12/05-12/09)
 
 - Day 1
+    - [Case Study: Consumer Expenditure data](notes/mongodb_practice.md)
+    - [Assignment 6: More MongoDb practice](assignments/6.md)
     - [Security and Authentication](notes/security_auth.md)
 - Day 2
     - [Security and Authentication](notes/security_auth.md)

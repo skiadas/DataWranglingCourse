@@ -127,7 +127,7 @@ db.zips.aggregate([
 We now want to do the following:
 
 - We will start with the breakdown by city-state combinations and the population on each city.
-- We will then sort these first my state and then by population.
+- We will then sort these first by state and then by population.
 - We will then further group them so that each state object contains a list of the cities in it with their population. Because of our previous step, these cities will be sorted by population.
 - We will then store this as a useful dataset for queries.
 
