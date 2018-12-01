@@ -163,11 +163,11 @@ mapReduceResult<span class="op">;</span>
 <li>In the <code>gpaMap</code> function, we look at each document and simply emit the group as the key. The value is a combination of the gpa for that document, as well as a &quot;count&quot; of 1. This is to allow for the possibility of the reduce steps calling each other. We will compute the average by first computing the &quot;sum of the gpas&quot; and the &quot;count of the gpas&quot;.</li>
 <li>In the <code>gpaReduce</code> function, we take this array of gpa/count values corresponding to the same key/group, and we simply add them all up.</li>
 <li>Finally in the <code>gpaFinalize</code> function we show how from the pair of total-gpa and count we get an average.</li>
-<li>Every <code>mapReduce</code> call must include an <code>out</code> entry, to indicate whether it would write to collection, make changes to an existing collection, or simply print the results inline.</li>
+<li>Every <code>mapReduce</code> call must include an <code>out</code> entry, to indicate whether it would write to a collection, make changes to an existing collection, or simply print the results inline.</li>
 </ul>
 <p>Let's take a second example, based on our zip codes dataset. We will want to compute the population sizes and zip code numbers for each city on each state. Here is how that might look. We will use the functions directly in this case, rather than defining them separately. We will also write the results in a new collection.</p>
 <div class="sourceCode"><pre class="sourceCode js"><code class="sourceCode javascript"><span class="va">db</span>.<span class="va">zips</span>.<span class="at">mapReduce</span>(
-  <span class="kw">function</span>() <span class="op">{</span>   <span class="co">// The zip function</span>
+  <span class="kw">function</span>() <span class="op">{</span>   <span class="co">// The map function</span>
     <span class="kw">var</span> key <span class="op">=</span> <span class="op">{</span> <span class="dt">city</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">city</span><span class="op">,</span> <span class="dt">state</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">state</span> <span class="op">};</span>
     <span class="kw">var</span> value <span class="op">=</span> <span class="op">{</span> <span class="dt">pop</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">pop</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">1</span> <span class="op">};</span>
     <span class="at">emit</span>(key<span class="op">,</span> value)<span class="op">;</span>

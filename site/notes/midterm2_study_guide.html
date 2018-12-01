@@ -17,31 +17,25 @@
 <p>These are just representative questions of the kinds of topics you should know. You should study all the reading material and the supplemental books and site links in them.</p>
 <ol style="list-style-type: decimal">
 <li>What is an <strong>application database</strong> and what is an <strong>integration database</strong>? What are some concerns that one type has that the other does not?</li>
-<li>What are examples of large data sets that came about with the increase in scale of modern large web properties?</li>
 <li>What is the <strong>Impendance Mismatch</strong>?</li>
 <li>What are the main two ways of dealing with an increase in application traffic? What are the tradeoffs?</li>
 <li>What does the term NoSQL database refer to? What led to the emergence of these databases?</li>
 <li>What are the different models of NoSQL databases, and what characterizes each?</li>
-<li>What does the term <strong>polyglot persistence</strong> mean?</li>
 <li>What does the term <strong>aggregate</strong> refer to in the context of NoSQL databases? Provide some examples.</li>
-<li>Give examples of aggregate-ignorant data models.</li>
 <li>How do key-value stores and document databases differ in their approach to aggregate structures?</li>
-<li>What is schemaless design? What are its advantages and drawbacks?</li>
 <li>What is <strong>sharding</strong> and what is <strong>replication</strong>? How do they differ?</li>
-<li>How does sharding behave with regards to performance and reliability?</li>
-<li>Describe the two main replication models, their main advantages and disadvantages, and main use cases for each.</li>
+<li>Describe the two main replication models (master-slave, peer-to-peer), their main advantages and disadvantages, and main use cases for each.</li>
 <li>Peer-to-peer replication suffers from the possibility of inconsistent writes. Explain what that means and how it can be avoided.</li>
 <li>Describe examples where inconsistent writes can be tolerated by the system.</li>
 <li>Describe the <strong>pessimistic</strong> and <strong>optimistic</strong> approaches to conflict resolution.</li>
-<li>Read-write conflicts can suffer from both <em>logical constistency</em> and <em>replication consistency</em>. Explain the difference between the two.</li>
+<li>Read-write conflicts can suffer from both <em>logical consistency</em> and <em>replication consistency</em>. Explain the difference between the two.</li>
 <li>What does the <strong>CAP theorem</strong> say? What is its importance? Describe the meaning of the terms involved.</li>
 <li>Describe different <strong>quorum systems</strong> with N=3 and with N=5, and their tradeoffs in terms of the CAP theorem (different values of W and R provide different features).</li>
 <li>How can we avoid write-write conflicts in a quorum system? How can we avoid read-write conflicts?</li>
 <li>What data model does MongoDb employ?</li>
 <li>Describe the key possible stages in MongoDb's <strong>aggregation</strong> framework, and what each of them does. List at least 5 different stages.</li>
 <li>What are the key stages in a map-reduce setting? Describe what happens in each stage.</li>
-<li>Suppose we have a database of gpa scores for men and women. We want to compute the average gpa for the men and for the women. What would happen in each stage of a map-reduce solution to this problem?</li>
-<li>What does <strong>web scraping</strong> mean? How does it differ from accessing a <strong>web service</strong>?</li>
+<li>Suppose we have a database of gpa scores and class year for all current Hanover students. We want to compute the average gpa for each class year. What would happen in each stage of a map-reduce solution to this problem?</li>
 <li>What do the C-I-A initials stand for in the context of security? Also provide concrete examples.</li>
 <li>What are the four groups that attack methods are usually classified in? Also provide concrete examples.</li>
 <li>What is <strong>identification</strong> and what is <strong>authentication</strong>? What is the difference between the two?</li>
@@ -56,7 +50,6 @@
 <li>Describe how <strong>digital signing</strong> happens, and what other cryptographic tools it uses.</li>
 <li>Describe what a <strong>digital certificate</strong> is, how it works, and what problem it solves.</li>
 <li>What are some important precautions to take when implementing a password-protected website?</li>
-<li>What is a <strong>salt</strong>? How is it used? Why is it used?</li>
 <li>The server digitally signs the sessionID when sending it to the user. Why?</li>
 </ol>
 </body>

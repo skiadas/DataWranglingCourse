@@ -135,12 +135,12 @@ Let's look at what happens here:
 - In the `gpaMap` function, we look at each document and simply emit the group as the key. The value is a combination of the gpa for that document, as well as a "count" of 1. This is to allow for the possibility of the reduce steps calling each other. We will compute the average by first computing the "sum of the gpas" and the "count of the gpas".
 - In the `gpaReduce` function, we take this array of gpa/count values corresponding to the same key/group, and we simply add them all up.
 - Finally in the `gpaFinalize` function we show how from the pair of total-gpa and count we get an average.
-- Every `mapReduce` call must include an `out` entry, to indicate whether it would write to collection, make changes to an existing collection, or simply print the results inline.
+- Every `mapReduce` call must include an `out` entry, to indicate whether it would write to a collection, make changes to an existing collection, or simply print the results inline.
 
 Let's take a second example, based on our zip codes dataset. We will want to compute the population sizes and zip code numbers for each city on each state. Here is how that might look. We will use the functions directly in this case, rather than defining them separately. We will also write the results in a new collection.
 ```js
 db.zips.mapReduce(
-  function() {   // The zip function
+  function() {   // The map function
     var key = { city: this.city, state: this.state };
     var value = { pop: this.pop, count: 1 };
     emit(key, value);
