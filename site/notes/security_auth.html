@@ -16,22 +16,20 @@
 <h1 id="security-and-authentication">Security and Authentication</h1>
 <h2 id="references">References</h2>
 <ul>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2742551&amp;type=elsevier">The Basics of Information Security</a>, chapters 1, 2, 3, 5, 10, 12</li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2821217&amp;type=24">Web Security</a></li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2829333&amp;type=24">Web Application Security: A Beginner's Guide</a></li>
+<li><a href="https://www.safaribooksonline.com/library/view/the-basics-of/9780128007440/">The Basics of Information Security</a>, chapters 1, 2, 3, 5, 10, 12</li>
+<li><a href="https://www.safaribooksonline.com/videos/web-security/9781788622837">Web Security</a></li>
+<li><a href="https://www.safaribooksonline.com/library/view/web-application-security/9780071776165/">Web Application Security: A Beginner's Guide</a></li>
 <li><a href="https://www.owasp.org/index.php/Main_Page">The Open Web Application Security Project (OWASP)</a> has many guidelines for applications.</li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1214959&amp;type=24">Foundations of Security</a></li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2505467&amp;type=elsevier">Computer and Information Technology Handbook</a></li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=1841673&amp;type=elsevier">Network and System Security</a></li>
-<li><a href="http://learning.acm.org/books/book_detail.cfm?id=2988382&amp;type=24">Principles of Computer Security</a></li>
+<li><a href="https://www.safaribooksonline.com/library/view/computer-and-information/9780128039298/">Computer and Information Technology Handbook</a></li>
+<li><a href="https://www.safaribooksonline.com/library/view/network-and-system/9780124166899/">Network and System Security</a></li>
 </ul>
 <h2 id="notes">Notes</h2>
 <p>In this section we collect a variety of information related to security, culminating in a description of how to properly access or offer access to protected resources.</p>
 <h3 id="security-in-general">Security in general</h3>
-<p>We start with a broad description of security principles. There are three key areas of concern when discussing security:</p>
+<p>We start with a broad description of security principles. There are three key areas of concern when discussing security, commonly abbreviated as C-I-A:</p>
 <dl>
 <dt>Confidentiality</dt>
-<dd>Our ability to protect the data from those not authorized to access it. A good example of this principle is the advice to not share with anyone what your password is. We try to preserve confidentiality when we for example make sure noone is looking at us as we type in our password, or if we try to hide the ATM screen when typing in our PIN.
+<dd>Our ability to protect the data from those not authorized to access it. A good example of this principle is the advice to not share with anyone what your password is. For example, we try to preserve confidentiality when we make sure noone is looking at us as we type in our password, or if we try to hide the ATM screen when typing in our PIN.
 </dd>
 <dt>Integrity</dt>
 <dd>Our ability to prevent change in our data in an unauthorized or undesirable manner. This of course includes preventing unauthorized access, but it also incorporates the ability to recover and reverse any undesirable changes. A common example of this is our use of hard drive or database backups, so that if something happens to our computer we don't lose all our data. Integrity is particularly important for example in medical information, as corrupted data may result in the wrong treatment given to a patient.
@@ -40,32 +38,33 @@
 <dd>Our ability to provide the data when needed to those authorized to access it. For example we can provide confidentiality and integrity by burying a hard drive inside a block of concrete, but then we also lose our ability to get to that data. Another example of loss of availability is the so-called Denial of Service (DoS) attacks.
 </dd>
 </dl>
-<p>Along with the aforementioned goals, we must also consider various attack methods. These fit broadly into four groups:</p>
+<p>Along with the aforementioned goals, we must also consider various <em>attack methods</em>. These fit broadly into four groups:</p>
 <dl>
 <dt>Interception</dt>
-<dd>attacks attempt to access the data without proper authorization.
+<dd>attacks attempt to access the data without proper authorization. Someone hacking into our email account is an example.
 </dd>
 <dt>Interruption</dt>
-<dd>attacks prevent our access to the data, temporarily or permanently.
+<dd>attacks prevent our access to the data, temporarily or permanently. Denial-of-service attacks are good example.
 </dd>
 <dt>Modification</dt>
-<dd>attacks aim to tamper with our assets/data. A hacker changing our bank account's balance would be a good example of that.
+<dd>attacks aim to tamper with our assets/data. A hacker changing our bank account's balance would be a good example.
 </dd>
 <dt>Fabrication</dt>
-<dd>attacks aim to produce manufactured data. A malware sending email from our account is a good example of this.
+<dd>attacks aim to produce manufactured data. A malware sending email from our account is a good example.
 </dd>
 </dl>
-<p><em>Group activity:</em> Suppose that the &quot;data&quot; we want to protect is the contents of the desk in your room. Consider various approaches to &quot;securing&quot; this data, and their tradeoffs/vulnerabilities regarding the above three concepts. Start with considering the kinds of possible attacks on that data.</p>
+<p><em>Group activity:</em> Suppose that the &quot;data&quot; we want to protect is the contents of a specific piece of paper on the desk in your room. Consider the kinds of possible attacks on that data, based on the aforementioned four groups. Consider various approaches to &quot;securing&quot; this data against these attacks, and their tradeoffs/vulnerabilities regarding the above three concepts.</p>
 <h3 id="identification-and-authentication">Identification and Authentication</h3>
 <p>At the core of any security system is the ability to correctly identify and authenticate individuals attempting to access the system. This naturally breaks into two steps.</p>
 <dl>
 <dt>Identification</dt>
-<dd>is the claim that of what someone or something is. For instance using our debit card in an ATM is an identification. Another example would be claiming to be over 21 in a bar.
+<dd>is the claim of what someone or something is. For instance using our debit card in an ATM is an identification, we claim to be the owners of that debit card. Another example would be claiming to be over 21 in a bar. Carrying around our college ID identifies us as individuals connected to the college.
 </dd>
 <dt>Authentication</dt>
 <dd>is the process of establishing that the claimed identification is true. For instance asking for the cardholder to type in the PIN number for the debit card is an authentication. Showing our ID to confirm our age would be another example of authentication.
 </dd>
 </dl>
+<p><em>Group activity:</em> Think of usages of your college ID around campus. Which of these usages only entail identification, and not authorization?</p>
 <p><em>Group activity:</em> Think of other practical examples of identification and authentication.</p>
 <p><em>Group activity:</em> Think of computer-related examples of identification and authentication.</p>
 <p>One topic worthy of discussion is the difference between <em>identity verification</em> and <em>authentication</em>. In general, authentication is more secure. The difference can be seen in a bank giving someone access to their account. Simply presenting an ID to verify your identity would not be sufficient to authenticate you as an account holder. You will likely need to possibly know the account number or have a bank card or key.</p>
@@ -78,12 +77,12 @@
 <dd>This can consist of a variety of physical attributes, often known as biometrics. It would include your height, weight, eye color, iris/retina patterns, DNA, fingerprints. Some of this information is fairly transient (e.g. height or weight), while other parts like DNA can be fairly secure ways of identifying you. They are also expensive to set up.
 </dd>
 <dt>Something you have</dt>
-<dd>This consists of the physical of electronic possession of some item or device. ATM cards and ID cards are good examples, as is your mobile phone or your email account when used in that fashion.
+<dd>This consists of the physical or electronic possession of some item or device. ATM cards and ID cards are good examples, as is your mobile phone or your email account when used in that fashion.
 </dd>
 <dt>Something you do</dt>
 <dd>These are more complex aspects of who you are, for instance your gait, keyboard typing pattern or handwriting. These are difficult to falsify, but often result in false negatives when legitimate users may be incorrectly rejected.
 </dd>
-<dt>The place you are</dt>
+<dt>The place you are at</dt>
 <dd>For example certain servers are only accessible by terminals physically in the same room.
 </dd>
 </dl>

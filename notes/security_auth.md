@@ -2,14 +2,12 @@
 
 ## References
 
-- [The Basics of Information Security](http://learning.acm.org/books/book_detail.cfm?id=2742551&type=elsevier), chapters 1, 2, 3, 5, 10, 12
-- [Web Security](http://learning.acm.org/books/book_detail.cfm?id=2821217&type=24)
-- [Web Application Security: A Beginner's Guide](http://learning.acm.org/books/book_detail.cfm?id=2829333&type=24)
+- [The Basics of Information Security](https://www.safaribooksonline.com/library/view/the-basics-of/9780128007440/), chapters 1, 2, 3, 5, 10, 12
+- [Web Security](https://www.safaribooksonline.com/videos/web-security/9781788622837)
+- [Web Application Security: A Beginner's Guide](https://www.safaribooksonline.com/library/view/web-application-security/9780071776165/)
 - [The Open Web Application Security Project (OWASP)](https://www.owasp.org/index.php/Main_Page) has many guidelines for applications.
-- [Foundations of Security](http://learning.acm.org/books/book_detail.cfm?id=1214959&type=24)
-- [Computer and Information Technology Handbook](http://learning.acm.org/books/book_detail.cfm?id=2505467&type=elsevier)
-- [Network and System Security](http://learning.acm.org/books/book_detail.cfm?id=1841673&type=elsevier)
-- [Principles of Computer Security](http://learning.acm.org/books/book_detail.cfm?id=2988382&type=24)
+- [Computer and Information Technology Handbook](https://www.safaribooksonline.com/library/view/computer-and-information/9780128039298/)
+- [Network and System Security](https://www.safaribooksonline.com/library/view/network-and-system/9780124166899/)
 
 
 ## Notes
@@ -18,10 +16,10 @@ In this section we collect a variety of information related to security, culmina
 
 ### Security in general
 
-We start with a broad description of security principles. There are three key areas of concern when discussing security:
+We start with a broad description of security principles. There are three key areas of concern when discussing security, commonly abbreviated as C-I-A:
 
 Confidentiality
-  ~ Our ability to protect the data from those not authorized to access it. A good example of this principle is the advice to not share with anyone what your password is. We try to preserve confidentiality when we for example make sure noone is looking at us as we type in our password, or if we try to hide the ATM screen when typing in our PIN.
+  ~ Our ability to protect the data from those not authorized to access it. A good example of this principle is the advice to not share with anyone what your password is. For example, we try to preserve confidentiality when we make sure noone is looking at us as we type in our password, or if we try to hide the ATM screen when typing in our PIN.
 
 Integrity
   ~ Our ability to prevent change in our data in an unauthorized or undesirable manner. This of course includes preventing unauthorized access, but it also incorporates the ability to recover and reverse any undesirable changes. A common example of this is our use of hard drive or database backups, so that if something happens to our computer we don't lose all our data. Integrity is particularly important for example in medical information, as corrupted data may result in the wrong treatment given to a patient.
@@ -29,31 +27,33 @@ Integrity
 Availability
   ~ Our ability to provide the data when needed to those authorized to access it. For example we can provide confidentiality and integrity by burying a hard drive inside a block of concrete, but then we also lose our ability to get to that data. Another example of loss of availability is the so-called Denial of Service (DoS) attacks.
 
-Along with the aforementioned goals, we must also consider various attack methods. These fit broadly into four groups:
+Along with the aforementioned goals, we must also consider various *attack methods*. These fit broadly into four groups:
 
 Interception
-  ~ attacks attempt to access the data without proper authorization.
+  ~ attacks attempt to access the data without proper authorization. Someone hacking into our email account is an example.
 
 Interruption
-  ~ attacks prevent our access to the data, temporarily or permanently.
+  ~ attacks prevent our access to the data, temporarily or permanently. Denial-of-service attacks are good example.
 
 Modification
-  ~ attacks aim to tamper with our assets/data. A hacker changing our bank account's balance would be a good example of that.
+  ~ attacks aim to tamper with our assets/data. A hacker changing our bank account's balance would be a good example.
 
 Fabrication
-  ~ attacks aim to produce manufactured data. A malware sending email from our account is a good example of this.
+  ~ attacks aim to produce manufactured data. A malware sending email from our account is a good example.
 
-*Group activity:* Suppose that the "data" we want to protect is the contents of the desk in your room. Consider various approaches to "securing" this data, and their tradeoffs/vulnerabilities regarding the above three concepts. Start with considering the kinds of possible attacks on that data.
+*Group activity:* Suppose that the "data" we want to protect is the contents of a specific piece of paper on the desk in your room. Consider the kinds of possible attacks on that data, based on the aforementioned four groups. Consider various approaches to "securing" this data against these attacks, and their tradeoffs/vulnerabilities regarding the above three concepts.
 
 ### Identification and Authentication
 
 At the core of any security system is the ability to correctly identify and authenticate individuals attempting to access the system. This naturally breaks into two steps.
 
 Identification
-  ~ is the claim that of what someone or something is. For instance using our debit card in an ATM is an identification. Another example would be claiming to be over 21 in a bar.
+  ~ is the claim of what someone or something is. For instance using our debit card in an ATM is an identification, we claim to be the owners of that debit card. Another example would be claiming to be over 21 in a bar. Carrying around our college ID identifies us as individuals connected to the college.
 
 Authentication
   ~ is the process of establishing that the claimed identification is true. For instance asking for the cardholder to type in the PIN number for the debit card is an authentication. Showing our ID to confirm our age would be another example of authentication.
+
+*Group activity:* Think of usages of your college ID around campus. Which of these usages only entail identification, and not authorization?
 
 *Group activity:* Think of other practical examples of identification and authentication.
 
@@ -70,12 +70,12 @@ Something you are
   ~ This can consist of a variety of physical attributes, often known as biometrics. It would include your height, weight, eye color, iris/retina patterns, DNA, fingerprints. Some of this information is fairly transient (e.g. height or weight), while other parts like DNA can be fairly secure ways of identifying you. They are also expensive to set up.
 
 Something you have
-  ~ This consists of the physical of electronic possession of some item or device. ATM cards and ID cards are good examples, as is your mobile phone or your email account when used in that fashion.
+  ~ This consists of the physical or electronic possession of some item or device. ATM cards and ID cards are good examples, as is your mobile phone or your email account when used in that fashion.
 
 Something you do
   ~ These are more complex aspects of who you are, for instance your gait, keyboard typing pattern or handwriting. These are difficult to falsify, but often result in false negatives when legitimate users may be incorrectly rejected.
 
-The place you are
+The place you are at
   ~ For example certain servers are only accessible by terminals physically in the same room.
 
 A common practice is the so-called **multi-factor authentication**, when we are using more than one factor to authenticate. A special case is the so-called two-factor authentication. For instance many online games now require you to download an "authenticator" to your phone, and when you want to log in to the game you need to both type your password (something you know) and type in the number shown on the authenticator (something you have).
